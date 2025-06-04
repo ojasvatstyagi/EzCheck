@@ -37,13 +37,8 @@
 
   content.innerHTML = `
     <div class="card shadow rounded-4 p-4">
-      <div class="d-flex justify-content-between align-items-center">
-        <div>
-          <h4>Welcome, Visitor!</h4>
-          <p class="text-muted">Here are your recent visits to our facility.</p>
-        </div>
-        <a href="visitor-form.html" class="btn btn-outline-dark">Register New Visit</a>
-      </div>
+      <h4>Welcome, Visitor!</h4>
+      <p class="text-muted">Here are your recent visits to our facility.</p>
 
       <div class="table-responsive mt-4">
         <table class="table table-bordered table-striped">
