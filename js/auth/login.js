@@ -51,7 +51,6 @@ form.addEventListener("submit", (e) => {
     } else if (!user.verified) {
       alert("Please verify your email before logging in.");
     } else {
-      alert("Login successful!");
       sessionStorage.setItem("token", "mock-jwt-token");
       sessionStorage.setItem("role", user.role);
       window.location.href = "dashboard.html";
