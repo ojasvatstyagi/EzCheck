@@ -1,0 +1,76 @@
+:root {
+  --primary: #ffc300;
+  --dark: #000;
+  --light: #fff;
+  --gray: hsla(0, 0%, 80%, 0.361);
+}
+
+/* Background utility classes */
+.bg-primary-custom {
+  background-color: var(--primary) !important;
+}
+.bg-dark-custom {
+  background-color: var(--dark) !important;
+}
+.bg-light-custom {
+  background-color: var(--light) !important;
+}
+.bg-gray-custom {
+  background-color: var(--gray) !important;
+}
+
+/* Text color utility classes */
+.text-primary-custom {
+  color: var(--primary) !important;
+}
+.text-dark-custom {
+  color: var(--dark) !important;
+}
+.text-light-custom {
+  color: var(--light) !important;
+}
+.text-gray-custom {
+  color: var(--gray) !important;
+}
+
+/* Border color utilities */
+.border-primary-custom {
+  border-color: var(--primary) !important;
+}
+
+/* Padding utilities */
+.px-2-custom {
+  padding-left: 0.5rem !important;
+  padding-right: 0.5rem !important;
+}
+.py-2-custom {
+  padding-top: 0.5rem !important;
+  padding-bottom: 0.5rem !important;
+}
+
+/* Margin utilities */
+.mt-2-custom {
+  margin-top: 0.5rem !important;
+}
+.mb-4-custom {
+  margin-bottom: 1.5rem !important;
+}
+
+/* Text utilities */
+.text-uppercase-custom {
+  text-transform: uppercase !important;
+}
+.text-bold-custom {
+  font-weight: bold !important;
+}
+
+/* Button custom utility */
+.btn-custom {
+  background-color: var(--primary);
+  color: var(--dark);
+  border: none;
+  transition: background-color 0.3s ease;
+}
+.btn-custom:hover {
+  background-color: #e6b200; /* Slightly darker shade */
+}

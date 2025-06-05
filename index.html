@@ -8,93 +8,91 @@
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link href="./css/style.css" rel="stylesheet" />
     <style>
       body {
-        background-color: hsla(0, 0%, 80%, 0.361);
+        background-color: var(--gray);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
       }
-      .form-box {
-        background: #fff;
+
+      .auth-container {
+        background: var(--light);
         border-radius: 1rem;
         padding: 2rem;
-        max-width: 400px;
-        margin: 5% auto;
-        box-shadow: 0 0 10px hsla(0, 0%, 0%, 0.2);
+        max-width: 450px;
+        margin: 2rem auto;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
       }
-      .toggle-link {
+
+      .auth-logo {
+        width: 120px;
+        height: auto;
+        margin-bottom: 1.5rem;
+      }
+
+      .auth-toggle {
+        color: var(--primary);
         cursor: pointer;
-        color: #000;
-        text-decoration: underline;
+        font-weight: 500;
       }
-      .loginBtn {
-        background-color: #ffc300;
+
+      .btn-auth {
+        background-color: var(--primary);
+        color: var(--dark);
         border: none;
-        transition: background-color 0.3s ease;
+        padding: 0.5rem 1rem;
+        transition: all 0.3s ease;
       }
-      .loginBtn:hover {
-        background-color: #ffcc00;
+
+      .btn-auth:hover {
+        background-color: #e6b000;
+        transform: translateY(-2px);
       }
-      .reglink {
-        color: #ffc300;
+
+      .form-floating label {
+        color: #6c757d;
+      }
+
+      .otp-container {
+        display: flex;
+        justify-content: space-between;
+        margin: 1rem 0;
+      }
+
+      .otp-input {
+        width: 3rem;
+        height: 3rem;
+        text-align: center;
+        font-size: 1.2rem;
+        border: 2px solid var(--gray);
+        border-radius: 0.5rem;
+      }
+
+      .otp-input:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 0.25rem rgba(255, 195, 0, 0.25);
+      }
+
+      .resend-otp {
+        color: var(--primary);
+        cursor: pointer;
+        font-size: 0.9rem;
       }
     </style>
   </head>
   <body>
-    <div class="form-box">
-      <h2 class="text-center" id="formTitle">Login</h2>
-
-      <img
-        src="https://cdni.iconscout.com/illustration/premium/thumb/application-login-illustration-download-in-svg-png-gif-file-formats--web-password-account-security-profile-and-software-development-services-pack-design-illustrations-3726717.png"
-        alt="Login Icon"
-        class="img-fluid mx-auto d-block mb-3"
-        style="width: 150px; height: 150px"
-      />
-
-      <form id="loginForm">
-        <div id="registerFields" style="display: none">
-          <div class="mb-3">
-            <label for="name" class="form-label">Full Name</label>
-            <input type="text" class="form-control" id="name" />
-          </div>
-          <div class="mb-3">
-            <label for="role" class="form-label">Role</label>
-            <select class="form-select" id="role">
-              <option value="visitor">Visitor</option>
-              <option value="admin">Admin</option>
-              <option value="guard">Guard</option>
-              <option value="receptionist">Receptionist</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="mb-3">
-          <label for="email" class="form-label">Email address</label>
-          <input type="email" class="form-control" id="email" required />
-        </div>
-
-        <div class="mb-3">
-          <label for="password" class="form-label">Password</label>
-          <input type="password" class="form-control" id="password" required />
-        </div>
-
-        <button
-          type="submit"
-          class="btn w-100 loginBtn text-white"
-          id="submitBtn"
-        >
-          Login
-        </button>
-      </form>
-
-      <p class="mt-3 text-center">
-        <span id="toggleText">Don't have an account?</span>
-        <span
-          class="toggle-link ms-1 text-decoration-none reglink"
-          id="toggleForm"
-          >Register here</span
-        >
-      </p>
+    <div class="container">
+      <div class="auth-container" id="authContainer">
+        <!-- Content will be dynamically loaded by auth.js -->
+      </div>
     </div>
 
-    <script type="module" src="./js/auth/login.js"></script>
+    <script type="module" src="./js/auth/auth.js"></script>
   </body>
 </html>

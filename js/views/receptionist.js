@@ -2,12 +2,12 @@
   const content = document.getElementById("role-content");
   if (!content) return;
 
-  const receptionistName = sessionStorage.getItem("username") || "Receptionist";
+  const hostName = sessionStorage.getItem("username") || "Host";
 
   content.innerHTML = `
     <div class="container">
       <div class="card shadow rounded-4 p-4 mb-4">
-        <h4 class="mb-2">Welcome, ${receptionistName}</h4>
+        <h4 class="mb-2">Welcome, ${hostName}</h4>
         <p class="text-muted">Register new visitors, manage appointments, and assist walk-ins.</p>
       </div>
 

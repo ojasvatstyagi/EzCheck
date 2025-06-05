@@ -1,61 +1,87 @@
-(function () {
+// js/views/visitor.js
+import { fetchVisitorData } from "../../api/visitorApi.js";
+
+import {
+  showAlert,
+  showLoading,
+  hideLoading,
+  generateQRCode,
+} from "../utils/helpers.js";
+import { initProfileView } from "./visitor/profile.js";
+import { renderVisitStatus } from "./visitor/currentPass.js";
+import { renderVisitHistory } from "./visitor/visitHistory.js";
+import { setupVisitRequestListener } from "./visitor/addPass.js";
+import { setupVisitCancelListener } from "./visitor/visitCancel.js";
+import { setupIdUploadListener } from "./visitor/idUpload.js";
+import { setupPhotoUploadListener } from "./visitor/photoUpload.js";
+
+export default async function initVisitorView() {
   const content = document.getElementById("role-content");
   if (!content) return;
 
-  const mockVisits = [
-    {
-      date: "2025-06-01",
-      purpose: "Meeting with HR",
-      status: "Approved",
-    },
-    {
-      date: "2025-05-20",
-      purpose: "Site Tour",
-      status: "Completed",
-    },
-  ];
+  showLoading(content);
 
-  let visitRows = mockVisits
-    .map(
-      (visit) => `
-    <tr>
-      <td>${visit.date}</td>
-      <td>${visit.purpose}</td>
-      <td>
-        <span class="badge bg-${
-          visit.status === "Approved"
-            ? "success"
-            : visit.status === "Completed"
-            ? "secondary"
-            : "warning"
-        }">${visit.status}</span>
-      </td>
-    </tr>
-  `
-    )
-    .join("");
+  try {
+    // Fetch visitor data from API
+    const visitorData = await fetchVisitorData();
 
-  content.innerHTML = `
-    <div class="card shadow rounded-4 p-4">
-      <h4>Welcome, Visitor!</h4>
-      <p class="text-muted">Here are your recent visits to our facility.</p>
-
-      <div class="table-responsive mt-4">
-        <table class="table table-bordered table-striped">
-          <thead class="table-dark">
-            <tr>
-              <th>Date</th>
-              <th>Purpose</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${visitRows}
-          </tbody>
-        </table>
+    // Render the visitor dashboard
+    content.innerHTML = `
+    <div class="row">
+        <div class="col-md-4 mb-4">
+          <!-- Profile Section -->
+          <div id="profile-section"></div>
+        </div>
+        <div class="col-md-8 mb-4">
+          <!-- Current Pass Section -->
+          <div id="current-pass-section"></div>
+        </div>
       </div>
+      <!-- Visit History -->
+      <div id="visit-history-section"></div>
+    
+      <!-- Modals -->
+      <div id="modals-container"></div>
+    `;
 
-      <p class="mt-4">Need to modify a visit or book a new one? Please contact the front desk or email your company host.</p>
-    </div>
-  `;
-})();
+    // Render profile and current pass sections
+    document.getElementById("profile-section").innerHTML = `
+      ${initProfileView(visitorData)}
+    `;
+    document.getElementById("current-pass-section").innerHTML = `
+      ${renderVisitStatus(visitorData)}
+    `;
+    document.getElementById("visit-history-section").innerHTML = `
+      ${renderVisitHistory(visitorData)}
+    `;
+
+    // Generate QR code if approved visit exists
+    if (visitorData.currentVisit?.status === "Approved") {
+      await generateQRCode(
+        "visitQrCode",
+        `VISITOR:${visitorData.id}|VISIT:${visitorData.currentVisit.id}`
+      );
+    }
+
+    // Setup event listeners
+    setupEventListeners(visitorData.id);
+  } catch (error) {
+    console.error("Visitor view error:", error);
+    showAlert(content, "Failed to load visitor data", "danger");
+  } finally {
+    hideLoading();
+  }
+}
+
+function setupEventListeners(visitorId) {
+  // Callback function to refresh the view after successful operations
+  const refreshView = () => {
+    initVisitorView();
+  };
+
+  // Setup all event listeners with their respective modules
+  setupVisitRequestListener(visitorId, refreshView);
+  setupVisitCancelListener(visitorId, refreshView);
+  setupIdUploadListener(visitorId, refreshView);
+  setupPhotoUploadListener(visitorId, refreshView);
+}
