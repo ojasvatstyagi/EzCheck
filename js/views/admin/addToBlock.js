@@ -4,7 +4,7 @@ export function createBlacklistModal() {
     <div class="modal fade" id="blacklistModal" tabindex="-1">
       <div class="modal-dialog">
         <div class="modal-content">
-          <div class="modal-header bg-danger text-white">
+          <div class="modal-header bg-dark text-white">
             <h5 class="modal-title">Add to Blacklist</h5>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
           </div>
@@ -29,8 +29,8 @@ export function createBlacklistModal() {
             </form>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-            <button type="submit" form="blacklistForm" class="btn btn-danger">Add to Blacklist</button>
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" form="blacklistForm" class="btn btn-outline-primary-custom">Add to Blacklist</button>
           </div>
         </div>
       </div>

@@ -19,6 +19,17 @@
   background-color: var(--gray) !important;
 }
 
+.btn-outline-primary-custom {
+  background-color: transparent !important;
+  border: 1px solid var(--primary);
+  color: var(--primary) !important;
+}
+
+.btn-outline-primary-custom:hover {
+  background-color: var(--primary) !important;
+  color: var(--light) !important;
+}
+
 /* Text color utility classes */
 .text-primary-custom {
   color: var(--primary) !important;

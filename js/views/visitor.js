@@ -22,29 +22,32 @@ export default async function initVisitorView() {
   showLoading(content);
 
   try {
-    // Fetch visitor data from API
-    const visitorData = await fetchVisitorData();
+    const visitorId = localStorage.getItem("visitorId");
+    if (!visitorId) throw new Error("No visitor ID found");
 
-    // Render the visitor dashboard
+    const visitorData = await fetchVisitorData(visitorId);
+
     content.innerHTML = `
+  <div class="container mt-4">
+    <div class="row align-items-center">
+      <!-- Profile Section -->
+      <div id="profile-section" class="col-md-5 mb-3"></div>
+      <!-- Current Pass Section-->
+      <div id="current-pass-section" class="col-md-7 mb-3"></div>
+    </div>
     <div class="row">
-        <div class="col-md-4 mb-4">
-          <!-- Profile Section -->
-          <div id="profile-section"></div>
-        </div>
-        <div class="col-md-8 mb-4">
-          <!-- Current Pass Section -->
-          <div id="current-pass-section"></div>
-        </div>
+      <div class="col-12">
+        <button id="requestVisitBtn" class="btn btn-outline-primary-custom mt-3">Request New Visit</button>
       </div>
-      <!-- Visit History -->
-      <div id="visit-history-section"></div>
-    
-      <!-- Modals -->
-      <div id="modals-container"></div>
-    `;
+    </div>
+    <!-- Visit History -->
+    <div id="visit-history-section" class="mb-3"></div>
+    <!-- Modals -->
+    <div id="modals-container"></div>
+  </div>
+`;
 
-    // Render profile and current pass sections
+    // Render profile, visit history and current pass sections
     document.getElementById("profile-section").innerHTML = `
       ${initProfileView(visitorData)}
     `;
@@ -56,12 +59,12 @@ export default async function initVisitorView() {
     `;
 
     // Generate QR code if approved visit exists
-    if (visitorData.currentVisit?.status === "Approved") {
-      await generateQRCode(
-        "visitQrCode",
-        `VISITOR:${visitorData.id}|VISIT:${visitorData.currentVisit.id}`
-      );
-    }
+    // if (visitorData.currentVisit?.status === "Approved") {
+    //   await generateQRCode(
+    //     "visitQrCode",
+    //     `VISITOR:${visitorData.id}|VISIT:${visitorData.currentVisit.id}`
+    //   );
+    // }
 
     // Setup event listeners
     setupEventListeners(visitorData.id);

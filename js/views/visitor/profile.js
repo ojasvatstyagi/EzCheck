@@ -28,7 +28,7 @@ export function initProfileView(visitorData) {
         }</p>
 
         <div class="d-grid gap-2 mt-3">
-          <button class="btn btn-outline-primary" id="uploadPhotoBtn">
+          <button class="btn btn-outline-primary-custom" id="uploadPhotoBtn">
             <i class="fas fa-camera me-2"></i> Update Photo
           </button>
           <button class="btn btn-outline-secondary" id="uploadIdBtn">
@@ -38,11 +38,4 @@ export function initProfileView(visitorData) {
       </div>
     </div>
   `;
-
-  setupPhotoUploadListener(visitorData._id, () =>
-    renderVisitorProfile(visitorData)
-  );
-  setupIdUploadListener(visitorData._id, () =>
-    renderVisitorProfile(visitorData)
-  );
 }

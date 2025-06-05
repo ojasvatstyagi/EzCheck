@@ -40,8 +40,8 @@ export function showVisitRequestModal(visitorId, onSuccess) {
             </form>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-            <button type="submit" form="visitRequestForm" class="btn btn-primary">Submit Request</button>
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" form="visitRequestForm" class="btn btn-outline-primary-custom">Submit Request</button>
           </div>
         </div>
       </div>

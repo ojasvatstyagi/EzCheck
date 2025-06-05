@@ -29,7 +29,7 @@ export default async function initVisitorManagement() {
                     ? new Date(v.checkOutTime).toLocaleString()
                     : "Inside"
                 }</td>
-                <td><button class="btn btn-sm btn-info" data-id="${
+                <td><button class="btn btn-md btn-primary" data-id="${
                   v.id
                 }">View</button></td>
               </tr>`

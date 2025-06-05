@@ -16,7 +16,10 @@ export default {
       // Save session data in sessionStorage for verifySession to work
       sessionStorage.setItem("token", "mock-jwt-token");
       sessionStorage.setItem("role", user.role);
-      sessionStorage.setItem("user", JSON.stringify({ name: user.name }));
+      sessionStorage.setItem(
+        "user",
+        JSON.stringify({ id: user.id, name: user.name })
+      );
 
       return {
         success: true,

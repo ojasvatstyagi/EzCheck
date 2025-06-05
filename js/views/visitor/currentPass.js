@@ -1,10 +1,11 @@
 import { formatDateTime, getStatusColor } from "../../utils/helpers.js";
 
+//<canvas id="visitQrCode" class="img-fluid"></canvas> put in line 42
 export function renderVisitStatus(visitorData) {
   return `
     <!-- Current Visit Status -->
-    <div class="col-md-8 mb-4 ">
-      <div class="card shadow-sm h-100">
+    <div>
+      <div class="card shadow-sm">
         <div class="card-header bg-dark text-white">
           <h5 class="mb-0">Current Visit Status</h5>
         </div>
@@ -33,8 +34,13 @@ export function renderVisitStatus(visitorData) {
                 ${
                   visitorData.currentVisit.status === "Approved"
                     ? `
-                  <canvas id="visitQrCode" class="img-fluid"></canvas>
-                  <p class="mt-2 text-muted">Show this QR code at entry</p>
+                    <img src="https://media.istockphoto.com/id/1356977335/photo/a-man-in-a-mask-holds-on-to-the-bars-made-of-qr-code-isolated-on-a-white-background-concept.jpg?s=612x612&w=0&k=20&c=fjS7QkYfdUtJctS-14AxPvaOJAunTT3j21rrtno_CF4="
+                    class="img-fluid mb-3"
+                    style="max-width: 200px;"
+                    alt="QR Code"
+                    title="QR Code"
+                    id="visitQrCode" />
+                    <p class="mt-2 text-muted">Show this QR code at entry</p>
                 `
                     : `
                   <p class="text-muted">QR code will appear after approval</p>

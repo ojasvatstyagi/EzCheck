@@ -9,7 +9,7 @@ import AuthService from "../../api/authApi.js";
 const authContainer = document.getElementById("authContainer");
 
 // Initialize auth views
-let currentView = "login";
+let currentView = "otp";
 let currentEmail = "";
 let currentRole = "";
 
@@ -93,6 +93,30 @@ function setupRegisterListeners() {
 }
 
 function setupOTPListeners() {
+  // 1. Attach OTP input auto-focus listeners
+  const otpInputs = document.querySelectorAll(".otp-input");
+  otpInputs.forEach((input, index) => {
+    input.addEventListener("input", (e) => {
+      // Only allow digits
+      e.target.value = e.target.value.replace(/[^0-9]/g, "");
+      if (e.target.value.length === 1 && index < otpInputs.length - 1) {
+        otpInputs[index + 1].focus();
+      }
+    });
+
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Backspace" && index > 0 && !e.target.value) {
+        otpInputs[index - 1].focus();
+      }
+    });
+
+    // Optional: select text when input gains focus
+    input.addEventListener("focus", (e) => {
+      e.target.select();
+    });
+  });
+
+  // 2. Resend OTP click handler
   document.getElementById("resendOTP").addEventListener("click", async () => {
     try {
       const response = await AuthService.resendOTP(currentEmail);
@@ -106,6 +130,7 @@ function setupOTPListeners() {
     }
   });
 
+  // 3. OTP form submit handler
   document
     .getElementById("verifyOTPForm")
     .addEventListener("submit", async (e) => {

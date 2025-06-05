@@ -35,8 +35,8 @@ export function showIdUploadModal(visitorId, onSuccess) {
             </form>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-            <button type="submit" form="idUploadForm" class="btn btn-primary">Upload ID</button>
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" form="idUploadForm" class="btn btn-outline-primary-custom">Upload ID</button>
           </div>
         </div>
       </div>

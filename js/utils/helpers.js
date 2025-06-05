@@ -1,9 +1,3 @@
-// js/utils/helpers.js
-
-/**
- * Utility functions for Visitor Management System
- */
-
 // ==================== DOM HELPERS ====================
 export function showAlert(container, message, type = "success") {
   const alertDiv = document.createElement("div");
@@ -50,13 +44,6 @@ export function hideLoading() {
   if (loader) loader.remove();
 }
 
-export function disableForm(form, disabled = true) {
-  const elements = form.elements;
-  for (let i = 0; i < elements.length; i++) {
-    elements[i].disabled = disabled;
-  }
-}
-
 export function getStatusColor(status) {
   switch (status) {
     case "Approved":
@@ -92,28 +79,6 @@ export function formatDateTime(date, includeTime = true) {
   return d.toLocaleDateString("en-US", options);
 }
 
-export function timeSince(date) {
-  const seconds = Math.floor((new Date() - new Date(date)) / 1000);
-
-  let interval = Math.floor(seconds / 31536000);
-  if (interval >= 1) return `${interval} year${interval === 1 ? "" : "s"} ago`;
-
-  interval = Math.floor(seconds / 2592000);
-  if (interval >= 1) return `${interval} month${interval === 1 ? "" : "s"} ago`;
-
-  interval = Math.floor(seconds / 86400);
-  if (interval >= 1) return `${interval} day${interval === 1 ? "" : "s"} ago`;
-
-  interval = Math.floor(seconds / 3600);
-  if (interval >= 1) return `${interval} hour${interval === 1 ? "" : "s"} ago`;
-
-  interval = Math.floor(seconds / 60);
-  if (interval >= 1)
-    return `${interval} minute${interval === 1 ? "" : "s"} ago`;
-
-  return "Just now";
-}
-
 // ==================== VALIDATION HELPERS ====================
 export function validateEmail(email) {
   const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -133,25 +98,7 @@ export function validateName(name) {
   return name.trim().length >= 2;
 }
 
-// ==================== DATA HELPERS ====================
-export function debounce(func, wait = 300) {
-  let timeout;
-  return function (...args) {
-    clearTimeout(timeout);
-    timeout = setTimeout(() => func.apply(this, args), wait);
-  };
-}
-
-export function throttle(func, limit = 300) {
-  let inThrottle;
-  return function (...args) {
-    if (!inThrottle) {
-      func.apply(this, args);
-      inThrottle = true;
-      setTimeout(() => (inThrottle = false), limit);
-    }
-  };
-}
+// ==================== DATA HELPERS ===================
 
 export function exportToCSV(data, filename = "export.csv") {
   const csvContent = [
@@ -166,38 +113,11 @@ export function exportToCSV(data, filename = "export.csv") {
   link.click();
 }
 
-// ==================== STRING HELPERS ====================
-export function capitalize(str) {
-  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
-}
-
-export function maskEmail(email) {
-  return email.replace(
-    /(.{1,3})(.*)(@.*)/,
-    (_, a, b, c) => a + b.replace(/./g, "*") + c
-  );
-}
-
-export function maskPhone(phone) {
-  return phone.replace(/\d(?=\d{4})/g, "*");
-}
-
-// ==================== ROLE HELPERS ====================
-export function getRolePermissions(role) {
-  const permissions = {
-    admin: ["view_all", "edit_all", "delete", "export", "blacklist"],
-    host: ["view", "register", "edit_limited", "export_limited"],
-    guard: ["scan", "view_current", "check_in_out"],
-    visitor: ["view_self"],
-  };
-  return permissions[role] || [];
-}
-
 // ==================== QR CODE HELPERS ====================
 export function generateQRCode(elementId, text, size = 128) {
   return new Promise((resolve) => {
     // In production, use a proper QR library
-    if (process.env.NODE_ENV === "production") {
+    if (false && process.env.NODE_ENV === "production") {
       import("qrcode").then((QRCode) => {
         QRCode.toCanvas(
           document.getElementById(elementId),

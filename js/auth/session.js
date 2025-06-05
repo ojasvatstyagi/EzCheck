@@ -8,32 +8,18 @@ export async function verifySession() {
     return { valid: false };
   }
 
-  // In production: Verify token with backend
-  //   if (process.env.NODE_ENV === "production") {
-  //     try {
-  //       const response = await fetch("/api/auth/verify", {
-  //         headers: { Authorization: `Bearer ${token}` },
-  //       });
+  let parsedUser = null;
+  try {
+    parsedUser = user ? JSON.parse(user) : null;
+  } catch {
+    parsedUser = null;
+  }
 
-  //       if (!response.ok) {
-  //         return { valid: false };
-  //       }
-
-  //       return {
-  //         valid: true,
-  //         role,
-  //         name: JSON.parse(user)?.name,
-  //       };
-  //     } catch (error) {
-  //       return { valid: false };
-  //     }
-  //   }
-
-  // Development: Mock verification
   return {
     valid: true,
     role,
-    name: user ? JSON.parse(user).name : null,
+    name: parsedUser?.name || null,
+    visitorId: role === "visitor" ? parsedUser?.id : undefined,
   };
 }
 

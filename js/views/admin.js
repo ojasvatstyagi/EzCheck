@@ -22,7 +22,11 @@ async function initDashboard() {
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center">
             <h4 class="mb-0-custom">Admin Dashboard</h4>
-            <p class="text-muted"> Manage visitors, blacklist, and generate analytics</p>
+            <div class="col-md-4 text-md-end">
+            <button class="btn btn-light rounded-pill px-4">
+              <i class="fas fa-plus me-2"></i>Add New Visitor
+            </button>
+          </div>
           </div>
         </div>
       </div>

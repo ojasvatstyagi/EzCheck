@@ -1,6 +1,6 @@
 import { fetchBlacklist } from "../../../api/visitorApi.js";
 import { showAlert, showLoading, hideLoading } from "../../utils/helpers.js";
-import { createBlacklistModal } from "../../components/cards.js";
+import { createBlacklistModal } from "./addToBlock.js";
 
 export default async function initBlacklistManagement() {
   const content = document.getElementById("role-content");
@@ -11,7 +11,7 @@ export default async function initBlacklistManagement() {
 
     content.innerHTML = `
       <h4 class="mb-4">Blacklist Management</h4>
-      <button class="btn btn-sm btn-primary mb-3" id="addBlacklistEntry">Add to Blacklist</button>
+      <button class="btn btn-sm btn-outline-primary-custom mb-3" id="addBlacklistEntry">Add to Blacklist</button>
       <div class="table-responsive">
         <table class="table table-hover">
           <thead>

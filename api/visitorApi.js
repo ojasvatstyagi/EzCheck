@@ -131,6 +131,30 @@ export async function fetchVisitorData(visitorId) {
         exitTime: "2025-05-10T11:30:00",
         status: "Completed",
       },
+      {
+        date: "2025-04-20T14:00:00",
+        purpose: "Client Meeting",
+        host: "Emily Davis",
+        entryTime: "2025-04-20T13:45:00",
+        exitTime: "2025-04-20T15:15:00",
+        status: "Approved",
+      },
+      {
+        date: "2025-03-15T09:00:00",
+        purpose: "Training Session",
+        host: "John Smith",
+        entryTime: "2025-03-15T08:30:00",
+        exitTime: "2025-03-15T10:00:00",
+        status: "Pending",
+      },
+      {
+        date: "2025-02-05T16:00:00",
+        purpose: "Conference Call",
+        host: "Sarah Johnson",
+        entryTime: "2025-02-05T15:30:00",
+        exitTime: "2025-02-05T17:00:00",
+        status: "Cancelled",
+      },
       // ... more history items
     ],
   };
