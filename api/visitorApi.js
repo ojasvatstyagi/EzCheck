@@ -160,14 +160,64 @@ export async function fetchVisitorData(visitorId) {
   };
 }
 
+// In-memory mock visitor DB for development
+const mockVisitors = [
+  {
+    id: "vis1",
+    name: "faltu Doe",
+    phone: "1234567890",
+    email: "faltu@example.com",
+    company: "ABC Corp",
+    idNumber: "ID001",
+  },
+  // ...other mock visitors...
+];
+
+// Register a new visitor or return existing visitor's ID
+export async function registerVisitor(visitorData) {
+  // Try to find by phone or email or idNumber
+  let visitor = mockVisitors.find(
+    (v) =>
+      (visitorData.phone && v.phone === visitorData.phone) ||
+      (visitorData.email && v.email === visitorData.email) ||
+      (visitorData.idNumber && v.idNumber === visitorData.idNumber)
+  );
+  if (visitor) {
+    return visitor.id;
+  }
+  // Create new visitor
+  const newId = `vis${mockVisitors.length + 1}`;
+  visitor = { id: newId, ...visitorData };
+  mockVisitors.push(visitor);
+  return newId;
+}
+
+// Store visits in-memory for mock
+const mockVisits = [];
+
+// Request a visit for a visitor
 export async function requestVisit(visitorId, visitData) {
-  // Implementation for visit request API call
+  // In production, this would call your API
+  const newVisit = {
+    id: `visit${mockVisits.length + 1}`,
+    visitorId,
+    ...visitData,
+    status: "Pending",
+    createdAt: new Date().toISOString(),
+  };
+  mockVisits.push(newVisit);
+  return newVisit;
 }
 
-export async function cancelVisit(visitorId) {
-  // Implementation for visit cancellation
-}
-
+// Mock implementation for uploading ID proof
 export async function uploadIdProof(visitorId, formData) {
-  // Implementation for ID proof upload
+  // In production, you would upload to your backend here
+  // For now, just simulate a delay and success
+  return new Promise((resolve) => setTimeout(resolve, 1000));
+}
+
+export async function cancelVisit(visitId) {
+  // In production, this would call your API to cancel the visit
+  // For now, just simulate a delay and success
+  return new Promise((resolve) => setTimeout(resolve, 1000));
 }

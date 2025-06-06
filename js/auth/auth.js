@@ -9,7 +9,7 @@ import AuthService from "../../api/authApi.js";
 const authContainer = document.getElementById("authContainer");
 
 // Initialize auth views
-let currentView = "otp";
+let currentView = "login";
 let currentEmail = "";
 let currentRole = "";
 

@@ -2,29 +2,29 @@
 export function renderNavbar(role) {
   const navConfig = {
     admin: [
-      { icon: "fa-tachometer-alt", text: "Dashboard", page: "dashboard" },
+      { icon: "fa-tachometer-alt", text: "Dashboard", page: "admin" },
       { icon: "fa-users", text: "Visitors", page: "visitors" },
       { icon: "fa-ban", text: "Blacklist", page: "blacklist" },
       { icon: "fa-chart-bar", text: "Reports", page: "reports" },
     ],
     host: [
-      { icon: "fa-tachometer-alt", text: "Dashboard", page: "dashboard" },
-      { icon: "fa-user-plus", text: "Register", page: "register" },
+      { icon: "fa-tachometer-alt", text: "Dashboard", page: "host" },
+      { icon: "fa-user-plus", text: "Add Visitor", page: "add-visitor" },
       { icon: "fa-history", text: "History", page: "history" },
     ],
-    guard: [{ icon: "fa-qrcode", text: "Scan", page: "scan" }],
-    visitor: [
-      { icon: "fa-id-card", text: "My Dashboard", page: "visitor-dashboard" },
+    guard: [
+      { icon: "fa-qrcode", text: "Scan", page: "scan" },
+      { icon: "fa-user-plus", text: "Add Visitor", page: "add-visitor" },
+      { icon: "fa-history", text: "Today Visits", page: "today-report" },
     ],
+    visitor: [{ icon: "fa-id-card", text: "Dashboard", page: "visitor" }],
   };
 
   const navbar = document.getElementById("navbar-container");
   navbar.innerHTML = `
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
       <div class="container-fluid">
-        <a class="navbar-brand" href="#">
-          <i class="fas fa-building me-2"></i>VMS
-        </a>
+      <p class="navbar-brand mb-0"><i class="fas fa-building me-2"></i>VMS</p>
         
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
           <span class="navbar-toggler-icon"></span>
@@ -44,7 +44,6 @@ export function renderNavbar(role) {
               )
               .join("")}
           </ul>
-          
           <div class="d-flex">
             <button id="logoutBtn" class="btn btn-outline-danger">
               <i class="fas fa-sign-out-alt me-1"></i> Logout
@@ -76,7 +75,7 @@ async function loadPage(page) {
 
   try {
     switch (page) {
-      case "dashboard":
+      case "admin":
         const { default: initDashboard } = await import("../views/admin.js");
         initDashboard();
         break;
@@ -98,33 +97,36 @@ async function loadPage(page) {
         );
         initReports();
         break;
-      case "visitor-dashboard":
+      case "visitor":
         // Import the main visitor view, not the addPass module
         const { default: initVisitorView } = await import(
           "../views/visitor.js"
         );
         initVisitorView();
         break;
-      case "register":
-        // Add host register page
-        const { default: initHostRegister } = await import(
-          "../views/host/register.js"
+      case "today-report":
+        // Add host today report page
+        const { default: initTodayVisitReport } = await import(
+          "../views/guard/today-report.js"
         );
-        initHostRegister();
-        break;
-      case "history":
-        // Add host history page
-        const { default: initHostHistory } = await import(
-          "../views/host/history.js"
-        );
-        initHostHistory();
+        initTodayVisitReport();
         break;
       case "scan":
         // Add guard scan page
-        const { default: initGuardScan } = await import(
-          "../views/guard/scan.js"
+        const { default: initGuardView } = await import("../views/guard.js");
+        initGuardView();
+        break;
+      case "add-visitor":
+        // Add host add visitor page
+        const { default: initAddVisitorView } = await import(
+          "../views/guard/add-visitor.js"
         );
-        initGuardScan();
+        initAddVisitorView();
+        break;
+      case "host":
+        // Add host dashboard page
+        const { default: loadHostView } = await import("../views/host.js");
+        loadHostView();
         break;
       default:
         roleContent.innerHTML = `

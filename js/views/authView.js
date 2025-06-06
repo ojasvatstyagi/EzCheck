@@ -26,7 +26,7 @@ export function renderLoginForm() {
         <label for="loginPassword">Password</label>
       </div>
       
-      <button type="submit" class="btn btn-auth w-100 py-2 mb-3">
+      <button type="submit" class="btn btn-custom w-100 py-2 mb-3 btn-custom:hower">
         <i class="fas fa-sign-in-alt me-2"></i> Login
       </button>
       
@@ -66,14 +66,12 @@ export function renderRegisterForm() {
         <select class="form-select" id="registerRole" required>
           <option value="">Select Role</option>
           <option value="visitor">Visitor</option>
-          <option value="admin">Admin</option>
-          <option value="guard">Security Guard</option>
           <option value="host">Host</option>
         </select>
         <label for="registerRole">Role</label>
       </div>
       
-      <button type="submit" class="btn btn-auth w-100 py-2 mb-3">
+      <button type="submit" class="btn btn-custom w-100 py-2 mb-3">
         <i class="fas fa-user-plus me-2"></i> Register
       </button>
       
@@ -109,7 +107,7 @@ export function renderOTPForm(email) {
         ).join("")}
       </div>
       
-      <button type="submit" class="btn btn-auth w-100 py-2 mb-3">
+      <button type="submit" class="btn btn-custom w-100 py-2 mb-3">
         <i class="fas fa-check-circle me-2"></i> Verify
       </button>
       

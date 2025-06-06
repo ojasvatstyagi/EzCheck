@@ -18,7 +18,7 @@ export default {
       sessionStorage.setItem("role", user.role);
       sessionStorage.setItem(
         "user",
-        JSON.stringify({ id: user.id, name: user.name })
+        JSON.stringify({ id: user.id, name: user.namee })
       );
 
       return {
@@ -26,7 +26,7 @@ export default {
         data: {
           token: "mock-jwt-token",
           role: user.role,
-          name: user.name,
+          name: user.namee,
         },
       };
     }

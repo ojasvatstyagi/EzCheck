@@ -22,11 +22,7 @@ async function initDashboard() {
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center">
             <h4 class="mb-0-custom">Admin Dashboard</h4>
-            <div class="col-md-4 text-md-end">
-            <button class="btn btn-light rounded-pill px-4">
-              <i class="fas fa-plus me-2"></i>Add New Visitor
-            </button>
-          </div>
+            <p class="text-muted mb-0">Manage visitors, blacklist, and generate reports</p>
           </div>
         </div>
       </div>
@@ -71,7 +67,7 @@ async function initDashboard() {
         </div>
         <div class="card-body">
           <div class="d-grid gap-2">
-            <button class="btn btn-custom text-start" id="addBlacklistBtn" onclick="initBlacklistManagement()">
+            <button class="btn btn-outline-primary-custom text-start" id="addBlacklistBtn" onclick="initBlacklistManagement()">
               <i class="fas fa-ban me-2"></i>Blacklist Entry
             </button>
             <button class="btn btn-outline-secondary text-start" id="viewAllVisitorsBtn" onclick="initVisitorManagement()">
