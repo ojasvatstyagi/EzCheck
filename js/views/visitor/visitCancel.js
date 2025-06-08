@@ -1,12 +1,12 @@
 // js/views/visitor/visitCancel.js
-import { cancelVisit } from "../../../api/visitorApi.js";
+import VisitorService from "../../../api/visitorApi.js";
 import { showAlert, showLoading, hideLoading } from "../../utils/helpers.js";
 
 export async function handleVisitCancellation(visitorId, onSuccess) {
   if (confirm("Are you sure you want to cancel this visit request?")) {
     try {
       showLoading();
-      await cancelVisit(visitorId);
+      await VisitorService.cancelVisit(visitorId);
       showAlert(document.body, "Visit request cancelled", "success");
 
       // Call the success callback to refresh the view

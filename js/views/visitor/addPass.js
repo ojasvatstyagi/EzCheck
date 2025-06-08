@@ -1,5 +1,5 @@
 // js/views/visitor/addPass.js
-import { requestVisit } from "../../../api/visitorApi.js";
+import VisitorService from "../../../api/visitorApi.js";
 import { showAlert, showLoading, hideLoading } from "../../utils/helpers.js";
 
 export function showVisitRequestModal(visitorId, onSuccess) {
@@ -15,8 +15,8 @@ export function showVisitRequestModal(visitorId, onSuccess) {
           <div class="modal-body">
             <form id="visitRequestForm">
               <div class="mb-3">
-                <label class="form-label">Purpose of Visit</label>
-                <select class="form-select" required>
+                <label for="purposeOfVisit" class="form-label">Purpose of Visit</label>
+                <select id="purposeOfVisit" name="purpose" class="form-select" required>
                   <option value="">Select purpose</option>
                   <option value="Meeting">Meeting</option>
                   <option value="Delivery">Delivery</option>
@@ -26,16 +26,16 @@ export function showVisitRequestModal(visitorId, onSuccess) {
                 </select>
               </div>
               <div class="mb-3">
-                <label class="form-label">Host/Contact Person</label>
-                <input type="text" class="form-control" required>
+                <label for="hostPerson" class="form-label">Host/Contact Person</label>
+                <input type="text" id="hostPerson" name="host" class="form-control" required>
               </div>
               <div class="mb-3">
-                <label class="form-label">Visit Date</label>
-                <input type="datetime-local" class="form-control" required>
+                <label for="visitDateTime" class="form-label">Visit Date</label>
+                <input type="datetime-local" id="visitDateTime" name="visitDate" class="form-control" required>
               </div>
               <div class="mb-3">
-                <label class="form-label">Additional Notes</label>
-                <textarea class="form-control" rows="3"></textarea>
+                <label for="additionalNotes" class="form-label">Additional Notes</label>
+                <textarea id="additionalNotes" name="notes" class="form-control" rows="3"></textarea>
               </div>
             </form>
           </div>
@@ -60,24 +60,35 @@ export function showVisitRequestModal(visitorId, onSuccess) {
       try {
         showLoading();
 
+        const formElements = e.target.elements;
         const visitData = {
-          purpose: e.target.elements[0].value,
-          host: e.target.elements[1].value,
-          date: e.target.elements[2].value,
-          notes: e.target.elements[3].value,
+          purpose: formElements.purpose.value,
+          host: formElements.host.value,
+          date: formElements.visitDate.value,
+          notes: formElements.notes.value,
         };
 
-        await requestVisit(visitorId, visitData);
-        modal.hide();
-        showAlert(
-          document.body,
-          "Visit request submitted successfully",
-          "success"
+        const response = await VisitorService.requestVisit(
+          visitorId,
+          visitData
         );
-
-        // Call the success callback to refresh the view
-        if (onSuccess) {
-          onSuccess();
+        if (response.success) {
+          modal.hide();
+          showAlert(
+            document.body,
+            response.message || "Visit request submitted successfully",
+            "success"
+          );
+          if (onSuccess) {
+            onSuccess();
+          }
+        } else {
+          // Handle API-specific errors, if any
+          showAlert(
+            document.body,
+            response.message || "Failed to submit request.",
+            "danger"
+          );
         }
       } catch (error) {
         showAlert(
@@ -92,7 +103,9 @@ export function showVisitRequestModal(visitorId, onSuccess) {
 }
 
 export function setupVisitRequestListener(visitorId, onSuccess) {
-  document.getElementById("requestVisitBtn")?.addEventListener("click", () => {
-    showVisitRequestModal(visitorId, onSuccess);
+  document.addEventListener("click", (e) => {
+    if (e.target.id === "requestVisitBtn") {
+      showVisitRequestModal(visitorId, onSuccess);
+    }
   });
 }

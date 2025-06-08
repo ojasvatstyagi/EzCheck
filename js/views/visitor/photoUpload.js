@@ -1,33 +1,69 @@
 // js/views/visitor/photoUpload.js
 import { showAlert, showLoading, hideLoading } from "../../utils/helpers.js";
-
-export function handlePhotoUpload(visitorId, onSuccess) {
+import VisitorService from "../../../api/visitorApi.js";
+export function handlePhotoUpload(visitorId, onUploadSuccess) {
+  // Renamed onSuccess to onUploadSuccess for clarity
   const input = document.createElement("input");
   input.type = "file";
   input.accept = "image/*";
   input.onchange = async (e) => {
     if (e.target.files.length) {
+      const file = e.target.files[0];
+      const visitorPhotoElement = document.getElementById("visitorPhoto");
+      let originalPhotoSrc = visitorPhotoElement
+        ? visitorPhotoElement.src
+        : null; // Store original src
+
+      // --- 1. Client-Side Preview (Immediate Update) ---
+      if (file && visitorPhotoElement) {
+        const reader = new FileReader();
+        reader.onload = function (event) {
+          visitorPhotoElement.src = event.target.result; // Display local preview
+        };
+        reader.readAsDataURL(file);
+      }
+
       try {
         showLoading();
 
-        // Create FormData for photo upload
         const formData = new FormData();
-        formData.append("photo", e.target.files[0]);
+        formData.append("photo", file);
 
-        // TODO: Implement actual photo upload API call
-        // await uploadPhoto(visitorId, formData);
+        // --- 2. Actual API Call (Backend Update) ---
+        const response = await VisitorService.uploadPhoto(visitorId, formData);
 
-        // Temporary success message - replace with actual API call
-        await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API call
-
-        showAlert(document.body, "Photo updated successfully", "success");
-
-        // Call the success callback to refresh the view
-        if (onSuccess) {
-          onSuccess();
+        if (response.success) {
+          showAlert(
+            document.body,
+            response.message || "Photo updated successfully",
+            "success"
+          );
+          // --- IMPORTANT: Call the success callback to re-render the profile ---
+          if (onUploadSuccess) {
+            onUploadSuccess(); // Call the function passed from visitor.js to re-render
+          }
+        } else {
+          showAlert(
+            document.body,
+            response.message || "Failed to upload photo.",
+            "danger"
+          );
+          // If upload fails, revert to the original photo
+          if (visitorPhotoElement && originalPhotoSrc) {
+            visitorPhotoElement.src = originalPhotoSrc;
+          }
         }
       } catch (error) {
-        showAlert(document.body, "Failed to upload photo", "danger");
+        console.error("Error uploading photo:", error);
+        showAlert(
+          document.body,
+          "Failed to upload photo: " + error.message,
+          "danger"
+        );
+        // If an error occurs, revert to the original photo
+        if (visitorPhotoElement && originalPhotoSrc) {
+          visitorPhotoElement.src = originalPhotoSrc;
+        }
       } finally {
         hideLoading();
       }
@@ -36,8 +72,9 @@ export function handlePhotoUpload(visitorId, onSuccess) {
   input.click();
 }
 
-export function setupPhotoUploadListener(visitorId, onSuccess) {
+export function setupPhotoUploadListener(visitorId, onUploadSuccess) {
+  // Renamed onSuccess
   document.getElementById("uploadPhotoBtn")?.addEventListener("click", () => {
-    handlePhotoUpload(visitorId, onSuccess);
+    handlePhotoUpload(visitorId, onUploadSuccess);
   });
 }

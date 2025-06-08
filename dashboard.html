@@ -4,6 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Visitor Management - Dashboard</title>
+    <meta
+      name="description"
+      content="Role-based dashboard for Visitor Management System"
+    />
+    <meta name="author" content="Ojas Tyagi" />
+
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -15,58 +21,63 @@
     <link href="./css/style.css" rel="stylesheet" />
   </head>
   <body>
-    <!-- Navbar will be injected here -->
+    <!-- Navbar -->
     <div id="navbar-container"></div>
 
-    <main class="dashboard-container container">
+    <main class="container dashboard-container mt-4" role="main">
       <!-- Greeting Section -->
-      <div class="greeting-card p-3 mb-4 shadow-sm">
+      <section
+        class="greeting-card p-3 mb-4 shadow-sm"
+        aria-label="User greeting"
+      >
         <div class="d-flex justify-content-between align-items-center">
           <div>
             <h2 id="greeting" class="mb-0"></h2>
             <small class="text-muted" id="current-date"></small>
           </div>
-          <span class="badge role-badge py-2 px-3" id="role-badge"></span>
+          <span
+            class="badge role-badge py-2 px-3"
+            id="role-badge"
+            aria-label="User role"
+          ></span>
         </div>
-      </div>
+      </section>
 
-      <!-- Role-specific content -->
-      <div id="role-content" class="mt-4">
+      <!-- Role-Specific Content -->
+      <section id="role-content" class="mt-4" aria-live="polite">
         <div class="text-center py-5">
-          <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Loading...</span>
-          </div>
+          <div
+            class="spinner-border text-primary"
+            role="status"
+            aria-hidden="true"
+          ></div>
           <p class="mt-2">Loading dashboard...</p>
         </div>
-      </div>
+      </section>
     </main>
 
-    <!-- Load scripts with proper error handling -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Dashboard Logic -->
     <script type="module">
       import { verifySession } from "./js/auth/session.js";
       import { renderNavbar } from "./js/components/navbar.js";
 
-      // Initialize dashboard
       async function initDashboard() {
         try {
-          // Verify session first
           const session = await verifySession();
+
           if (!session.valid) {
             window.location.href = "index.html?redirect=unauthorized";
             return;
           }
 
-          // Store visitorId in localStorage if role is visitor
           if (session.role === "visitor" && session.visitorId) {
             localStorage.setItem("visitorId", session.visitorId);
           }
 
-          // Render UI elements
           renderNavbar(session.role);
           renderGreeting(session);
-
-          // Dynamically load role module
           await loadRoleModule(session.role);
         } catch (error) {
           console.error("Dashboard initialization failed:", error);
@@ -75,26 +86,32 @@
       }
 
       function renderGreeting({ role, name }) {
-        document.getElementById("greeting").textContent = `Welcome back, ${
-          name || role.charAt(0).toUpperCase() + role.slice(1)
-        }!`;
-        document.getElementById("role-badge").textContent = role.toUpperCase();
-        document.getElementById("current-date").textContent =
-          new Date().toLocaleDateString("en-US", {
-            weekday: "long",
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          });
+        const greeting = document.getElementById("greeting");
+        const roleBadge = document.getElementById("role-badge");
+        const date = document.getElementById("current-date");
+
+        greeting.textContent = `Welcome back, ${name || capitalize(role)}!`;
+        roleBadge.textContent = role.toUpperCase();
+
+        const now = new Date();
+        date.textContent = now.toLocaleDateString("en-US", {
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        });
+      }
+
+      function capitalize(str) {
+        return str.charAt(0).toUpperCase() + str.slice(1);
       }
 
       async function loadRoleModule(role) {
         try {
-          // Dynamically import the role-specific module
           const module = await import(`./js/views/${role}.js`);
-          module.default(); // Initialize the view
-        } catch (error) {
-          console.error(`Failed to load ${role} module:`, error);
+          module.default();
+        } catch (err) {
+          console.error(`Failed to load ${role} module:`, err);
           showError("Failed to load dashboard content");
         }
       }
@@ -102,15 +119,14 @@
       function showError(message) {
         const content = document.getElementById("role-content");
         content.innerHTML = `
-        <div class="alert alert-danger">
-          <i class="fas fa-exclamation-triangle me-2"></i>
-          ${message}. <a href="index.html">Return to login</a>
-        </div>
-      `;
+          <div class="alert alert-danger mt-4">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            ${message}. <a href="index.html">Return to login</a>
+          </div>
+        `;
       }
 
-      // Start the dashboard
-      initDashboard();
+      document.addEventListener("DOMContentLoaded", initDashboard);
     </script>
   </body>
 </html>

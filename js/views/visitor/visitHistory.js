@@ -1,3 +1,4 @@
+// js/views/visitor/visitHistory.js
 import { formatDateTime, getStatusColor } from "../../utils/helpers.js";
 
 export function renderVisitHistory(visitorData) {
@@ -5,7 +6,7 @@ export function renderVisitHistory(visitorData) {
   if (!visitorData || !visitorData.visitHistory) {
     return `
       <div class="card shadow-sm mt-4">
-        <div class="card-header bg-dark text-white">
+        <div class="card-header bg-light text-dark">
           <h5 class="mb-0">Visit History</h5>
         </div>
         <div class="card-body">
@@ -19,7 +20,7 @@ export function renderVisitHistory(visitorData) {
   if (visitorData.visitHistory.length === 0) {
     return `
       <div class="card shadow-sm mt-4">
-        <div class="card-header bg-dark text-white">
+        <div class="card-header bg-light text-dark">
           <h5 class="mb-0">Visit History</h5>
         </div>
         <div class="card-body">
@@ -31,7 +32,7 @@ export function renderVisitHistory(visitorData) {
 
   return `
     <div class="card shadow-sm mt-4">
-      <div class="card-header bg-dark text-white">
+      <div class="card-header bg-light text-dark">
         <h5 class="mb-0">Visit History</h5>
       </div>
       <div class="card-body">
@@ -39,11 +40,11 @@ export function renderVisitHistory(visitorData) {
           <table class="table table-hover">
             <thead>
               <tr>
-                <th>Date</th>
+                <th>Date (Scheduled)</th>
                 <th>Purpose</th>
                 <th>Host</th>
-                <th>Entry Time</th>
-                <th>Exit Time</th>
+                <th>Check-In Time</th>
+                <th>Check-Out Time</th>
                 <th>Status</th>
               </tr>
             </thead>
@@ -52,19 +53,24 @@ export function renderVisitHistory(visitorData) {
                 .map(
                   (visit) => `
                   <tr>
-                    <td>${
-                      visit.date ? formatDateTime(visit.date, false) : "N/A"
+                    <td class="text-nowrap">${
+                      // Use visit.visitDate for the scheduled date
+                      visit.visitDate
+                        ? formatDateTime(visit.visitDate, false)
+                        : "N/A"
                     }</td>
                     <td>${visit.purpose || "N/A"}</td>
                     <td>${visit.host || "N/A"}</td>
-                    <td>${
-                      visit.entryTime
-                        ? formatDateTime(visit.entryTime, true)
+                    <td class="text-nowrap">${
+                      // Use visit.checkInTime for entry time
+                      visit.checkInTime
+                        ? formatDateTime(visit.checkInTime, true)
                         : "N/A"
                     }</td>
-                    <td>${
-                      visit.exitTime
-                        ? formatDateTime(visit.exitTime, true)
+                    <td class="text-nowrap">${
+                      // Use visit.checkOutTime for exit time
+                      visit.checkOutTime
+                        ? formatDateTime(visit.checkOutTime, true)
                         : "N/A"
                     }</td>
                     <td>
