@@ -131,7 +131,7 @@ export default {
     });
   },
 
-  // Registers a new visitor or retrieves an existing visitor's ID.
+  // Registers a new visitor or retrieves an existing visitor's ID.async registerVisitor(visitorData) {
   async registerVisitor(visitorData) {
     return new Promise((resolve) => {
       setTimeout(() => {
@@ -142,43 +142,53 @@ export default {
           ? visitorData.phone.trim()
           : null;
 
-        // Corrected: Remove idNumber from lookup if it's not provided by guard form
-        // Also, use normalized phone for comparison.
-        const existingVisitor = mockVisitorsDb.find(
+        // Find existing visitor by email or phone
+        let existingVisitor = mockVisitorsDb.find(
           (v) =>
             (v.email &&
               emailToCompare &&
               v.email.toLowerCase() === emailToCompare) ||
             (v.phone && phoneToCompare && v.phone === phoneToCompare)
-          // If you still want to check for idNumber (e.g., if it's uploaded later),
-          // ensure visitorData.idNumber is actually populated from somewhere.
-          // (v.idNumber && visitorData.idNumber && v.idNumber === visitorData.idNumber)
         );
 
         if (existingVisitor) {
           console.log(
             `Mock: Existing visitor found with email/phone, ID: ${existingVisitor.id}`
           );
+          // Update existing visitor's information with any new data provided
+          Object.assign(existingVisitor, {
+            name: visitorData.name || existingVisitor.name,
+            email: visitorData.email || existingVisitor.email,
+            phone: visitorData.phone || existingVisitor.phone,
+            company: visitorData.company || existingVisitor.company,
+            // Only update idNumber, photo, idProof if new data is explicitly passed
+            idNumber: visitorData.idNumber || existingVisitor.idNumber,
+            photo: visitorData.photo || existingVisitor.photo,
+            idProof: visitorData.idProof || existingVisitor.idProof,
+            // isBlocked and registrationDate should ideally not be updated via this path,
+            // but if visitorData includes them, they'll overwrite.
+          });
+          saveMockData(); // Save updated data
           resolve({
             success: true,
-            message: "Visitor already registered.",
+            message: "Visitor already registered. Info updated.",
             visitorId: existingVisitor.id,
+            visitor: existingVisitor, // <-- IMPORTANT: Return the full visitor object
           });
         } else {
           // Create a new visitor
-          const newVisitorId = generateUniqueId("VISITOR"); // Use "VISITOR" for clarity, or "VIS" is fine if consistent
+          const newVisitorId = generateUniqueId("VISITOR");
           const newVisitor = {
             id: newVisitorId,
-            name: visitorData.name || "Unknown Visitor", // Default if name is somehow missing
+            name: visitorData.name || "Unknown Visitor",
             email: visitorData.email || null,
             phone: visitorData.phone || null,
             company: visitorData.company || null,
-            idNumber: visitorData.idNumber || null, // Keep if you might add it later, otherwise remove
+            idNumber: visitorData.idNumber || null,
             photo: visitorData.photo || null,
             idProof: visitorData.idProof || null,
-            isBlocked: visitorData.isBlocked ?? false,
-            registrationDate:
-              visitorData.registrationDate || new Date().toISOString(),
+            isBlocked: visitorData.isBlocked ?? false, // Default to false if not provided
+            registrationDate: new Date().toISOString(),
           };
 
           mockVisitorsDb.push(newVisitor);
@@ -190,8 +200,61 @@ export default {
             success: true,
             message: "Visitor registered successfully.",
             visitorId: newVisitor.id,
+            visitor: newVisitor, // <-- IMPORTANT: Return the full new visitor object
           });
         }
+      }, 500);
+    });
+  },
+
+  // UPDATED: Added visitorName as a parameter
+  async requestVisit(visitorId, visitorName, visitData, isWalkIn = false) {
+    return new Promise((resolve) => {
+      setTimeout(async () => {
+        const visitor = mockVisitorsDb.find((v) => v.id === visitorId);
+
+        if (!visitor) {
+          resolve({ success: false, message: "Visitor not found." });
+          return;
+        }
+
+        // Re-check blacklist using the found visitor object
+        const blacklist = await this.fetchBlacklist();
+        if (await this.isVisitorOnBlacklist(visitor, blacklist)) {
+          resolve({
+            success: false,
+            message: `Visitor ${visitor.name} is blacklisted. Cannot request visit.`,
+          });
+          return;
+        }
+
+        const newVisit = {
+          id: generateUniqueId("VISIT"), // Ensure this generates a unique ID
+          visitorId: visitorId,
+          visitorName: visitorName, // <-- Use the visitorName passed as a parameter
+          purpose: visitData.purpose,
+          host: visitData.host,
+          visitDate: visitData.visitDate, // This is the requested date/time
+          notes: visitData.notes,
+          status: isWalkIn ? "Checked-In" : "Pending", // Conditional status based on isWalkIn
+          requestDate: new Date().toISOString(),
+          checkInTime: isWalkIn ? new Date().toISOString() : null, // Immediate check-in for walk-in
+          checkOutTime: null,
+          isWalkIn: isWalkIn,
+        };
+
+        mockVisitsDb.push(newVisit);
+        saveMockData(); // Save changes to localStorage
+
+        console.log(
+          `Mock: Visit requested for ${visitorName}. Status: ${newVisit.status}`
+        );
+        resolve({
+          success: true,
+          message: `Visit requested successfully. Status: ${newVisit.status}`,
+          visitId: newVisit.id, // Returning the visitId is useful
+          visit: newVisit, // <-- IMPORTANT: Return the full new visit object
+        });
       }, 500);
     });
   },
@@ -219,57 +282,6 @@ export default {
           visitorIdNumber === blockedIdNumber) ||
         (visitorMobile && blockedMobile && visitorMobile === blockedMobile)
       );
-    });
-  },
-
-  // Requests a visit for a specific visitor.
-  async requestVisit(visitorId, visitData, isWalkIn = false) {
-    return new Promise((resolve) => {
-      setTimeout(async () => {
-        const visitor = mockVisitorsDb.find((v) => v.id === visitorId);
-
-        if (!visitor) {
-          resolve({ success: false, message: "Visitor not found." });
-          return;
-        }
-
-        // Re-check blacklist just in case, although addVisitor.js does this first
-        const blacklist = await this.fetchBlacklist();
-        if (await this.isVisitorOnBlacklist(visitor, blacklist)) {
-          resolve({
-            success: false,
-            message: `Visitor ${visitor.name} is blacklisted. Cannot request visit.`,
-          });
-          return;
-        }
-
-        const newVisit = {
-          id: generateUniqueId("VISIT"), // Ensure this generates a unique ID
-          visitorId: visitorId,
-          visitorName: visitor.name, // <<-- ADDED: Crucial for displaying visitor name in visits
-          purpose: visitData.purpose,
-          host: visitData.host,
-          visitDate: visitData.visitDate, // This is the requested date/time
-          notes: visitData.notes,
-          status: isWalkIn ? "Checked-In" : "Pending", // Conditional status based on isWalkIn
-          requestDate: new Date().toISOString(),
-          checkInTime: isWalkIn ? new Date().toISOString() : null, // Immediate check-in for walk-in
-          checkOutTime: null,
-          isWalkIn: isWalkIn, // <<-- ADDED: Crucial for guard dashboard filtering
-        };
-
-        mockVisitsDb.push(newVisit);
-        saveMockData(); // Save changes to localStorage
-
-        console.log(
-          `Mock: Visit requested for ${visitor.name}. Status: ${newVisit.status}`
-        );
-        resolve({
-          success: true,
-          message: `Visit requested successfully. Status: ${newVisit.status}`,
-          visitId: newVisit.id, // Returning the visitId is useful
-        });
-      }, 500);
     });
   },
 
@@ -535,6 +547,55 @@ export default {
 
         console.log("Mock: Fetched today's visits:", todayVisits);
         resolve(todayVisits);
+      }, 500);
+    });
+  },
+
+  async fetchVisitsByHost(hostName) {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const hostVisits = mockVisitsDb.filter(
+          (visit) =>
+            visit.host && visit.host.toLowerCase() === hostName.toLowerCase()
+        );
+        resolve({
+          success: true,
+          visits: hostVisits,
+          message: "Host visits fetched successfully (mock).",
+        });
+      }, 500); // Simulate network delay
+    });
+  },
+
+  async updateVisitStatus(visitId, newStatus) {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const visitIndex = mockVisitsDb.findIndex((v) => v.id === visitId);
+        if (visitIndex === -1) {
+          resolve({ success: false, message: "Visit not found." });
+          return;
+        }
+        const visit = mockVisitsDb[visitIndex];
+        visit.status = newStatus;
+
+        // Update timestamps based on new status
+        if (newStatus === "Checked-In" && !visit.checkInTime) {
+          visit.checkInTime = new Date().toISOString();
+        } else if (newStatus === "Completed" && !visit.checkOutTime) {
+          visit.checkOutTime = new Date().toISOString();
+        } else if (
+          newStatus === "Approved" ||
+          newStatus === "Rejected" ||
+          newStatus === "Cancelled"
+        ) {
+          // No specific timestamp for approval/rejection itself, but status changes
+        }
+
+        saveMockData();
+        resolve({
+          success: true,
+          message: `Visit status updated to ${newStatus} successfully (mock).`,
+        });
       }, 500);
     });
   },

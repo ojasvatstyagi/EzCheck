@@ -5,6 +5,7 @@
 // api/authApi.js
 
 import VisitorService from "./visitorApi.js";
+import { storeUserSession, clearUserSession } from "../js/utils/helpers.js";
 
 export default {
   async login(email, password) {
@@ -19,14 +20,12 @@ export default {
 
     sessionStorage.setItem("token", "mock-jwt-token");
     sessionStorage.setItem("role", user.role);
-    sessionStorage.setItem(
-      "user",
-      JSON.stringify({
-        id: user.id,
-        name: user.name,
-        visitorId: user.visitorId || null,
-      })
-    );
+    storeUserSession({
+      id: user.id,
+      role: user.role,
+      name: user.name,
+      visitorId: user.visitorId || null,
+    });
 
     return {
       success: true,
@@ -143,6 +142,10 @@ export default {
     //     return { success: false, message: "Incomplete session data" };
     // }
     return { success: true, message: "Session is valid (mocked)" };
+  },
+
+  async logout() {
+    clearUserSession();
   },
 };
 

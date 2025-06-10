@@ -61,7 +61,6 @@ async function loadPage(page) {
     host: () => import("../views/host.js"),
     visitor: () => import("../views/visitor.js"),
     guard: () => import("../views/guard.js"),
-    addVisitor: () => import("../views/host/addVisitor.js"),
   };
 
   try {

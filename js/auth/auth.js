@@ -11,7 +11,6 @@ const initialAlertTimeout = 3000;
 
 let currentView = "login";
 let currentEmail = ""; // Stores email for OTP verification/resend
-let currentRole = ""; // Stores role if needed for post-registration flow
 // --- Alert Handling ---
 function showAlert(message, type) {
   // Remove any existing alerts to prevent stacking

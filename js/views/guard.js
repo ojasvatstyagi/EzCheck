@@ -2,7 +2,7 @@
 
 import { showLoading, hideLoading, showAlert } from "../utils/helpers.js";
 import VisitorService from "../../api/visitorApi.js";
-import initAddVisitorView from "./guard/addVisitor.js";
+import { setupRegisterVisitorModal } from "./guard/registerVisitor.js";
 import initTodayVisitReport from "./guard/todayReport.js";
 
 // Function to render the main dashboard layout
@@ -67,9 +67,8 @@ function renderScannerSection() {
 // Main function to manage the guard view
 export default async function initGuardView() {
   const content = document.getElementById("role-content");
-  if (!content) return;
+  if (!content) return; // Render the initial dashboard layout
 
-  // Render the initial dashboard layout
   content.innerHTML = renderDashboardLayout();
   setupGuardEventListeners();
 }
@@ -86,17 +85,17 @@ async function handleGuardNavigation(viewName) {
 
     switch (viewName) {
       case "dashboard":
-        // Re-render the whole layout and re-setup listeners
         document.getElementById("role-content").innerHTML =
           renderDashboardLayout();
         setupGuardEventListeners();
         break;
       case "add-visitor":
-        // Render the add visitor form into the dynamic area
-        initAddVisitorView(async (message, type) => {
-          await handleGuardNavigation("dashboard");
-          showAlert(document.body, message, type);
-        });
+        setupRegisterVisitorModal(
+          (visitData) => {
+            handleGuardNavigation("dashboard");
+          },
+          { forceWalkIn: true }
+        );
         break;
       case "check-in-out":
         dynamicContentArea.innerHTML = renderScannerSection();
@@ -139,7 +138,7 @@ function setupGuardEventListeners() {
   });
 }
 
-// --- Check-in/Out Logic for Visit ID ---
+// Check-in/Out Logic for Visit ID
 async function setupCheckInOutListener() {
   const manualEntryForm = document.getElementById("manual-entry-form");
   const checkInOutStatus = document.getElementById("check-in-out-status");

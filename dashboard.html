@@ -21,11 +21,9 @@
     <link href="./css/style.css" rel="stylesheet" />
   </head>
   <body>
-    <!-- Navbar -->
     <div id="navbar-container"></div>
 
     <main class="container dashboard-container mt-4" role="main">
-      <!-- Greeting Section -->
       <section
         class="greeting-card p-3 mb-4 shadow-sm"
         aria-label="User greeting"
@@ -43,7 +41,6 @@
         </div>
       </section>
 
-      <!-- Role-Specific Content -->
       <section id="role-content" class="mt-4" aria-live="polite">
         <div class="text-center py-5">
           <div
@@ -56,9 +53,10 @@
       </section>
     </main>
 
+    <div id="modals-container"></div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- Dashboard Logic -->
     <script type="module">
       import { verifySession } from "./js/auth/session.js";
       import { renderNavbar } from "./js/components/navbar.js";

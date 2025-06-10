@@ -53,67 +53,36 @@ export function hideLoading() {
 
 export function getStatusColor(status) {
   switch (status) {
-    case "Pending":
-      return "warning";
     case "Approved":
-      return "info";
-    case "Rejected":
-      return "danger";
+      return "bg-info text-dark";
     case "Checked-In":
-      return "success";
+      return "bg-success";
     case "Completed":
-      return "secondary";
+      return "bg-secondary";
     case "Cancelled":
-      return "dark";
+      return "bg-danger";
+    case "Pending":
+      return "bg-warning text-dark";
+    case "Declined":
+      return "bg-danger";
     default:
-      return "light text-dark";
+      return "bg-light text-dark";
   }
 }
 
 // ==================== DATE/TIME HELPERS ====================
-export function formatDateTime(isoString, includeTime = true) {
-  console.log(
-    "formatDateTime called with:",
-    isoString,
-    "includeTime:",
-    includeTime
-  );
-
-  if (!isoString || typeof isoString !== "string" || isoString.trim() === "") {
-    console.log("formatDateTime returning N/A due to empty/invalid string"); // <-- ADD THIS LINE
-    return "N/A - update";
-  }
-
-  const trimmedString = isoString.trim();
-  const date = new Date(trimmedString);
-
-  if (isNaN(date.getTime())) {
-    console.error(
-      "formatDateTime: Invalid date string received:",
-      trimmedString
-    );
-    return "N/A - update";
-  }
-
-  // 4. Format the date and time parts
-  const optionsDate = { year: "numeric", month: "short", day: "numeric" };
-  // Using India (IST) timezone for formatting, as per context
-  const optionsTime = {
+export function formatDateTime(isoString, options = {}) {
+  const date = new Date(isoString);
+  const defaultOptions = {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
     hour: "2-digit",
     minute: "2-digit",
     hour12: true,
-    timeZone: "Asia/Kolkata",
   };
-
-  try {
-    const formattedDate = date.toLocaleDateString("en-IN", optionsDate); // 'en-IN' for Indian locale
-    const formattedTime = date.toLocaleTimeString("en-IN", optionsTime);
-
-    return includeTime ? `${formattedDate}, ${formattedTime}` : formattedDate;
-  } catch (e) {
-    console.error("formatDateTime: Error during formatting:", e, trimmedString);
-    return "N/A - update";
-  }
+  const combinedOptions = { ...defaultOptions, ...options };
+  return date.toLocaleString(undefined, combinedOptions);
 }
 
 // ==================== VALIDATION HELPERS ====================
@@ -197,6 +166,7 @@ export function storeUserSession(user) {
     "user",
     JSON.stringify({
       name: user.name,
+      role: user.role,
       email: user.email,
       id: user.id,
     })
