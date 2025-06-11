@@ -33,33 +33,55 @@ export default {
   },
 
   // Exports a report of visitor data.
-  async exportReport() {
-    // Simulate API delay for export
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        console.log(
-          "Mock: Export report initiated. (No file generated in dev)"
-        );
-        resolve({
-          success: true,
-          message: "Report export initiated successfully.",
-        });
-      }, 1500);
-    });
+  async exportHostVisitsToJson(hostName) {
+    try {
+      // 1. Fetch all visits for the specified host using the existing service method
+      const response = await this.fetchVisitsByHost(hostName); // Reusing the fetch logic
+      const hostVisits = response.visits || [];
+
+      // 2. Convert the JavaScript array of visits to a JSON string, prettified
+      const jsonString = JSON.stringify(hostVisits, null, 2); // `null, 2` for pretty printing
+
+      // 3. Create a Blob object from the JSON string
+      const blob = new Blob([jsonString], { type: "application/json" });
+
+      // 4. Create a temporary URL for the Blob
+      const url = URL.createObjectURL(blob);
+
+      // 5. Create a temporary anchor element to trigger the download
+      const a = document.createElement("a");
+      a.href = url;
+
+      // 6. Set the download file name
+      const date = new Date().toISOString().slice(0, 10); // e.g., "2025-06-11"
+      a.download = `visits_report_${hostName}_${date}.json`;
+
+      // 7. Append the anchor to the body (necessary for Firefox and good practice)
+      document.body.appendChild(a);
+
+      // 8. Programmatically click the anchor to start the download
+      a.click();
+
+      // 9. Clean up: remove the anchor and revoke the URL
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      return { success: true, message: "Report exported successfully." };
+    } catch (error) {
+      console.error("Error exporting report:", error);
+      // Re-throw the error so the calling function can catch it and show an alert
+      throw new Error(
+        `Failed to export report: ${error.message || "Unknown error"}`
+      );
+    }
   },
 
-  //Fetches detailed data for a specific visitor.
   async fetchVisitorData(visitorId) {
-    // Added 'async' keyword here
     return new Promise(async (resolve, reject) => {
-      // Made the Promise callback 'async' as well
       setTimeout(async () => {
-        // Keep setTimeout for mock delay, also made async
         const visitor = mockVisitorsDb.find((v) => v.id === visitorId);
 
         if (!visitor) {
-          // If a specific visitor isn't found, reject to indicate an error
-          // or return a more generic "not found" state. For robust error handling, reject.
           reject(
             new Error("Visitor profile not found. Please register or login.")
           );
@@ -68,7 +90,6 @@ export default {
 
         let isBlocked = false;
         try {
-          // Assuming `this.fetchBlacklist` points to your mock or production blacklist fetcher
           const blacklist = await this.fetchBlacklist();
           isBlocked = await this.isVisitorOnBlacklist(visitor, blacklist);
         } catch (error) {
@@ -78,7 +99,6 @@ export default {
           );
         }
 
-        // Find the current active visit, prioritizing Checked-In, then Approved, then Pending
         const currentVisit =
           mockVisitsDb.find(
             (v) => v.visitorId === visitorId && v.status === "Checked-In"
@@ -90,19 +110,23 @@ export default {
             (v) => v.visitorId === visitorId && v.status === "Pending"
           );
 
-        // Filter history for this visitor and sort by most recent creation date
         const visitHistory = mockVisitsDb
           .filter((v) => v.visitorId === visitorId)
           .map((visit) => ({
-            // Ensure 'date' is consistent with your formatDateTime if it expects full ISO string
-            date: visit.createdAt, // Keep full ISO string for more accurate date/time formatting
+            date: visit.visitDate, // This corresponds to the "Date (Scheduled)" column
             purpose: visit.purpose,
-            host: visit.host || "N/A", // Ensure hostName exists or provide fallback
-            entryTime: visit.entryTime || "", // Use existing checkInTime field
-            exitTime: visit.exitTime || "", // Use existing checkOutTime field
+            host: visit.host || "N/A",
+            entryTime: visit.checkInTime || "",
+            exitTime: visit.checkOutTime || "",
             status: visit.status,
+            id: visit.id,
+            requestDate: visit.requestDate,
           }))
-          .sort((a, b) => new Date(b.date) - new Date(a.date)); // Sort by most recent visit
+          .sort((a, b) => {
+            const dateA = new Date(a.visitDate || a.requestDate);
+            const dateB = new Date(b.visitDate || b.requestDate);
+            return dateB - dateA;
+          }); // Sort by most recent visit
 
         resolve({
           id: visitor.id,
@@ -112,22 +136,21 @@ export default {
           email: visitor.email,
           phone: visitor.phone,
           idNumber: visitor.idNumber,
-          isBlocked: isBlocked, // <-- ADDED THIS IMPORTANT FLAG
+          isBlocked: isBlocked,
           currentVisit: currentVisit
             ? {
                 id: currentVisit.id,
                 purpose: currentVisit.purpose,
-                host: currentVisit.host || "N/A", // Ensure hostName is included in mockVisitsDb
-                date: currentVisit.createdAt, // Use full ISO string for consistency
+                host: currentVisit.host || "N/A",
+                date: currentVisit.visitDate,
                 status: currentVisit.status,
-                entryTime: currentVisit.entryTime || "", // Include for gate pass display
-                exitTime: currentVisit.exitTime || "", // Include for gate pass display
-                // Add other details if available in mockVisitsDb that are useful for current pass
+                entryTime: currentVisit.checkInTime || "",
+                checkOutTime: currentVisit.checkOutTime || "",
               }
             : null,
           visitHistory: visitHistory,
         });
-      }, 500); // Simulate network delay
+      }, 500);
     });
   },
 
@@ -554,10 +577,16 @@ export default {
   async fetchVisitsByHost(hostName) {
     return new Promise((resolve) => {
       setTimeout(() => {
-        const hostVisits = mockVisitsDb.filter(
-          (visit) =>
-            visit.host && visit.host.toLowerCase() === hostName.toLowerCase()
-        );
+        const storedVisits = localStorage.getItem("mock_visits");
+        let hostVisits = [];
+
+        if (storedVisits) {
+          const visits = JSON.parse(storedVisits);
+          hostVisits = visits.filter(
+            (visit) =>
+              visit.host && visit.host.toLowerCase() === hostName.toLowerCase()
+          );
+        }
         resolve({
           success: true,
           visits: hostVisits,
@@ -568,35 +597,35 @@ export default {
   },
 
   async updateVisitStatus(visitId, newStatus) {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       setTimeout(() => {
-        const visitIndex = mockVisitsDb.findIndex((v) => v.id === visitId);
-        if (visitIndex === -1) {
-          resolve({ success: false, message: "Visit not found." });
-          return;
-        }
-        const visit = mockVisitsDb[visitIndex];
-        visit.status = newStatus;
+        const mock_visits = JSON.parse(localStorage.getItem("mock_visits"));
+        const visitIndex = mock_visits.findIndex(
+          (visit) => visit.id === visitId
+        );
+        if (visitIndex > -1) {
+          // Update the status
+          mock_visits[visitIndex].status = newStatus;
 
-        // Update timestamps based on new status
-        if (newStatus === "Checked-In" && !visit.checkInTime) {
-          visit.checkInTime = new Date().toISOString();
-        } else if (newStatus === "Completed" && !visit.checkOutTime) {
-          visit.checkOutTime = new Date().toISOString();
-        } else if (
-          newStatus === "Approved" ||
-          newStatus === "Rejected" ||
-          newStatus === "Cancelled"
-        ) {
-          // No specific timestamp for approval/rejection itself, but status changes
-        }
+          if (
+            newStatus === "Declined" ||
+            newStatus === "Completed" ||
+            newStatus === "Cancelled"
+          ) {
+            if (!mock_visits[visitIndex].checkOutTime) {
+              mock_visits[visitIndex].checkOutTime = new Date().toISOString();
+            }
+          }
+          console.log(`Mock: Visit ${visitId} status updated to ${newStatus}`);
 
-        saveMockData();
-        resolve({
-          success: true,
-          message: `Visit status updated to ${newStatus} successfully (mock).`,
-        });
-      }, 500);
+          // === NEW: Save the updated mock_visits array back to localStorage ===
+          localStorage.setItem("mock_visits", JSON.stringify(mock_visits));
+
+          resolve({ success: true, message: "Status updated successfully." });
+        } else {
+          reject(new Error("Visit not found."));
+        }
+      }, 500); // Simulate API call delay
     });
   },
 };

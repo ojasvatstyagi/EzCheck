@@ -10,10 +10,8 @@ const authContainer = document.getElementById("authContainer");
 const initialAlertTimeout = 3000;
 
 let currentView = "login";
-let currentEmail = ""; // Stores email for OTP verification/resend
-// --- Alert Handling ---
+let currentEmail = "";
 function showAlert(message, type) {
-  // Remove any existing alerts to prevent stacking
   const existingAlert = authContainer.querySelector(".alert");
   if (existingAlert) {
     existingAlert.remove();
@@ -26,7 +24,6 @@ function showAlert(message, type) {
   setTimeout(() => alertDiv.remove(), initialAlertTimeout);
 }
 
-// --- Button Loading State Management ---
 function setButtonLoading(
   buttonElement,
   isLoading,

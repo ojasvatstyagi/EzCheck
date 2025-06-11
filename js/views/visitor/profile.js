@@ -92,13 +92,13 @@ export function initProfileView(visitorData, isEditing = false) {
 
           <ul class="list-group list-group-flush text-start mb-3">
             <li class="list-group-item"><i class="fas fa-envelope me-2 text-dark"></i> ${
-              visitorData.email || "N/A"
+              visitorData.email || "Not provided"
             }</li>
             <li class="list-group-item"><i class="fas fa-phone me-2 text-dark"></i> ${
-              visitorData.phone || "N/A"
+              visitorData.phone || "Not provided"
             }</li>
             <li class="list-group-item"><i class="fas fa-id-card me-2 text-dark"></i> ${
-              visitorData.idNumber || "N/A"
+              visitorData.idNumber || "Not provided"
             }</li>
           </ul>
 

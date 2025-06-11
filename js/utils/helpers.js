@@ -56,9 +56,9 @@ export function getStatusColor(status) {
     case "Approved":
       return "bg-info text-dark";
     case "Checked-In":
-      return "bg-success";
-    case "Completed":
       return "bg-secondary";
+    case "Completed":
+      return "bg-success";
     case "Cancelled":
       return "bg-danger";
     case "Pending":
@@ -169,10 +169,10 @@ export function storeUserSession(user) {
       role: user.role,
       email: user.email,
       id: user.id,
+      visitorId: user.visitorId,
     })
   );
 }
-
 export function clearUserSession() {
   sessionStorage.removeItem("token");
   sessionStorage.removeItem("role");

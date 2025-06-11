@@ -1,6 +1,5 @@
 // js/views/visitor.js
-import VisitorService from "../../../api/visitorApi.js"; // Note: Adjust path if necessary, but it looks correct.
-
+import VisitorService from "../../../api/visitorApi.js";
 import {
   showAlert,
   showLoading,
@@ -25,8 +24,6 @@ async function renderVisitorViewContent(visitorId, editingMode = false) {
   showLoading(content);
 
   try {
-    // --- THIS IS THE CRITICAL LINE THAT NEEDS TO BE FIXED IN VISITORAPI.JS ---
-    // VisitorService.fetchVisitorData(visitorId) should return the profile directly,
     // or an object with a 'profile' property.
     const visitorData = await VisitorService.fetchVisitorData(visitorId);
 
@@ -49,7 +46,7 @@ async function renderVisitorViewContent(visitorId, editingMode = false) {
           <div class="alert alert-danger" role="alert">
             <i class="fas fa-ban fa-3x mb-3"></i>
             <h4 class="alert-heading">Access Denied!</h4>
-            <p>Your account has been blocked and you cannot request new visits or access certain features.</p>
+            <p>Your request cannot be processed at this time. You may not apply for new visits or access certain features.</p>
             <hr>
             <p class="mb-0">Please contact the administration for assistance.</p>
           </div>
@@ -126,7 +123,6 @@ export default async function initVisitorView() {
   showLoading(content); // Show loader early in initVisitorView
 
   try {
-    // --- CORRECTED: Get visitorId from sessionStorage where it's stored after login ---
     const userSessionData = JSON.parse(sessionStorage.getItem("user"));
     const visitorId = userSessionData ? userSessionData.visitorId : null;
 
@@ -134,7 +130,7 @@ export default async function initVisitorView() {
       console.error(
         "No visitor ID found in sessionStorage. Redirecting or showing error."
       );
-      window.location.href = "/index.html"; // Redirect to login page
+      // window.location.href = "/index.html"; // Redirect to login page
       showAlert(
         content,
         "Please register or log in as a visitor to view this page.",

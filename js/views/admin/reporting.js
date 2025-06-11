@@ -1,4 +1,4 @@
-import { exportReport } from "../../../api/visitorApi.js";
+import VisitorService from "../../../api/visitorApi.js";
 import { showAlert, showLoading, hideLoading } from "../../utils/helpers.js";
 
 export default function initReporting() {
@@ -36,7 +36,7 @@ export default function initReporting() {
     .addEventListener("click", async () => {
       try {
         showLoading();
-        await exportReport();
+        await VisitorService.exportReport();
         showAlert(
           document.getElementById("reportStatus"),
           "✅ Report exported successfully!",

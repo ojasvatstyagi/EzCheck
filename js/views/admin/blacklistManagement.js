@@ -1,4 +1,4 @@
-import { fetchBlacklist } from "../../../api/visitorApi.js";
+import VisitorService from "../../../api/visitorApi.js";
 import { showAlert, showLoading, hideLoading } from "../../utils/helpers.js";
 import { createBlacklistModal } from "./addToBlock.js";
 
@@ -7,7 +7,7 @@ export default async function initBlacklistManagement() {
   showLoading(content);
 
   try {
-    const blacklist = await fetchBlacklist();
+    const blacklist = await VisitorService.fetchBlacklist();
 
     content.innerHTML = `
       <h4 class="mb-4">Blacklist Management</h4>

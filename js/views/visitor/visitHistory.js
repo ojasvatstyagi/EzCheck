@@ -2,7 +2,7 @@
 import { formatDateTime, getStatusColor } from "../../utils/helpers.js";
 
 export function renderVisitHistory(visitorData) {
-  // Check if visitorData exists and has visitHistory
+  // Check if visitorData exists or if visitHistory property is missing/null/undefined
   if (!visitorData || !visitorData.visitHistory) {
     return `
       <div class="card shadow-sm mt-4">
@@ -10,13 +10,13 @@ export function renderVisitHistory(visitorData) {
           <h5 class="mb-0">Visit History</h5>
         </div>
         <div class="card-body">
-          <div class="alert alert-info">No visit history available</div>
+          <div class="alert alert-info" role="alert">No visit history available</div>
         </div>
       </div>
     `;
   }
 
-  // Check if visitHistory is empty
+  // Check if visitHistory is an empty array
   if (visitorData.visitHistory.length === 0) {
     return `
       <div class="card shadow-sm mt-4">
@@ -24,7 +24,7 @@ export function renderVisitHistory(visitorData) {
           <h5 class="mb-0">Visit History</h5>
         </div>
         <div class="card-body">
-          <div class="alert alert-info">No previous visits found</div>
+          <div class="alert alert-info" role="alert">No previous visits found</div>
         </div>
       </div>
     `;
@@ -52,29 +52,31 @@ export function renderVisitHistory(visitorData) {
               ${visitorData.visitHistory
                 .map(
                   (visit) => `
-                  <tr>
+                  <tr id="visit-history-row-${visit.id}">
                     <td class="text-nowrap">${
-                      // Use visit.visitDate for the scheduled date
-                      visit.visitDate
-                        ? formatDateTime(visit.visitDate, false)
+                      // *** CHANGE: Use visit.date instead of visit.visitDate ***
+                      visit.date
+                        ? formatDateTime(visit.date, false) // Format date only
                         : "N/A"
                     }</td>
                     <td>${visit.purpose || "N/A"}</td>
                     <td>${visit.host || "N/A"}</td>
                     <td class="text-nowrap">${
-                      // Use visit.checkInTime for entry time
-                      visit.checkInTime
-                        ? formatDateTime(visit.checkInTime, true)
+                      // *** CHANGE: Use visit.entryTime instead of visit.checkInTime ***
+                      // Also handle empty string for entryTime/exitTime as "N/A"
+                      visit.entryTime && visit.entryTime !== ""
+                        ? formatDateTime(visit.entryTime, true) // Format date and time
                         : "N/A"
                     }</td>
                     <td class="text-nowrap">${
-                      // Use visit.checkOutTime for exit time
-                      visit.checkOutTime
-                        ? formatDateTime(visit.checkOutTime, true)
+                      // *** CHANGE: Use visit.exitTime instead of visit.checkOutTime ***
+                      // Also handle empty string for entryTime/exitTime as "N/A"
+                      visit.exitTime && visit.exitTime !== ""
+                        ? formatDateTime(visit.exitTime, true) // Format date and time
                         : "N/A"
                     }</td>
                     <td>
-                      <span class="badge bg-${getStatusColor(visit.status)}">
+                      <span class="badge ${getStatusColor(visit.status)}">
                         ${visit.status || "Unknown"}
                       </span>
                     </td>

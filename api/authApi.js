@@ -21,10 +21,10 @@ export default {
     sessionStorage.setItem("token", "mock-jwt-token");
     sessionStorage.setItem("role", user.role);
     storeUserSession({
-      id: user.id,
+      id: user.id, // This is the user's login account ID
       role: user.role,
       name: user.name,
-      visitorId: user.visitorId || null,
+      visitorId: user.visitorId || null, // Use the correct visitorId from the vms_users entry
     });
 
     return {
@@ -33,7 +33,7 @@ export default {
         token: "mock-jwt-token",
         role: user.role,
         name: user.name,
-        visitorId: user.visitorId || null,
+        visitorId: user.visitorId || null, // Also fix this in the return data
       },
     };
   },

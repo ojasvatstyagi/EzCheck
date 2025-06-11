@@ -1,4 +1,4 @@
-import { fetchVisitors } from "../../../api/visitorApi.js";
+import VisitorService from "../../../api/visitorApi.js";
 import { showAlert, showLoading, hideLoading } from "../../utils/helpers.js";
 
 export default async function initVisitorManagement() {
@@ -6,7 +6,7 @@ export default async function initVisitorManagement() {
   showLoading(content);
 
   try {
-    const visitors = await fetchVisitors();
+    const visitors = await VisitorService.fetchVisitors();
 
     content.innerHTML = `
       <h4 class="mb-4">Visitor Management</h4>
