@@ -54,25 +54,18 @@ export function renderVisitHistory(visitorData) {
                   (visit) => `
                   <tr id="visit-history-row-${visit.id}">
                     <td class="text-nowrap">${
-                      // *** CHANGE: Use visit.date instead of visit.visitDate ***
-                      visit.date
-                        ? formatDateTime(visit.date, false) // Format date only
-                        : "N/A"
+                      visit.date ? formatDateTime(visit.date, false) : "N/A"
                     }</td>
                     <td>${visit.purpose || "N/A"}</td>
                     <td>${visit.host || "N/A"}</td>
                     <td class="text-nowrap">${
-                      // *** CHANGE: Use visit.entryTime instead of visit.checkInTime ***
-                      // Also handle empty string for entryTime/exitTime as "N/A"
                       visit.entryTime && visit.entryTime !== ""
-                        ? formatDateTime(visit.entryTime, true) // Format date and time
+                        ? formatDateTime(visit.entryTime, true)
                         : "N/A"
                     }</td>
                     <td class="text-nowrap">${
-                      // *** CHANGE: Use visit.exitTime instead of visit.checkOutTime ***
-                      // Also handle empty string for entryTime/exitTime as "N/A"
                       visit.exitTime && visit.exitTime !== ""
-                        ? formatDateTime(visit.exitTime, true) // Format date and time
+                        ? formatDateTime(visit.exitTime, true)
                         : "N/A"
                     }</td>
                     <td>

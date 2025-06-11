@@ -18,11 +18,9 @@ export function renderPendingRequestsSection(
     return;
   }
 
-  // Clear any existing content or loading indicators
   container.innerHTML = "";
 
   if (pendingRequests && pendingRequests.length > 0) {
-    // Sort requests by visit date/time (earliest first)
     pendingRequests.sort(
       (a, b) =>
         new Date(a.visitDate).getTime() - new Date(b.visitDate).getTime()
@@ -30,7 +28,7 @@ export function renderPendingRequestsSection(
 
     pendingRequests.forEach((request) => {
       const requestItem = document.createElement("div");
-      requestItem.className = "card mb-2 shadow-sm"; // Basic styling for each request item
+      requestItem.className = "card mb-2 shadow-sm";
       requestItem.innerHTML = `
                 <div class="card-body d-flex justify-content-between align-items-center">
                     <div>
@@ -65,7 +63,6 @@ export function renderPendingRequestsSection(
       container.appendChild(requestItem);
     });
 
-    // Attach event listeners for Approve/Decline buttons
     container.querySelectorAll(".approve-btn").forEach((button) => {
       button.addEventListener("click", async (event) => {
         const visitId = event.target.dataset.id;
@@ -90,7 +87,6 @@ export function renderPendingRequestsSection(
       });
     });
   } else {
-    // Display the "no requests" message if array is empty
     container.innerHTML = `
             <div class="text-center text-muted p-4">
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-auto mb-4 text-gray">
@@ -103,7 +99,6 @@ export function renderPendingRequestsSection(
   }
 }
 
-// Function to handle approving/declining a request
 async function handleRequestAction(
   visitId,
   newStatus,
@@ -111,11 +106,9 @@ async function handleRequestAction(
   refreshDashboardCallback
 ) {
   try {
-    // Placeholder for API call to update visit status
     console.log(`Attempting to update visit ${visitId} to ${newStatus}`);
     await VisitorService.updateVisitStatus(visitId, newStatus);
 
-    // For now, simulate success:
     await new Promise((resolve) => setTimeout(resolve, 300));
 
     showAlert(
@@ -124,7 +117,7 @@ async function handleRequestAction(
       "success"
     );
     if (refreshDashboardCallback) {
-      refreshDashboardCallback(hostName); // Refresh the dashboard after action
+      refreshDashboardCallback(hostName);
     }
   } catch (error) {
     console.error(`Error updating visit status for ${visitId}:`, error);

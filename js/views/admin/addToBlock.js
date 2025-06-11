@@ -1,30 +1,31 @@
-// js/components/cards.js
+// js/components/addToBlock.js
+
 export function createBlacklistModal() {
   return `
-    <div class="modal fade" id="blacklistModal" tabindex="-1">
+    <div class="modal fade" id="blacklistModal" tabindex="-1" aria-labelledby="blacklistModalLabel" aria-hidden="true">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header bg-dark text-white">
-            <h5 class="modal-title">Add to Blacklist</h5>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            <h5 class="modal-title" id="blacklistModalLabel">Add to Blacklist</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
             <form id="blacklistForm">
               <div class="mb-3">
-                <label class="form-label">Visitor Name</label>
-                <input type="text" class="form-control" required>
+                <label for="blacklistVisitorName" class="form-label">Visitor Name</label>
+                <input type="text" class="form-control" id="blacklistVisitorName" name="name" required>
               </div>
               <div class="mb-3">
-                <label class="form-label">ID Number</label>
-                <input type="text" class="form-control" required>
+                <label for="blacklistIdNumber" class="form-label">ID Number</label>
+                <input type="text" class="form-control" id="blacklistIdNumber" name="idNumber" required>
               </div>
               <div class="mb-3">
-                <label class="form-label">Mobile Number</label>
-                <input type="tel" class="form-control" required>
+                <label for="blacklistMobileNumber" class="form-label">Mobile Number</label>
+                <input type="tel" class="form-control" id="blacklistMobileNumber" name="mobile" required>
               </div>
               <div class="mb-3">
-                <label class="form-label">Reason</label>
-                <textarea class="form-control" rows="3"></textarea>
+                <label for="blacklistReason" class="form-label">Reason (Optional)</label>
+                <textarea class="form-control" id="blacklistReason" name="reason" rows="3"></textarea>
               </div>
             </form>
           </div>
@@ -44,11 +45,15 @@ export function createVisitorCard(visitor) {
         <h5 class="card-title">${visitor.name} <span class="badge bg-${
     visitor.isVIP ? "warning" : "secondary"
   }">${visitor.isVIP ? "VIP" : "Regular"}</span></h5>
-        <p class="card-text"><strong>Company:</strong> ${visitor.company}</p>
-        <p class="card-text"><strong>Host:</strong> ${visitor.host}</p>
-        <p class="card-text"><strong>Check-in:</strong> ${new Date(
+        <p class="card-text"><strong>Company:</strong> ${
+          visitor.company || "N/A"
+        }</p>
+        <p class="card-text"><strong>Host:</strong> ${visitor.host || "N/A"}</p>
+        <p class="card-text"><strong>Check-in:</strong> ${
           visitor.checkInTime
-        ).toLocaleString()}</p>
+            ? new Date(visitor.checkInTime).toLocaleString()
+            : "N/A"
+        }</p>
         <p class="card-text"><strong>Check-out:</strong> ${
           visitor.checkOutTime
             ? new Date(visitor.checkOutTime).toLocaleString()

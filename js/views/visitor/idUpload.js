@@ -4,7 +4,6 @@ import { showAlert, showLoading, hideLoading } from "../../utils/helpers.js";
 
 export function showIdUploadModal(visitorId, onSuccess) {
   const modals = document.getElementById("modals-container");
-  // Ensure the modals container is clean before adding new modal HTML
   modals.innerHTML = `
     <div class="modal fade" id="idUploadModal" tabindex="-1" aria-labelledby="idUploadModalLabel" aria-hidden="true">
       <div class="modal-dialog">
@@ -49,16 +48,15 @@ export function showIdUploadModal(visitorId, onSuccess) {
   const modal = new bootstrap.Modal(modalElement);
   modal.show();
 
-  // Attach event listener for the form submission within the modal
   document
     .getElementById("idUploadForm")
     .addEventListener("submit", async (e) => {
-      e.preventDefault(); // Prevent default form submission
+      e.preventDefault();
       const formElements = e.target.elements;
 
       const idType = formElements.idType.value;
       const idNumber = formElements.idNumber.value.trim();
-      const idFile = formElements.idFile.files[0]; // Get the actual File object
+      const idFile = formElements.idFile.files[0];
 
       if (!idFile) {
         showAlert(
@@ -69,36 +67,34 @@ export function showIdUploadModal(visitorId, onSuccess) {
         return;
       }
 
-      showLoading(modalElement); // Show loading inside the modal
+      showLoading(modalElement);
 
       try {
-        // Use FileReader to read the file as a Data URL (Base64 encoded)
         const reader = new FileReader();
         reader.readAsDataURL(idFile);
 
         await new Promise((resolve, reject) => {
           reader.onload = async () => {
-            const idFileBase64 = reader.result; // This is the Base64 string
+            const idFileBase64 = reader.result;
 
-            // Call the VisitorService to upload the ID proof
             const result = await VisitorService.uploadIdProof(
               visitorId,
               idType,
               idNumber,
               idFileBase64,
-              idFile.type // Pass the MIME type for proper storage
+              idFile.type
             );
 
             if (result.success) {
-              modal.hide(); // Hide the modal on success
+              modal.hide();
               showAlert(document.body, result.message, "success");
               if (onSuccess) {
-                onSuccess(); // Call the success callback to refresh the parent view (e.g., visitor profile)
+                onSuccess();
               }
-              resolve(); // Resolve the promise once operations are complete
+              resolve();
             } else {
               showAlert(document.body, result.message, "danger");
-              reject(new Error(result.message)); // Reject if service indicates failure
+              reject(new Error(result.message));
             }
           };
 
@@ -116,14 +112,12 @@ export function showIdUploadModal(visitorId, onSuccess) {
           "danger"
         );
       } finally {
-        hideLoading(); // Hide loading indicator
+        hideLoading();
       }
     });
 }
 
-// This function sets up the event listener for the button that opens the ID upload modal
 export function setupIdUploadListener(visitorId, onSuccess) {
-  // Ensure the button actually exists before adding an event listener
   document.getElementById("uploadIdBtn")?.addEventListener("click", () => {
     showIdUploadModal(visitorId, onSuccess);
   });

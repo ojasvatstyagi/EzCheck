@@ -9,7 +9,6 @@ export async function handleVisitCancellation(visitorId, onSuccess) {
       await VisitorService.cancelVisit(visitorId);
       showAlert(document.body, "Visit request cancelled", "success");
 
-      // Call the success callback to refresh the view
       if (onSuccess) {
         onSuccess();
       }

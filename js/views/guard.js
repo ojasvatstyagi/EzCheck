@@ -5,7 +5,6 @@ import VisitorService from "../../api/visitorApi.js";
 import { setupRegisterVisitorModal } from "./guard/registerVisitor.js";
 import initTodayVisitReport from "./guard/todayReport.js";
 
-// Function to render the main dashboard layout
 function renderDashboardLayout() {
   return `
     <div class="container mt-4">
@@ -67,7 +66,7 @@ function renderScannerSection() {
 // Main function to manage the guard view
 export default async function initGuardView() {
   const content = document.getElementById("role-content");
-  if (!content) return; // Render the initial dashboard layout
+  if (!content) return;
 
   content.innerHTML = renderDashboardLayout();
   setupGuardEventListeners();

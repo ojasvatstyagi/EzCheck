@@ -136,11 +136,6 @@ export default {
     if (!token) {
       return { success: false, message: "No session found" };
     }
-    // In a development environment, a stored token is considered valid
-    // For more robust mocking, you might also want to check the user role from sessionStorage
-    // if (!sessionStorage.getItem("role") || !sessionStorage.getItem("user")) {
-    //     return { success: false, message: "Incomplete session data" };
-    // }
     return { success: true, message: "Session is valid (mocked)" };
   },
 

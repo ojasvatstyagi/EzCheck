@@ -83,7 +83,6 @@ export function showVisitRequestModal(visitorId, onSuccess) {
             onSuccess();
           }
         } else {
-          // Handle API-specific errors, if any
           showAlert(
             document.body,
             response.message || "Failed to submit request.",

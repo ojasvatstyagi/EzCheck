@@ -21,7 +21,7 @@ export function renderVisitStatus(visitorData) {
                   visitorData.currentVisit.date
                 )}</p>
                 <p class="mb-1"><strong>Status:</strong>
-                  <span class="badge bg-${getStatusColor(
+                  <span class="badge ${getStatusColor(
                     visitorData.currentVisit.status
                   )}">
                     ${visitorData.currentVisit.status}
@@ -32,7 +32,7 @@ export function renderVisitStatus(visitorData) {
                 ${
                   visitorData.currentVisit.status === "Approved"
                     ? `
-                    <canvas id="visitQrCode" class="img-fluid mb-3" style="max-width: 200px;"></canvas>
+                    <div id="visitQrCode" class="mb-3" style="width: 200px; height: 200px; margin: 0 auto;"></div>
                     <p class="mt-2 text-muted">Show this QR code at entry</p>
                 `
                     : `

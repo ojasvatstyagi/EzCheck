@@ -1,23 +1,12 @@
 // js/views/guard/todayReport.js
-import { showLoading, hideLoading, showAlert } from "../../utils/helpers.js";
-import VisitorService from "../../../api/visitorApi.js"; // Ensure this path is correct
+import {
+  showLoading,
+  hideLoading,
+  showAlert,
+  formatDateTime,
+} from "../../utils/helpers.js";
+import VisitorService from "../../../api/visitorApi.js";
 
-// Helper function to format date/time
-function formatDateTime(isoString) {
-  if (!isoString) return "N/A";
-  const date = new Date(isoString);
-  if (isNaN(date)) return "Invalid Date";
-  return date.toLocaleString("en-IN", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: true,
-  });
-}
-
-// Function to render a single visit row in the table
 function renderVisitRow(visit) {
   const visitorName = visit.visitor?.name || "N/A";
   const visitorCompany = visit.visitor?.company || "N/A";
@@ -43,7 +32,6 @@ function renderVisitRow(visit) {
   `;
 }
 
-// Function to render the list of visits for a given status
 function renderVisitsList(visits, containerId) {
   const container = document.getElementById(containerId);
   if (!container) return;
@@ -86,9 +74,8 @@ function renderVisitsList(visits, containerId) {
   `;
 }
 
-// Main function for Today's Visit Report
 export default async function initTodayVisitReport(onReturnCallback) {
-  const content = document.getElementById("guard-dynamic-content"); // Target the dynamic content area
+  const content = document.getElementById("guard-dynamic-content");
   if (!content) return;
 
   content.innerHTML = `
@@ -125,13 +112,10 @@ export default async function initTodayVisitReport(onReturnCallback) {
     </div>
   `;
 
-  let allTodayVisits = []; // Store all fetched visits for filtering
-
-  // Function to fetch and display visits
+  let allTodayVisits = [];
   async function fetchAndRenderVisits() {
     showLoading(content);
     try {
-      // Fetch all visits for today. VisitorService.fetchTodayVisits needs to be implemented.
       allTodayVisits = await VisitorService.fetchTodayVisits();
 
       const expected = allTodayVisits.filter(
@@ -150,7 +134,6 @@ export default async function initTodayVisitReport(onReturnCallback) {
     } catch (error) {
       console.error("Error fetching today's visits:", error);
       showAlert(content, "Failed to load today's visitor schedule.", "danger");
-      // Clear lists on error
       document.getElementById("expected-visits-list").innerHTML = "";
       document.getElementById("checked-in-visits-list").innerHTML = "";
       document.getElementById("completed-visits-list").innerHTML = "";
@@ -159,7 +142,6 @@ export default async function initTodayVisitReport(onReturnCallback) {
     }
   }
 
-  // Initial fetch
   fetchAndRenderVisits();
 
   // Event Listeners
@@ -203,7 +185,7 @@ export default async function initTodayVisitReport(onReturnCallback) {
   });
 
   clearSearchBtn?.addEventListener("click", () => {
-    visitorSearchInput.value = ""; // Clear input
-    fetchAndRenderVisits(); // Re-fetch to show all visits
+    visitorSearchInput.value = "";
+    fetchAndRenderVisits();
   });
 }

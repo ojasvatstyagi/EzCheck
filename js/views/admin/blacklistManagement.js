@@ -1,3 +1,5 @@
+// js/views/admin/blacklistManagement.js
+
 import VisitorService from "../../../api/visitorApi.js";
 import { showAlert, showLoading, hideLoading } from "../../utils/helpers.js";
 import { createBlacklistModal } from "./addToBlock.js";
@@ -11,46 +13,173 @@ export default async function initBlacklistManagement() {
 
     content.innerHTML = `
       <h4 class="mb-4">Blacklist Management</h4>
-      <button class="btn btn-sm btn-outline-primary-custom mb-3" id="addBlacklistEntry">Add to Blacklist</button>
+      <button class="btn btn-sm btn-outline-primary-custom mb-3" id="addBlacklistEntryBtn">Add to Blacklist</button>
       <div class="table-responsive">
         <table class="table table-hover">
           <thead>
-            <tr><th>Name</th><th>ID</th><th>Mobile</th><th>Reason</th><th>Added On</th><th>Actions</th></tr>
+            <tr>
+                <th>Name</th>
+                <th>ID Number</th>
+                <th>Mobile</th>
+                <th>Reason</th>
+                <th>Added On</th>
+                <th>Actions</th>
+            </tr>
           </thead>
           <tbody>
-            ${blacklist
-              .map(
-                (entry) => `
+            ${
+              blacklist.length > 0
+                ? blacklist
+                    .map(
+                      (entry) => `
               <tr>
-                <td>${entry.name}</td>
-                <td>${entry.idNumber}</td>
-                <td>${entry.mobile}</td>
+                <td>${entry.name || "N/A"}</td>
+                <td>${entry.idNumber || "N/A"}</td>
+                <td>${entry.mobile || "N/A"}</td>
                 <td>${entry.reason || "-"}</td>
-                <td>${new Date(entry.addedOn).toLocaleDateString()}</td>
-                <td><button class="btn btn-sm btn-danger remove-blacklist" data-id="${
-                  entry.id
-                }">Remove</button></td>
+                <td>${
+                  entry.addedOn
+                    ? new Date(entry.addedOn).toLocaleDateString()
+                    : "N/A"
+                }</td>
+                <td>
+                    <button class="btn btn-sm btn-outline-danger remove-blacklist-btn" data-id="${
+                      entry.id
+                    }">Remove</button>
+                </td>
               </tr>`
-              )
-              .join("")}
+                    )
+                    .join("")
+                : `<tr><td colspan="6" class="text-center">No blacklisted entries found.</td></tr>`
+            }
           </tbody>
         </table>
       </div>
       <div id="modals-container"></div>
     `;
 
-    // Modal logic
     document
-      .getElementById("addBlacklistEntry")
+      .getElementById("addBlacklistEntryBtn")
       .addEventListener("click", () => {
-        document.getElementById("modals-container").innerHTML =
-          createBlacklistModal();
-        new bootstrap.Modal(document.getElementById("blacklistModal")).show();
+        const modalsContainer = document.getElementById("modals-container");
+        modalsContainer.innerHTML = createBlacklistModal();
+
+        const blacklistModalElement = document.getElementById("blacklistModal");
+        const blacklistModal = new bootstrap.Modal(blacklistModalElement);
+        blacklistModal.show();
+
+        const blacklistForm = document.getElementById("blacklistForm");
+        if (blacklistForm) {
+          blacklistForm.addEventListener("submit", async (event) => {
+            event.preventDefault();
+
+            // Retrieve form values using their IDs
+            const name = document
+              .getElementById("blacklistVisitorName")
+              .value.trim();
+            const idNumber = document
+              .getElementById("blacklistIdNumber")
+              .value.trim();
+            const mobile = document
+              .getElementById("blacklistMobileNumber")
+              .value.trim();
+            const reason = document
+              .getElementById("blacklistReason")
+              .value.trim();
+
+            if (!name || !idNumber || !mobile) {
+              showAlert(
+                content,
+                "Please fill in all required fields (Name, ID Number, Mobile Number).",
+                "warning"
+              );
+              return;
+            }
+
+            showLoading(content);
+            try {
+              await VisitorService.addToBlacklist({
+                name,
+                idNumber,
+                mobile,
+                reason: reason || null,
+                addedOn: new Date().toISOString(),
+                id: `BL-${Date.now()}-${Math.random()
+                  .toString(36)
+                  .substr(2, 5)}`,
+              });
+
+              showAlert(
+                content,
+                "Visitor successfully added to blacklist!",
+                "success"
+              );
+              blacklistModal.hide();
+              blacklistModalElement.addEventListener(
+                "hidden.bs.modal",
+                function handler() {
+                  modalsContainer.innerHTML = "";
+                  blacklistModalElement.removeEventListener(
+                    "hidden.bs.modal",
+                    handler
+                  ); // Remove listener to prevent memory leaks
+                }
+              );
+              initBlacklistManagement();
+            } catch (error) {
+              console.error("Error adding to blacklist:", error);
+              showAlert(
+                content,
+                `Failed to add visitor to blacklist: ${error.message}`,
+                "danger"
+              );
+            } finally {
+              hideLoading();
+            }
+          });
+        }
       });
 
-    // Listener for remove blacklist
+    document
+      .querySelector("table tbody")
+      .addEventListener("click", async (event) => {
+        if (event.target.classList.contains("remove-blacklist-btn")) {
+          const entryId = event.target.dataset.id;
+
+          if (
+            confirm(
+              "Are you sure you want to remove this entry from the blacklist?"
+            )
+          ) {
+            showLoading(content);
+            try {
+              await VisitorService.removeFromBlacklist(entryId);
+              showAlert(
+                content,
+                "Blacklist entry removed successfully!",
+                "success"
+              );
+              initBlacklistManagement();
+            } catch (error) {
+              console.error("Error removing from blacklist:", error);
+              showAlert(
+                content,
+                `Failed to remove entry from blacklist: ${error.message}`,
+                "danger"
+              );
+            } finally {
+              hideLoading();
+            }
+          }
+        }
+      });
   } catch (e) {
-    showAlert(content, "Failed to load blacklist", "danger");
+    console.error("Failed to load blacklist management:", e);
+    showAlert(
+      content,
+      "Failed to load blacklist management. Please try again.",
+      "danger"
+    );
   } finally {
     hideLoading();
   }

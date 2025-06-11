@@ -41,7 +41,6 @@ function setButtonLoading(
   }
 }
 
-// --- View Rendering Logic ---
 function renderView() {
   switch (currentView) {
     case "login":
@@ -54,16 +53,15 @@ function renderView() {
       break;
     case "otp":
       authContainer.innerHTML = renderOTPForm(currentEmail);
-      setupOTPListeners(); // This will now correctly initialize OTP inputs
+      setupOTPListeners();
       break;
     default:
       console.error("Unknown view:", currentView);
-      currentView = "login"; // Fallback to login
+      currentView = "login";
       renderView();
   }
 }
 
-// --- Event Listener Setups ---
 function setupLoginListeners() {
   const toggleToRegisterBtn = document.getElementById("toggleToRegister");
   const loginForm = document.getElementById("loginForm");
@@ -101,7 +99,7 @@ function setupLoginListeners() {
         false,
         "Logging in...",
         originalLoginBtnText
-      ); // Revert loading state
+      );
     }
   });
 }
@@ -132,7 +130,6 @@ function setupRegisterListeners() {
       showAlert("Password must be at least 6 characters long.", "danger");
       return;
     }
-    // Basic email format check (more robust validation should be on backend)
     if (!/\S+@\S+\.\S+/.test(email)) {
       showAlert("Please enter a valid email address.", "danger");
       return;
@@ -148,8 +145,8 @@ function setupRegisterListeners() {
     try {
       const response = await AuthService.register(name, email, password, role);
       if (response.success) {
-        currentEmail = email; // Store email for OTP verification
-        currentRole = role; // Store role (if needed for later use, e.g., dashboard setup)
+        currentEmail = email;
+        currentRole = role;
         showAlert(
           "Registration successful! Please verify your email with the OTP.",
           "success"
@@ -157,7 +154,7 @@ function setupRegisterListeners() {
         setTimeout(() => {
           currentView = "otp";
           renderView();
-        }, 1500); // Give user time to read success message
+        }, 1500);
       } else {
         showAlert(
           response.message || "Registration failed. Please try again.",
@@ -176,7 +173,7 @@ function setupRegisterListeners() {
         false,
         "Registering...",
         originalRegisterBtnText
-      ); // Revert loading state
+      );
     }
   });
 }
@@ -188,14 +185,12 @@ function setupOTPListeners() {
   const verifyButton = verifyOtpForm.querySelector('button[type="submit"]');
   const originalVerifyBtnText = verifyButton.innerHTML;
 
-  // Initial focus on the first OTP input
   if (otpInputs.length > 0) {
     otpInputs[0].focus();
   }
 
   otpInputs.forEach((input, index) => {
     input.addEventListener("input", (e) => {
-      // Ensure only one digit and is a number
       e.target.value = e.target.value.replace(/[^0-9]/g, "").slice(0, 1);
       if (e.target.value.length === 1 && index < otpInputs.length - 1) {
         otpInputs[index + 1].focus();
@@ -203,7 +198,7 @@ function setupOTPListeners() {
         e.target.value.length === 1 &&
         index === otpInputs.length - 1
       ) {
-        e.target.blur(); // Blur on last digit entry
+        e.target.blur();
       }
     });
 
@@ -222,13 +217,11 @@ function setupOTPListeners() {
       }
     });
 
-    // Optional: select text when input gains focus for easier replacement
     input.addEventListener("focus", (e) => {
       e.target.select();
     });
   });
 
-  // Resend OTP click handler
   resendOtpBtn.addEventListener("click", async () => {
     // Disable resend button to prevent spamming
     resendOtpBtn.disabled = true;
@@ -252,11 +245,10 @@ function setupOTPListeners() {
       setTimeout(() => {
         resendOtpBtn.disabled = false;
         resendOtpBtn.textContent = "Resend OTP";
-      }, 30000); // 30 seconds cooldown
+      }, 30000);
     }
   });
 
-  // OTP form submit handler
   verifyOtpForm.addEventListener("submit", async (e) => {
     e.preventDefault();
     const otp = Array.from(otpInputs)
@@ -278,10 +270,8 @@ function setupOTPListeners() {
           "Email verified successfully! You can now log in.",
           "success"
         );
-        // Clear stored email and role after successful verification
         currentEmail = "";
         currentRole = "";
-        // Redirect to login form after a short delay
         setTimeout(() => {
           currentView = "login";
           renderView();
@@ -304,12 +294,9 @@ function setupOTPListeners() {
         false,
         "Verifying...",
         originalVerifyBtnText
-      ); // Revert loading state
+      );
     }
   });
 }
 
-// --- Initialization ---
-
-// Initialize the first view when the script loads
 document.addEventListener("DOMContentLoaded", renderView);

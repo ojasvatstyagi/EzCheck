@@ -5,7 +5,7 @@ import {
   showLoading,
   hideLoading,
   generateQRCode,
-} from "../utils/helpers.js"; // Assuming these are correct paths and exports
+} from "../utils/helpers.js";
 import { initProfileView } from "./visitor/profile.js";
 import { renderVisitStatus } from "./visitor/currentPass.js";
 import { renderVisitHistory } from "./visitor/visitHistory.js";
@@ -15,8 +15,6 @@ import { setupIdUploadListener } from "./visitor/idUpload.js";
 import { setupPhotoUploadListener } from "./visitor/photoUpload.js";
 import { setupProfileUpdateListener } from "./visitor/updateProfile.js";
 
-// This function will handle the initial rendering and all subsequent re-renders
-// Added 'editingMode' parameter to control profile view state
 async function renderVisitorViewContent(visitorId, editingMode = false) {
   const content = document.getElementById("role-content");
   if (!content) return;
@@ -24,12 +22,9 @@ async function renderVisitorViewContent(visitorId, editingMode = false) {
   showLoading(content);
 
   try {
-    // or an object with a 'profile' property.
     const visitorData = await VisitorService.fetchVisitorData(visitorId);
 
     if (!visitorData || !visitorData.id) {
-      // Ensure visitorData is a valid object and has an ID
-      // This is the error path you were hitting, now correctly caught here
       showAlert(
         content,
         "Visitor profile not found. Please ensure you are logged in correctly.",
@@ -67,8 +62,6 @@ async function renderVisitorViewContent(visitorId, editingMode = false) {
       </div>
     `;
 
-    // Render profile section, passing the editingMode
-    // Assuming initProfileView, renderVisitStatus, renderVisitHistory return HTML strings
     document.getElementById("profile-section").innerHTML = `
       ${initProfileView(visitorData, editingMode)}
     `;
@@ -82,16 +75,15 @@ async function renderVisitorViewContent(visitorId, editingMode = false) {
     if (visitorData.currentVisit?.status === "Approved") {
       await generateQRCode(
         "visitQrCode",
-        `VISITOR:${visitorData.id}|VISIT:${visitorData.currentVisit.id}`
+        `VISITOR ID:${visitorData.id}|NAME:${visitorData.name}|VISIT ID:${visitorData.currentVisit.id}`
       );
     }
 
-    // Pass the refresh function with a potential new editingMode
     setupEventListeners(
       visitorData.id,
       visitorData.currentVisit?.id,
       (newEditingMode = false) =>
-        renderVisitorViewContent(visitorId, newEditingMode) // Pass newEditingMode to refresh
+        renderVisitorViewContent(visitorId, newEditingMode)
     );
   } catch (error) {
     console.error("Error rendering visitor view content:", error);
@@ -120,7 +112,7 @@ export default async function initVisitorView() {
   const content = document.getElementById("role-content");
   if (!content) return;
 
-  showLoading(content); // Show loader early in initVisitorView
+  showLoading(content);
 
   try {
     const userSessionData = JSON.parse(sessionStorage.getItem("user"));
@@ -130,16 +122,15 @@ export default async function initVisitorView() {
       console.error(
         "No visitor ID found in sessionStorage. Redirecting or showing error."
       );
-      // window.location.href = "/index.html"; // Redirect to login page
+      window.location.href = "/index.html";
       showAlert(
         content,
         "Please register or log in as a visitor to view this page.",
         "info"
       );
-      return; // Stop execution
+      return;
     }
 
-    // Now call the main rendering function with the found visitorId
     await renderVisitorViewContent(visitorId);
   } catch (error) {
     console.error("Error during visitor view initialization:", error);
@@ -149,6 +140,6 @@ export default async function initVisitorView() {
       "danger"
     );
   } finally {
-    hideLoading(); // Ensure loader is hidden even if there's an early exit or error
+    hideLoading();
   }
 }

@@ -1,34 +1,57 @@
 // js/views/admin.js
 import initVisitorManagement from "./admin/visitorManagement.js";
 import initBlacklistManagement from "./admin/blacklistManagement.js";
-import initReporting from "./admin/reporting.js";
 import VisitorService from "../../api/visitorApi.js";
 import { showLoading, hideLoading, showAlert } from "../utils/helpers.js";
+import { setupRegisterVisitorModal } from "./guard/registerVisitor.js";
 
 async function initDashboard() {
   const content = document.getElementById("role-content");
   showLoading(content);
 
   try {
-    const [visitors, blacklist] = await Promise.all([
+    const [visitors, blacklist, visits] = await Promise.all([
       VisitorService.fetchVisitors(),
       VisitorService.fetchBlacklist(),
+      VisitorService.fetchAllVisits(),
     ]);
 
-    const currentVisitors = visitors.filter((v) => !v.checkOutTime);
+    const currentlyInsideVisits = visits.filter(
+      (visit) => visit.status === "Checked-In" && !visit.checkOutTime
+    );
+    // Get unique visitor IDs for those currently inside
+    const uniqueVisitorsInsideIds = new Set(
+      currentlyInsideVisits.map((visit) => visit.visitorId)
+    );
+    // Filter the actual visitor profiles based on these IDs
+    const currentVisitorsCount = visitors.filter((v) =>
+      uniqueVisitorsInsideIds.has(v.id)
+    ).length;
 
-    // Render dashboard HTML
     content.innerHTML = `
-      <div class="row mb-4">
-        <div class="col-12">
-          <div class="card shadow-sm">
-            <div class="card-body">
-              <div class="d-flex justify-content-between align-items-center">
+          <div class="card shadow-sm mb-4">
+            <div class="card-body d-flex flex-row justify-content-between">
+              <div class="d-flex flex-column">
                 <h4 class="mb-0-custom">Admin Dashboard</h4>
                 <p class="text-muted mb-0">Manage visitors, blacklist, and generate reports</p>
               </div>
+              <div class="col-md-4 text-md-end">
+                <button id="addVisitorBtn" class="btn btn-light rounded-pill px-4">
+                  <i class="fas fa-plus me-2"></i>Add New Visitor
+                </button>
+              </div>
             </div>
           </div>
+
+      <div class="card shadow rounded-4 p-4 mb-4 d-flex flex-row justify-content-between">
+        <div class="col-md-8">
+          <h2 class="mb-3"><i class="fas fa-file-alt me-2"></i>Reporting</h2>
+          <p class="mb-0 text-muted">Click the button above to export visitor data.</p>
+        </div>
+        <div class="col-md-4 text-md-end">
+          <button class="btn btn-light rounded-pill px-4" id="exportHostReportBtn">
+            <i class="fas fa-download me-2"></i>Export Report
+          </button>
         </div>
       </div>
 
@@ -41,21 +64,15 @@ async function initDashboard() {
             <div class="card-body">
               <div class="row text-center">
                 <div class="col-4">
-                  <h3 class="text-primary-custom" id="totalVisitors">${
-                    visitors.length
-                  }</h3>
+                  <h3 class="text-primary-custom" id="totalVisitors">${visitors.length}</h3>
                   <small class="text-dark-custom">Total Visitors</small>
                 </div>
                 <div class="col-4">
-                  <h3 class="text-success" id="currentVisitors">${
-                    currentVisitors.length // Use the calculated currentVisitors
-                  }</h3>
+                  <h3 class="text-success" id="currentVisitors">${currentVisitorsCount}</h3>
                   <small class="text-dark-custom">Currently Inside</small>
                 </div>
                 <div class="col-4">
-                  <h3 class="text-danger" id="blacklisted">${
-                    blacklist.length
-                  }</h3>
+                  <h3 class="text-danger" id="blacklisted">${blacklist.length}</h3>
                   <small class="text-dark-custom">Blacklisted</small>
                 </div>
               </div>
@@ -73,11 +90,8 @@ async function initDashboard() {
                 <button class="btn btn-outline-primary-custom text-start" id="blacklistEntryBtn">
                   <i class="fas fa-ban me-2"></i>Blacklist Entry
                 </button>
-                <button class="btn btn-outline-secondary text-start" id="viewAllVisitorsBtn">
+                <button class="btn btn-outline-success text-start" id="viewAllVisitorsBtn">
                   <i class="fas fa-users me-2"></i> View All Visitors
-                </button>
-                <button class="btn btn-outline-success text-start" id="generateReportBtn">
-                  <i class="fas fa-chart-pie me-2"></i> Generate Analytics
                 </button>
               </div>
             </div>
@@ -88,19 +102,44 @@ async function initDashboard() {
       <div id="modals-container"></div>
     `;
 
-    // Attach event listeners the HTML elements are rendered
     document
-      .getElementById("blacklistEntryBtn") // Renamed from addBlacklistBtn for clarity, but you can keep original
+      .getElementById("blacklistEntryBtn")
       .addEventListener("click", initBlacklistManagement);
     document
       .getElementById("viewAllVisitorsBtn")
       .addEventListener("click", initVisitorManagement);
     document
-      .getElementById("generateReportBtn")
-      .addEventListener("click", initReporting);
+      .getElementById("exportHostReportBtn")
+      ?.addEventListener("click", async () => {
+        VisitorService.exportAdminDataToJson();
+      });
+
+    document.getElementById("addVisitorBtn")?.addEventListener("click", () => {
+      setupRegisterVisitorModal(
+        (newVisitData) => {
+          console.log("New visitor registered/visit created:", newVisitData);
+          showAlert(
+            document.body,
+            "Visitor registered successfully!",
+            "success"
+          );
+          initDashboard();
+        },
+        {
+          // For admin, we typically don't prefill a hostName unless specifically desired.
+          // The admin should be able to select a host from the modal if required for a visit.
+          // isHostRegistering: false, // You might need to add this if setupRegisterVisitorModal uses it to modify its UI for non-host users.
+          // It's better to omit prefillHostName entirely for admin context unless there's a default.
+        }
+      );
+    });
   } catch (error) {
-    console.error("Dashboard load error:", error);
-    showAlert(content, "Failed to load dashboard", "danger");
+    console.error("Admin Dashboard load error:", error);
+    showAlert(
+      content,
+      "Failed to load admin dashboard data. Please try again.",
+      "danger"
+    );
   } finally {
     hideLoading();
   }

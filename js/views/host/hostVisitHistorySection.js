@@ -3,17 +3,15 @@
 import { formatDateTime, getStatusColor } from "../../utils/helpers.js";
 
 export function renderHostVisitHistorySection(visitHistory, hostName) {
-  const container = document.getElementById("host-visit-history-container"); // Note the ID
+  const container = document.getElementById("host-visit-history-container");
   if (!container) {
     console.error("Host visit history container not found!");
     return;
   }
 
-  // Clear any existing content or loading indicators
   container.innerHTML = "";
 
   if (visitHistory && visitHistory.length > 0) {
-    // Sort history by checkOutTime or visitDate, newest first
     visitHistory.sort((a, b) => {
       const dateA = new Date(a.checkOutTime || a.visitDate).getTime();
       const dateB = new Date(b.checkOutTime || b.visitDate).getTime();
@@ -22,7 +20,7 @@ export function renderHostVisitHistorySection(visitHistory, hostName) {
 
     visitHistory.forEach((visit) => {
       const visitCard = document.createElement("div");
-      visitCard.className = "card mb-2 shadow-sm"; // Basic styling for each visit item
+      visitCard.className = "card mb-2 shadow-sm";
       visitCard.innerHTML = `
                 <div class="card-body d-flex justify-content-between align-items-center">
                     <div>
@@ -61,7 +59,6 @@ export function renderHostVisitHistorySection(visitHistory, hostName) {
       container.appendChild(visitCard);
     });
   } else {
-    // Display the "no history" message if array is empty
     container.innerHTML = `
             <div class="text-center text-muted p-4">
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-auto mb-4 text-gray-custom">

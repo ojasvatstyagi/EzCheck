@@ -1,6 +1,5 @@
 // js/views/host/upcomingVisitsSection.js
 
-// Make sure to import helpers if formatDateTime or other utilities are used
 import { formatDateTime, getStatusColor } from "../../utils/helpers.js";
 
 export function renderUpcomingVisitsSection(upcomingVisits, hostName) {
@@ -10,11 +9,9 @@ export function renderUpcomingVisitsSection(upcomingVisits, hostName) {
     return;
   }
 
-  // Clear any existing content or loading indicators
   container.innerHTML = "";
 
   if (upcomingVisits && upcomingVisits.length > 0) {
-    // Sort visits by date/time (earliest first)
     upcomingVisits.sort(
       (a, b) =>
         new Date(a.visitDate).getTime() - new Date(b.visitDate).getTime()
@@ -22,7 +19,7 @@ export function renderUpcomingVisitsSection(upcomingVisits, hostName) {
 
     upcomingVisits.forEach((visit) => {
       const visitCard = document.createElement("div");
-      visitCard.className = "card mb-2 shadow-sm"; // Basic styling for each visit item
+      visitCard.className = "card mb-2 shadow-sm";
       visitCard.innerHTML = `
                 <div class="card-body d-flex justify-content-between align-items-center">
                     <div>
@@ -46,7 +43,6 @@ export function renderUpcomingVisitsSection(upcomingVisits, hostName) {
       container.appendChild(visitCard);
     });
   } else {
-    // Display the "no visits" message if array is empty
     container.innerHTML = `
             <div class="text-center text-muted p-4">
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-auto mb-4 text-gray">

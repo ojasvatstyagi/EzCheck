@@ -87,7 +87,6 @@ export function renderRegisterForm() {
 
 export function renderOTPForm(email) {
   const [name, domain] = email.split("@");
-  // Mask the email for display, showing first two characters and domain
   const maskedEmail =
     name.slice(0, 2) + "*".repeat(Math.max(name.length - 2, 0)) + "@" + domain;
 

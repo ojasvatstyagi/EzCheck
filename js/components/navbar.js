@@ -42,7 +42,6 @@ export function renderNavbar(role) {
     link.addEventListener("click", (e) => {
       e.preventDefault();
       const page = e.target.closest("a").dataset.page;
-      // No need for the `clickedRole` check anymore since sub-pages are gone from navConfig
       loadPage(page);
     });
   });
@@ -50,14 +49,12 @@ export function renderNavbar(role) {
 
 async function loadPage(page) {
   const roleContent = document.getElementById("role-content");
-  // Clear the main content area before loading a new view
   roleContent.innerHTML = "";
 
   const pageMap = {
     admin: () => import("../views/admin.js"),
     visitors: () => import("../views/admin/visitorManagement.js"),
     blacklist: () => import("../views/admin/blacklistManagement.js"),
-    reports: () => import("../views/admin/reporting.js"),
     host: () => import("../views/host.js"),
     visitor: () => import("../views/visitor.js"),
     guard: () => import("../views/guard.js"),

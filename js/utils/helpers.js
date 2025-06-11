@@ -125,36 +125,28 @@ export function exportToCSV(data, filename = "export.csv") {
 
 // ==================== QR CODE HELPERS ====================
 export async function generateQRCode(elementId, text, size = 128) {
-  const canvas = document.getElementById(elementId);
-  if (!canvas || !canvas.getContext) return;
+  const element = document.getElementById(elementId);
+  if (!element) {
+    console.warn(`Element with ID '${elementId}' not found.`);
+    return;
+  }
 
-  if (process.env.NODE_ENV === "production") {
-    const QRCode = await import("qrcode");
-    QRCode.toCanvas(
-      canvas,
-      text,
-      {
-        width: size,
-        margin: 2,
-        color: {
-          dark: "#000",
-          light: "#fff",
-        },
-      },
-      (error) => {
-        if (error) console.error(error);
-      }
-    );
-  } else {
-    const ctx = canvas.getContext("2d");
-    canvas.width = size;
-    canvas.height = size;
-    ctx.fillStyle = "#fff";
-    ctx.fillRect(0, 0, size, size);
-    ctx.fillStyle = "#000";
-    ctx.font = "10px Arial";
-    ctx.fillText("QR Code Mock", 10, size / 2);
-    ctx.fillText(text.substring(0, 15) + "...", 10, size / 2 + 15);
+  try {
+    element.innerHTML = "";
+
+    new QRCode(element, {
+      text: text,
+      width: size,
+      height: size,
+      colorDark: "#000000",
+      colorLight: "#ffffff",
+      correctLevel: QRCode.CorrectLevel.H,
+    });
+  } catch (error) {
+    console.error("Error generating QR Code:", error);
+    element.innerHTML = `<div class="text-center p-2 border">
+      <small>QR Code Content: ${text}</small>
+    </div>`;
   }
 }
 
@@ -186,4 +178,34 @@ export function getCurrentUser() {
 
 export function getToken() {
   return sessionStorage.getItem("token");
+}
+
+export async function verifySession() {
+  const token = sessionStorage.getItem("token");
+  const role = sessionStorage.getItem("role");
+  const userString = sessionStorage.getItem("user");
+
+  if (!token || !role) {
+    return { valid: false, role: null, name: null, visitorId: undefined };
+  }
+
+  let parsedUser = null;
+  try {
+    parsedUser = userString ? JSON.parse(userString) : null;
+  } catch (e) {
+    console.error("Error parsing user data from sessionStorage:", e);
+    clearSession(); // Clear corrupted session data
+    return { valid: false, role: null, name: null, visitorId: undefined };
+  }
+
+  if (userString && parsedUser === null) {
+    return { valid: false, role: null, name: null, visitorId: undefined };
+  }
+
+  return {
+    valid: true,
+    role: role,
+    name: parsedUser?.name || null,
+    visitorId: role === "visitor" && parsedUser?.id ? parsedUser.id : undefined,
+  };
 }

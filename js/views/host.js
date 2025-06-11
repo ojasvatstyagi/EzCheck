@@ -103,7 +103,6 @@ export default async function loadHostView() {
         </div>
     `;
 
-  // --- Add New Visitor Button Functionality ---
   document
     .getElementById("hostRegisterVisitorBtn")
     ?.addEventListener("click", () => {
@@ -124,23 +123,19 @@ export default async function loadHostView() {
       );
     });
 
-  // --- Export Report Button Functionality ---
   document
     .getElementById("exportHostReportBtn")
     ?.addEventListener("click", async () => {
       VisitorService.exportHostVisitsToJson(hostName);
     });
 
-  // --- Initial Load of Dashboard Data ---
   await loadHostDashboardData(hostName);
 
   hideLoading();
 }
 
-// --- loadHostDashboardData Function (Now fetches and renders pending requests) ---
 async function loadHostDashboardData(name) {
   try {
-    // Show loading spinner inside pending requests section (if not already handled by render func)
     const pendingContainer = document.getElementById(
       "pending-requests-container"
     );
@@ -148,17 +143,14 @@ async function loadHostDashboardData(name) {
     const response = await VisitorService.fetchVisitsByHost(name);
     const allHostVisits = response.visits || [];
 
-    // Filter for pending requests
     const pendingRequests = allHostVisits.filter(
       (visit) => visit.status === "Pending"
     );
 
-    // Render the pending requests section
-    renderPendingRequestsSection(pendingRequests, name, loadHostDashboardData); // Pass hostName and refresh callback
+    renderPendingRequestsSection(pendingRequests, name, loadHostDashboardData);
 
-    // Placeholder for other sections (will be implemented in next steps)
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // Normalize today to start of day
+    today.setHours(0, 0, 0, 0);
 
     const todaysVisits = allHostVisits.filter((visit) => {
       const visitDate = new Date(visit.visitDate);
@@ -176,9 +168,8 @@ async function loadHostDashboardData(name) {
     const hostVisitHistory = allHostVisits.filter((visit) => {
       const visitDate = new Date(visit.visitDate);
       const now = new Date();
-      now.setHours(0, 0, 0, 0); // Normalize 'now' to start of day for comparison
+      now.setHours(0, 0, 0, 0);
 
-      // Check if status is a "past" status or if the visit date itself is in the past
       return (
         visit.status === "Completed" ||
         visit.status === "Declined" ||
@@ -197,7 +188,6 @@ async function loadHostDashboardData(name) {
       "Failed to load host dashboard: " + error.message,
       "danger"
     );
-    // If loading fails, put back the "no requests" message or an error message
     const pendingContainer = document.getElementById(
       "pending-requests-container"
     );

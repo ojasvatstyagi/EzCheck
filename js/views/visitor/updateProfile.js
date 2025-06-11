@@ -5,18 +5,14 @@ import VisitorService from "../../../api/visitorApi.js";
 export function setupProfileUpdateListener(visitorId, refreshCallback) {
   const profileSection = document.getElementById("profile-section");
 
-  // Listener for the "Edit Profile" button (in view mode)
   profileSection.addEventListener("click", (e) => {
     if (e.target.id === "editProfileBtn") {
-      refreshCallback(true); // Pass true to indicate edit mode
+      refreshCallback(true);
     }
   });
-
-  // Listener for the "Save Changes" button (in edit mode)
-  // Use event delegation on the form or a parent element
   profileSection.addEventListener("submit", async (e) => {
     if (e.target.id === "profileEditForm") {
-      e.preventDefault(); // Prevent default form submission
+      e.preventDefault();
 
       const form = e.target;
       const updatedData = {
@@ -40,7 +36,7 @@ export function setupProfileUpdateListener(visitorId, refreshCallback) {
             response.message || "Profile updated successfully!",
             "success"
           );
-          refreshCallback(); // Re-render the view to show updated data (back to view mode)
+          refreshCallback();
         } else {
           showAlert(
             document.body,
@@ -61,10 +57,9 @@ export function setupProfileUpdateListener(visitorId, refreshCallback) {
     }
   });
 
-  // Listener for the "Cancel" button (in edit mode)
   profileSection.addEventListener("click", (e) => {
     if (e.target.id === "cancelEditBtn") {
-      refreshCallback(); // Re-render the view to revert to view mode (without saving)
+      refreshCallback();
     }
   });
 }

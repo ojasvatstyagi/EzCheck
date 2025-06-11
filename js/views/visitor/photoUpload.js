@@ -2,7 +2,6 @@
 import { showAlert, showLoading, hideLoading } from "../../utils/helpers.js";
 import VisitorService from "../../../api/visitorApi.js";
 export function handlePhotoUpload(visitorId, onUploadSuccess) {
-  // Renamed onSuccess to onUploadSuccess for clarity
   const input = document.createElement("input");
   input.type = "file";
   input.accept = "image/*";
@@ -12,9 +11,8 @@ export function handlePhotoUpload(visitorId, onUploadSuccess) {
       const visitorPhotoElement = document.getElementById("visitorPhoto");
       let originalPhotoSrc = visitorPhotoElement
         ? visitorPhotoElement.src
-        : null; // Store original src
+        : null;
 
-      // --- 1. Client-Side Preview (Immediate Update) ---
       if (file && visitorPhotoElement) {
         const reader = new FileReader();
         reader.onload = function (event) {
@@ -29,7 +27,6 @@ export function handlePhotoUpload(visitorId, onUploadSuccess) {
         const formData = new FormData();
         formData.append("photo", file);
 
-        // --- 2. Actual API Call (Backend Update) ---
         const response = await VisitorService.uploadPhoto(visitorId, formData);
 
         if (response.success) {
@@ -38,9 +35,8 @@ export function handlePhotoUpload(visitorId, onUploadSuccess) {
             response.message || "Photo updated successfully",
             "success"
           );
-          // --- IMPORTANT: Call the success callback to re-render the profile ---
           if (onUploadSuccess) {
-            onUploadSuccess(); // Call the function passed from visitor.js to re-render
+            onUploadSuccess();
           }
         } else {
           showAlert(
@@ -48,7 +44,6 @@ export function handlePhotoUpload(visitorId, onUploadSuccess) {
             response.message || "Failed to upload photo.",
             "danger"
           );
-          // If upload fails, revert to the original photo
           if (visitorPhotoElement && originalPhotoSrc) {
             visitorPhotoElement.src = originalPhotoSrc;
           }
@@ -60,7 +55,6 @@ export function handlePhotoUpload(visitorId, onUploadSuccess) {
           "Failed to upload photo: " + error.message,
           "danger"
         );
-        // If an error occurs, revert to the original photo
         if (visitorPhotoElement && originalPhotoSrc) {
           visitorPhotoElement.src = originalPhotoSrc;
         }
@@ -73,7 +67,6 @@ export function handlePhotoUpload(visitorId, onUploadSuccess) {
 }
 
 export function setupPhotoUploadListener(visitorId, onUploadSuccess) {
-  // Renamed onSuccess
   document.getElementById("uploadPhotoBtn")?.addEventListener("click", () => {
     handlePhotoUpload(visitorId, onUploadSuccess);
   });

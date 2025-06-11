@@ -10,7 +10,6 @@ export function setupRegisterVisitorModal(onSuccessCallback, options = {}) {
     return;
   }
 
-  // Determine current user for pre-filling host field
   const currentUser = getCurrentUser();
   const prefillHostName =
     options.prefillHostName ||
@@ -18,7 +17,6 @@ export function setupRegisterVisitorModal(onSuccessCallback, options = {}) {
   const isHostRegistering =
     options.isHostRegistering || currentUser?.role === "host";
 
-  // Render the modal HTML structure
   modalsContainer.innerHTML = `
     <div class="modal fade" id="registerVisitorModal" tabindex="-1" aria-labelledby="registerVisitorModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
       <div class="modal-dialog modal-lg modal-dialog-centered">
@@ -100,13 +98,11 @@ export function setupRegisterVisitorModal(onSuccessCallback, options = {}) {
     </div>
   `;
 
-  // Get references to elements AFTER they have been rendered into the DOM
   const modalElement = document.getElementById("registerVisitorModal");
   const registerVisitorForm = document.getElementById("registerVisitorForm");
-  const visitDateInput = document.getElementById("visitDateInput"); // Changed ID for consistency
+  const visitDateInput = document.getElementById("visitDateInput");
   const isWalkInCheckbox = document.getElementById("isWalkInCheckbox");
 
-  // Set default current date/time for the visitDate input
   if (visitDateInput) {
     const now = new Date();
     const year = now.getFullYear();
@@ -117,14 +113,12 @@ export function setupRegisterVisitorModal(onSuccessCallback, options = {}) {
     visitDateInput.value = `${year}-${month}-${day}T${hours}:${minutes}`;
   }
 
-  // Initialize and show the Bootstrap modal
   const modal = new bootstrap.Modal(modalElement);
   modal.show();
 
-  // Event listener for the form submission
   registerVisitorForm.addEventListener("submit", async (e) => {
     e.preventDefault();
-    showLoading(modalElement); // Show loading inside the modal
+    showLoading(modalElement);
 
     const visitorData = {
       name: document.getElementById("visitorNameInput").value.trim(),
@@ -143,7 +137,6 @@ export function setupRegisterVisitorModal(onSuccessCallback, options = {}) {
     const isWalkIn = isWalkInCheckbox.checked;
 
     try {
-      // --- STEP 1: Check if visitor is blacklisted ---
       const blacklist = await VisitorService.fetchBlacklist();
       const isBlocked = await VisitorService.isVisitorOnBlacklist(
         visitorData,
@@ -160,7 +153,6 @@ export function setupRegisterVisitorModal(onSuccessCallback, options = {}) {
         return;
       }
 
-      // --- STEP 2: Register or get existing visitor ID ---
       const registrationResult = await VisitorService.registerVisitor(
         visitorData
       );
@@ -173,25 +165,17 @@ export function setupRegisterVisitorModal(onSuccessCallback, options = {}) {
 
       const visitorId = registrationResult.visitorId;
       console.log("Visitor ID after registration:", visitorId);
-
-      // --- STEP 3: Request visit for this visitor ---
-      // Pass the name from registrationResult.visitor.name if available, otherwise fallback to visitorData.name
       const visitRequestResult = await VisitorService.requestVisit(
         visitorId,
         registrationResult.visitor.name || visitorData.name, // Pass visitorName
         visitData,
-        isWalkIn // Use the checkbox value for walk-in status
+        isWalkIn
       );
 
       if (visitRequestResult.success) {
-        modal.hide(); // Hide the modal on success
-        showAlert(
-          document.body, // Alert outside the modal, on the main page
-          visitRequestResult.message,
-          "success"
-        );
+        modal.hide();
+        showAlert(document.body, visitRequestResult.message, "success");
         if (onSuccessCallback) {
-          // Pass relevant data back to the callback
           onSuccessCallback(visitRequestResult.visit);
         }
       } else {
@@ -210,8 +194,7 @@ export function setupRegisterVisitorModal(onSuccessCallback, options = {}) {
     }
   });
 
-  // Event listener for modal hidden event to clean up DOM
   modalElement.addEventListener("hidden.bs.modal", function (event) {
-    modalsContainer.innerHTML = ""; // Clear modal content from DOM
+    modalsContainer.innerHTML = "";
   });
 }

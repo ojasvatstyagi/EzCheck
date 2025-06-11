@@ -1,6 +1,5 @@
 // js/views/host/todaysVisitsSection.js
 
-// Make sure to import helpers if formatDateTime or other utilities are used
 import { formatDateTime, getStatusColor } from "../../utils/helpers.js";
 
 export function renderTodaysVisitsSection(todaysVisits, hostName) {
@@ -10,19 +9,14 @@ export function renderTodaysVisitsSection(todaysVisits, hostName) {
     return;
   }
 
-  // Clear any existing content or loading indicators
   container.innerHTML = "";
 
   if (todaysVisits && todaysVisits.length > 0) {
-    // Filter for Check-in / Expected if needed, or simply display all for today
-    // For now, we'll display all visits that are 'Approved' or 'Checked-In' for today.
     const relevantVisits = todaysVisits.filter(
       (visit) => visit.status === "Approved" || visit.status === "Checked-In"
-      // You might add 'Pending' here if you want requests for today to show up
     );
 
     if (relevantVisits.length > 0) {
-      // Sort visits by time for better display
       relevantVisits.sort(
         (a, b) =>
           new Date(a.visitDate).getTime() - new Date(b.visitDate).getTime()
@@ -30,7 +24,7 @@ export function renderTodaysVisitsSection(todaysVisits, hostName) {
 
       relevantVisits.forEach((visit) => {
         const visitCard = document.createElement("div");
-        visitCard.className = "card mb-2 shadow-sm"; // Basic styling for each visit item
+        visitCard.className = "card mb-2 shadow-sm";
         visitCard.innerHTML = `
                     <div class="card-body d-flex justify-content-between align-items-center">
                         <div>
@@ -59,7 +53,6 @@ export function renderTodaysVisitsSection(todaysVisits, hostName) {
         container.appendChild(visitCard);
       });
     } else {
-      // No relevant visits for today message (e.g., all were declined/completed)
       container.innerHTML = `
                 <div class="text-center text-muted p-4">
                     <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-auto mb-4 text-gray">
@@ -73,7 +66,6 @@ export function renderTodaysVisitsSection(todaysVisits, hostName) {
             `;
     }
   } else {
-    // Display the "no visits" message if array is empty (meaning no visits for today at all)
     container.innerHTML = `
             <div class="text-center text-muted p-4">
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-auto mb-4 text-gray-custom">

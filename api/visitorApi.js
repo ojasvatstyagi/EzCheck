@@ -1,91 +1,341 @@
 // js/api/visitorApi.js
 
-import { mockBlacklistDb } from "../js/utils/mockBlacklistDb.js";
-import { mockVisitorsDb, mockVisitsDb } from "../js/utils/mockVisitorsDb.js";
-
-// --- Development/Mock API Calls ---
-// Helper to persist mock data to localStorage
-function saveMockData() {
-  localStorage.setItem("mock_visitors", JSON.stringify(mockVisitorsDb));
-  localStorage.setItem("mock_visits", JSON.stringify(mockVisitsDb));
-}
 function generateUniqueId(prefix) {
-  return `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
 }
-export default {
-  // fetch list of visitors
+
+class VisitorService {
+  constructor() {
+    this.mockVisitors =
+      JSON.parse(localStorage.getItem("mock_visitors")) ||
+      this._getDefaultVisitors();
+    this.mockVisits =
+      JSON.parse(localStorage.getItem("mock_visits")) ||
+      this._getDefaultVisits();
+    this.mockBlacklist =
+      JSON.parse(localStorage.getItem("mock_blacklist")) ||
+      this._getDefaultBlacklist();
+
+    this._saveAllMockData();
+  }
+
+  _getDefaultVisitors() {
+    return [
+      {
+        id: "VISITOR-1749411258700-uh7a6z6yl",
+        name: "John Doe",
+        email: "john@example.com",
+        company: "ABC Corp",
+        phone: "123-456-7890",
+        idNumber: "DL12345",
+        photo: null,
+        isVIP: false,
+        registrationDate: "2025-06-01T10:00:00Z",
+      },
+      {
+        id: "VISITOR-123",
+        name: "Alice Wonderland",
+        email: "alice@example.com",
+        company: "Wonderland Inc",
+        phone: "987-654-3210",
+        idNumber: "PS54321",
+        photo: null,
+        isVIP: true,
+        registrationDate: "2025-05-20T11:00:00Z",
+      },
+      {
+        id: "VISITOR-003",
+        name: "Bob Johnson",
+        email: "bob@example.com",
+        company: "BuildIt",
+        phone: "555-123-4567",
+        idNumber: "DRV9876",
+        photo: null,
+        isVIP: false,
+        registrationDate: "2025-06-05T09:00:00Z",
+      },
+    ];
+  }
+
+  _getDefaultVisits() {
+    return [
+      {
+        id: "VISIT-mock1",
+        visitorId: "VISITOR-003",
+        purpose: "Meeting",
+        host: "Jane Doe",
+        visitDate: "2025-06-09T10:00:00.000Z",
+        notes: "Discussion on project Alpha",
+        status: "Checked-In",
+        requestDate: "2025-06-08T03:30:00.000Z",
+        checkInTime: "2025-06-08T18:40:58.965Z",
+        checkOutTime: null,
+      },
+      {
+        id: "VISIT-mock2",
+        visitorId: "VISITOR-1749411258700-uh7a6z6yl",
+        purpose: "Interview",
+        host: "host1",
+        visitDate: "2025-06-07T14:30:00.000Z",
+        notes: "Follow-up interview",
+        status: "Completed",
+        requestDate: "2025-06-06T04:30:00.000Z",
+        checkInTime: "2025-06-07T08:55:00.000Z",
+        checkOutTime: "2025-06-07T10:00:00.000Z",
+      },
+      {
+        id: "VISIT-1749403210010-3gloeqc9z",
+        visitorId: "VISITOR-1749411258700-uh7a6z6yl",
+        purpose: "Delivery",
+        host: "Rampal",
+        notes: "test ",
+        status: "Completed",
+        requestDate: "2025-06-08T17:20:10.010Z",
+        visitDate: "2025-06-08T17:20:00.000Z",
+        checkInTime: "2025-06-08T17:30:00.635Z",
+        checkOutTime: "2025-06-08T17:30:35.056Z",
+      },
+      {
+        id: "VISIT-1749405116110-jafkqa7gj",
+        visitorId: "VISITOR-1749411258700-uh7a6z6yl",
+        purpose: "Interview",
+        host: "host1",
+        visitDate: "2025-06-08T23:21:00.000Z",
+        notes: "test adding visitor from guard",
+        status: "Declined",
+        requestDate: "2025-06-08T17:51:56.110Z",
+        checkInTime: "2025-06-08T23:25:00.000Z",
+        checkOutTime: "2025-06-11T05:51:44.955Z",
+      },
+      {
+        id: "VISIT-1749405874353-puqsizrie",
+        visitorId: "VISITOR-1749411258700-uh7a6z6yl",
+        purpose: "Delivery",
+        host: "Mukesh",
+        visitDate: "2025-06-08T23:34:00.000Z",
+        notes: "test",
+        status: "Completed",
+        requestDate: "2025-06-08T18:04:34.353Z",
+        checkInTime: "2025-06-08T18:04:34.353Z",
+        checkOutTime: "2025-06-08T18:05:34.255Z",
+      },
+      {
+        id: "VISIT-1749407879678-w01iqjg13",
+        visitorId: "VISITOR-1749411258700-uh7a6z6yl",
+        visitorName: "test guard user",
+        purpose: "Delivery",
+        host: "host1",
+        visitDate: "2025-06-09T00:05:00.000Z",
+        notes: "testing",
+        status: "Pending",
+        requestDate: "2025-06-11T18:37:59.678Z",
+        checkInTime: "2025-06-09T00:10:00.000Z",
+        checkOutTime: null,
+        isWalkIn: true,
+      },
+      {
+        id: "VISIT-today-host1-1",
+        visitorId: "VISITOR-123",
+        visitorName: "Alice Wonderland",
+        purpose: "Consultation",
+        host: "host1",
+        visitDate: "2025-06-11T11:00:00.000Z",
+        notes: "Discuss Q3 projections",
+        status: "Approved",
+        requestDate: "2025-06-10T09:00:00.000Z",
+        checkInTime: "2025-06-11T11:05:00.000Z",
+        checkOutTime: null,
+      },
+      {
+        id: "VISIT-today-jane-1",
+        visitorId: "VISITOR-003",
+        visitorName: "Bob Johnson",
+        purpose: "Maintenance",
+        host: "Jane Doe",
+        visitDate: "2025-06-11T14:30:00.000Z",
+        notes: "Fixing AC unit",
+        status: "Checked-In",
+        requestDate: "2025-06-11T08:00:00.000Z",
+        checkInTime: "2025-06-11T09:00:00.000Z",
+        checkOutTime: null,
+      },
+      {
+        id: "VISIT-today-mukesh-1",
+        visitorId: "VISITOR-1749411258700-uh7a6z6yl",
+        visitorName: "John Doe",
+        purpose: "Performance Review",
+        host: "Mukesh",
+        visitDate: "2025-06-11T16:00:00.000Z",
+        notes: "Annual review",
+        status: "Approved",
+        requestDate: "2025-06-10T10:00:00.000Z",
+        checkInTime: "2025-06-11T16:05:00.000Z",
+        checkOutTime: "2025-06-11T17:00:00.000Z",
+      },
+      {
+        id: "VISIT-1749619810756-7o6pkz6u0",
+        visitorId: "VISITOR-003",
+        visitorName: "Ojas",
+        purpose: "Meeting",
+        host: "Host1",
+        visitDate: "2025-06-11T10:59:00.000Z",
+        notes: "testing host visit add",
+        status: "Approved",
+        requestDate: "2025-06-11T05:30:10.756Z",
+        checkInTime: "2025-06-11T11:00:00.000Z",
+        checkOutTime: null,
+        isWalkIn: false,
+      },
+    ];
+  }
+
+  _getDefaultBlacklist() {
+    return [
+      {
+        id: "BL-12345",
+        name: "Bad Visitor One",
+        idNumber: "ID001",
+        mobile: "1112223333",
+        reason: "Unauthorized access attempt",
+        addedOn: "2025-01-15T09:00:00.000Z",
+      },
+      {
+        id: "BL-67890",
+        name: "Troublemaker Two",
+        idNumber: "ID002",
+        mobile: "4445556666",
+        reason: "Disruptive behavior",
+        addedOn: "2025-03-01T15:00:00.000Z",
+      },
+    ];
+  }
+
+  _saveAllMockData() {
+    localStorage.setItem("mock_visitors", JSON.stringify(this.mockVisitors));
+    localStorage.setItem("mock_visits", JSON.stringify(this.mockVisits));
+    localStorage.setItem("mock_blacklist", JSON.stringify(this.mockBlacklist));
+  }
+
+  // fetches the list of all registered visitors.
   async fetchVisitors() {
     return new Promise((resolve) => {
       setTimeout(() => {
-        // Combine static and dynamically added mock visitors
-        resolve(mockVisitorsDb);
-      }, 500); // Simulate network delay
+        resolve(this.mockVisitors);
+      }, 500);
     });
-  },
+  }
 
-  //Fetches the blacklist of visitors.
+  // fetches the list of all visit records.
+  async fetchAllVisits() {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(this.mockVisits);
+      }, 500);
+    });
+  }
+
+  // fetches the list of all blacklisted visitors.
   async fetchBlacklist() {
     return new Promise((resolve) => {
       setTimeout(() => {
-        resolve(mockBlacklistDb);
-      }, 500); // Simulate network delay
+        resolve(this.mockBlacklist);
+      }, 500);
     });
-  },
+  }
 
-  // Exports a report of visitor data.
+  // Adds a visitor entry to the blacklist.
+  async addToBlacklist(entry) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        const exists = this.mockBlacklist.some(
+          (b) => b.idNumber === entry.idNumber || b.mobile === entry.mobile
+        );
+        if (exists) {
+          return reject(
+            new Error("Visitor with this ID or Mobile already in blacklist.")
+          );
+        }
+
+        const newEntry = {
+          id: generateUniqueId("BL"),
+          addedOn: new Date().toISOString(),
+          ...entry,
+        };
+
+        this.mockBlacklist.push(newEntry);
+        this._saveAllMockData();
+        resolve({
+          success: true,
+          message: "Added to blacklist",
+          entry: newEntry,
+        });
+      }, 300);
+    });
+  }
+
+  // Removes a visitor entry from the blacklist.
+  async removeFromBlacklist(id) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        const initialLength = this.mockBlacklist.length;
+        this.mockBlacklist = this.mockBlacklist.filter(
+          (entry) => entry.id !== id
+        );
+
+        if (this.mockBlacklist.length === initialLength) {
+          return reject(new Error("Blacklist entry not found."));
+        }
+
+        this._saveAllMockData();
+        resolve({ success: true, message: "Removed from blacklist" });
+      }, 300);
+    });
+  }
+
+  // Exports all visits for a specific host as a JSON file.
   async exportHostVisitsToJson(hostName) {
     try {
-      // 1. Fetch all visits for the specified host using the existing service method
-      const response = await this.fetchVisitsByHost(hostName); // Reusing the fetch logic
+      const response = await this.fetchVisitsByHost(hostName);
       const hostVisits = response.visits || [];
 
-      // 2. Convert the JavaScript array of visits to a JSON string, prettified
-      const jsonString = JSON.stringify(hostVisits, null, 2); // `null, 2` for pretty printing
+      const jsonString = JSON.stringify(hostVisits, null, 2); // 2 spaces for indentation
 
-      // 3. Create a Blob object from the JSON string
       const blob = new Blob([jsonString], { type: "application/json" });
 
-      // 4. Create a temporary URL for the Blob
       const url = URL.createObjectURL(blob);
 
-      // 5. Create a temporary anchor element to trigger the download
       const a = document.createElement("a");
       a.href = url;
 
-      // 6. Set the download file name
       const date = new Date().toISOString().slice(0, 10); // e.g., "2025-06-11"
       a.download = `visits_report_${hostName}_${date}.json`;
 
-      // 7. Append the anchor to the body (necessary for Firefox and good practice)
       document.body.appendChild(a);
 
-      // 8. Programmatically click the anchor to start the download
       a.click();
 
-      // 9. Clean up: remove the anchor and revoke the URL
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
 
       return { success: true, message: "Report exported successfully." };
     } catch (error) {
       console.error("Error exporting report:", error);
-      // Re-throw the error so the calling function can catch it and show an alert
       throw new Error(
         `Failed to export report: ${error.message || "Unknown error"}`
       );
     }
-  },
+  }
 
+  // Fetches visitor data by ID.
   async fetchVisitorData(visitorId) {
     return new Promise(async (resolve, reject) => {
       setTimeout(async () => {
-        const visitor = mockVisitorsDb.find((v) => v.id === visitorId);
+        const visitor = this.mockVisitors.find((v) => v.id === visitorId);
 
         if (!visitor) {
-          reject(
+          return reject(
             new Error("Visitor profile not found. Please register or login.")
           );
-          return;
         }
 
         let isBlocked = false;
@@ -100,17 +350,17 @@ export default {
         }
 
         const currentVisit =
-          mockVisitsDb.find(
+          this.mockVisits.find(
             (v) => v.visitorId === visitorId && v.status === "Checked-In"
           ) ||
-          mockVisitsDb.find(
+          this.mockVisits.find(
             (v) => v.visitorId === visitorId && v.status === "Approved"
           ) ||
-          mockVisitsDb.find(
+          this.mockVisits.find(
             (v) => v.visitorId === visitorId && v.status === "Pending"
           );
 
-        const visitHistory = mockVisitsDb
+        const visitHistory = this.mockVisits
           .filter((v) => v.visitorId === visitorId)
           .map((visit) => ({
             date: visit.visitDate, // This corresponds to the "Date (Scheduled)" column
@@ -125,8 +375,8 @@ export default {
           .sort((a, b) => {
             const dateA = new Date(a.visitDate || a.requestDate);
             const dateB = new Date(b.visitDate || b.requestDate);
-            return dateB - dateA;
-          }); // Sort by most recent visit
+            return dateB - dateA; // Sort by most recent visit
+          });
 
         resolve({
           id: visitor.id,
@@ -152,21 +402,16 @@ export default {
         });
       }, 500);
     });
-  },
+  }
 
-  // Registers a new visitor or retrieves an existing visitor's ID.async registerVisitor(visitorData) {
+  // Registers a new visitor
   async registerVisitor(visitorData) {
     return new Promise((resolve) => {
       setTimeout(() => {
-        const emailToCompare = visitorData.email
-          ? visitorData.email.toLowerCase()
-          : null;
-        const phoneToCompare = visitorData.phone
-          ? visitorData.phone.trim()
-          : null;
+        const emailToCompare = visitorData.email?.toLowerCase().trim();
+        const phoneToCompare = visitorData.phone?.trim();
 
-        // Find existing visitor by email or phone
-        let existingVisitor = mockVisitorsDb.find(
+        let existingVisitor = this.mockVisitors.find(
           (v) =>
             (v.email &&
               emailToCompare &&
@@ -184,22 +429,19 @@ export default {
             email: visitorData.email || existingVisitor.email,
             phone: visitorData.phone || existingVisitor.phone,
             company: visitorData.company || existingVisitor.company,
-            // Only update idNumber, photo, idProof if new data is explicitly passed
             idNumber: visitorData.idNumber || existingVisitor.idNumber,
             photo: visitorData.photo || existingVisitor.photo,
             idProof: visitorData.idProof || existingVisitor.idProof,
-            // isBlocked and registrationDate should ideally not be updated via this path,
-            // but if visitorData includes them, they'll overwrite.
+            // isBlocked and registrationDate should ideally not be updated via this path
           });
-          saveMockData(); // Save updated data
+          this._saveAllMockData();
           resolve({
             success: true,
             message: "Visitor already registered. Info updated.",
             visitorId: existingVisitor.id,
-            visitor: existingVisitor, // <-- IMPORTANT: Return the full visitor object
+            visitor: existingVisitor,
           });
         } else {
-          // Create a new visitor
           const newVisitorId = generateUniqueId("VISITOR");
           const newVisitor = {
             id: newVisitorId,
@@ -210,12 +452,13 @@ export default {
             idNumber: visitorData.idNumber || null,
             photo: visitorData.photo || null,
             idProof: visitorData.idProof || null,
-            isBlocked: visitorData.isBlocked ?? false, // Default to false if not provided
+            isVIP: visitorData.isVIP ?? false,
+            isBlocked: visitorData.isBlocked ?? false,
             registrationDate: new Date().toISOString(),
           };
 
-          mockVisitorsDb.push(newVisitor);
-          saveMockData();
+          this.mockVisitors.push(newVisitor);
+          this._saveAllMockData();
           console.log(
             `Mock: New visitor profile registered, ID: ${newVisitor.id}`
           );
@@ -223,25 +466,24 @@ export default {
             success: true,
             message: "Visitor registered successfully.",
             visitorId: newVisitor.id,
-            visitor: newVisitor, // <-- IMPORTANT: Return the full new visitor object
+            visitor: newVisitor,
           });
         }
       }, 500);
     });
-  },
+  }
 
-  // UPDATED: Added visitorName as a parameter
+  // Requests a visit
   async requestVisit(visitorId, visitorName, visitData, isWalkIn = false) {
-    return new Promise((resolve) => {
+    return new Promise(async (resolve) => {
       setTimeout(async () => {
-        const visitor = mockVisitorsDb.find((v) => v.id === visitorId);
+        const visitor = this.mockVisitors.find((v) => v.id === visitorId);
 
         if (!visitor) {
           resolve({ success: false, message: "Visitor not found." });
           return;
         }
 
-        // Re-check blacklist using the found visitor object
         const blacklist = await this.fetchBlacklist();
         if (await this.isVisitorOnBlacklist(visitor, blacklist)) {
           resolve({
@@ -252,22 +494,22 @@ export default {
         }
 
         const newVisit = {
-          id: generateUniqueId("VISIT"), // Ensure this generates a unique ID
+          id: generateUniqueId("VISIT"),
           visitorId: visitorId,
-          visitorName: visitorName, // <-- Use the visitorName passed as a parameter
+          visitorName: visitorName,
           purpose: visitData.purpose,
           host: visitData.host,
-          visitDate: visitData.visitDate, // This is the requested date/time
+          visitDate: visitData.visitDate,
           notes: visitData.notes,
-          status: isWalkIn ? "Checked-In" : "Pending", // Conditional status based on isWalkIn
+          status: isWalkIn ? "Checked-In" : "Pending",
           requestDate: new Date().toISOString(),
-          checkInTime: isWalkIn ? new Date().toISOString() : null, // Immediate check-in for walk-in
+          checkInTime: isWalkIn ? new Date().toISOString() : null,
           checkOutTime: null,
           isWalkIn: isWalkIn,
         };
 
-        mockVisitsDb.push(newVisit);
-        saveMockData(); // Save changes to localStorage
+        this.mockVisits.push(newVisit);
+        this._saveAllMockData();
 
         console.log(
           `Mock: Visit requested for ${visitorName}. Status: ${newVisit.status}`
@@ -275,29 +517,27 @@ export default {
         resolve({
           success: true,
           message: `Visit requested successfully. Status: ${newVisit.status}`,
-          visitId: newVisit.id, // Returning the visitId is useful
-          visit: newVisit, // <-- IMPORTANT: Return the full new visit object
+          visitId: newVisit.id,
+          visit: newVisit,
         });
       }, 500);
     });
-  },
+  }
 
-  // Checks if a visitor is on the blacklist.
+  // Checks if a visitor is on the blacklist
   async isVisitorOnBlacklist(visitor, blacklist) {
     if (!visitor || !blacklist || blacklist.length === 0) {
       return false;
     }
     return blacklist.some((blockedEntry) => {
-      // Normalize data for comparison (e.g., trim spaces, convert to lowercase)
       const visitorEmail = visitor.email?.toLowerCase().trim();
       const visitorIdNumber = visitor.idNumber?.toLowerCase().trim();
-      const visitorMobile = visitor.mobile?.replace(/\D/g, ""); // Remove non-digits
+      const visitorMobile = visitor.phone?.replace(/\D/g, ""); // Use visitor.phone for consistency
 
       const blockedEmail = blockedEntry.email?.toLowerCase().trim();
       const blockedIdNumber = blockedEntry.idNumber?.toLowerCase().trim();
       const blockedMobile = blockedEntry.mobile?.replace(/\D/g, "");
 
-      // Match by email, ID number, or mobile. Add more fields if necessary.
       return (
         (visitorEmail && blockedEmail && visitorEmail === blockedEmail) ||
         (visitorIdNumber &&
@@ -306,13 +546,13 @@ export default {
         (visitorMobile && blockedMobile && visitorMobile === blockedMobile)
       );
     });
-  },
+  }
 
-  // Uploads ID proof for a visitor.
+  // Uploads an ID proof
   async uploadIdProof(visitorId, idType, idNumber, idFileBase64, mimeType) {
     return new Promise((resolve) => {
       setTimeout(() => {
-        const visitorIndex = mockVisitorsDb.findIndex(
+        const visitorIndex = this.mockVisitors.findIndex(
           (v) => v.id === visitorId
         );
 
@@ -321,21 +561,18 @@ export default {
           return;
         }
 
-        const visitor = mockVisitorsDb[visitorIndex];
+        const visitor = this.mockVisitors[visitorIndex];
 
-        // Store the ID proof details including Base64 data and MIME type
         visitor.idProof = {
           type: idType,
           number: idNumber,
-          data: idFileBase64, // The Base64 string of the file
-          mimeType: mimeType, // Store the file's MIME type
+          data: idFileBase64,
+          mimeType: mimeType,
           uploadDate: new Date().toISOString(),
         };
-        // Also update the idNumber directly on the visitor object for easier access
         visitor.idNumber = idNumber;
 
-        mockVisitorsDb[visitorIndex] = visitor; // Update the record in the array
-        saveMockData(); // Persist changes to localStorage
+        this._saveAllMockData();
 
         console.log(
           `Mock: ID proof uploaded for visitor ${visitorId}. Type: ${idType}, Number: ${idNumber}`
@@ -344,14 +581,15 @@ export default {
           success: true,
           message: "ID proof uploaded successfully (mock).",
         });
-      }, 1000); // Simulate upload delay
+      }, 1000);
     });
-  },
+  }
+
+  // Updates a visitor's profile
   async updateProfile(visitorId, updatedData) {
-    // Development/Mock Implementation
     return new Promise((resolve) => {
       setTimeout(() => {
-        const visitorIndex = mockVisitorsDb.findIndex(
+        const visitorIndex = this.mockVisitors.findIndex(
           (v) => v.id === visitorId
         );
 
@@ -363,12 +601,11 @@ export default {
           return;
         }
 
-        // Update only the provided fields
-        mockVisitorsDb[visitorIndex] = {
-          ...mockVisitorsDb[visitorIndex],
-          ...updatedData, // Overwrite existing fields with updated ones
+        this.mockVisitors[visitorIndex] = {
+          ...this.mockVisitors[visitorIndex],
+          ...updatedData,
         };
-        saveMockData(); // Persist changes to localStorage
+        this._saveAllMockData();
 
         console.log(
           `Mock: Profile updated for visitor ${visitorId}.`,
@@ -378,50 +615,55 @@ export default {
           success: true,
           message: "Profile updated successfully (mock).",
         });
-      }, 700); // Simulate network delay
+      }, 700);
     });
-  },
-  // Cancels a specific visit.
+  }
+
+  // Cancels a visit
   async cancelVisit(visitId) {
     return new Promise((resolve) => {
       setTimeout(() => {
-        const visitIndex = mockVisitsDb.findIndex((v) => v.id === visitId);
+        const visitIndex = this.mockVisits.findIndex((v) => v.id === visitId);
         if (visitIndex !== -1) {
-          mockVisitsDb[visitIndex].status = "Cancelled";
-          saveMockData();
+          this.mockVisits[visitIndex].status = "Cancelled";
+          if (!this.mockVisits[visitIndex].checkOutTime) {
+            this.mockVisits[visitIndex].checkOutTime = new Date().toISOString();
+          }
+          this._saveAllMockData();
           resolve({ success: true, message: `Visit ${visitId} cancelled.` });
         } else {
           resolve({ success: false, message: `Visit ${visitId} not found.` });
         }
       }, 700);
     });
-  },
+  }
 
-  // Uploads a photo for a visitor.
+  // Uploads a photo
   async uploadPhoto(visitorId, formData) {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       setTimeout(() => {
-        const visitorIndex = mockVisitorsDb.findIndex(
+        const visitorIndex = this.mockVisitors.findIndex(
           (v) => v.id === visitorId
         );
 
         if (visitorIndex === -1) {
-          resolve({ success: false, message: "Visitor not found." });
-          return;
+          return resolve({ success: false, message: "Visitor not found." });
         }
 
-        const file = formData.get("photo"); // Get the file object from FormData
+        const file = formData.get("photo");
         if (!file) {
-          resolve({ success: false, message: "No photo file provided." });
-          return;
+          return resolve({
+            success: false,
+            message: "No photo file provided.",
+          });
         }
-        const reader = new FileReader();
-        reader.onload = function (event) {
-          const base64Photo = event.target.result; // This is the Base64 data URL
 
-          // Update the visitor's photo in your mock DB
-          mockVisitorsDb[visitorIndex].photo = base64Photo;
-          saveMockData(); // Persist the change
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const base64Photo = event.target.result;
+
+          this.mockVisitors[visitorIndex].photo = base64Photo;
+          this._saveAllMockData();
 
           console.log(
             `Mock: Photo uploaded and updated for visitor ${visitorId}.`
@@ -429,50 +671,44 @@ export default {
           resolve({
             success: true,
             message: "Photo uploaded successfully (mock).",
-            newPhotoUrl: base64Photo, // Optionally return the new URL for immediate UI update
+            newPhotoUrl: base64Photo,
           });
         };
-        reader.onerror = function (error) {
+        reader.onerror = (error) => {
           console.error("FileReader error:", error);
-          resolve({
+          reject({
             success: false,
             message: "Error reading photo file for mock upload.",
           });
         };
-        reader.readAsDataURL(file); // Read the file as Base64
-      }, 1000); // Simulate upload delay
+        reader.readAsDataURL(file);
+      }, 1000);
     });
-  },
+  }
 
+  // Checks-in or checks-out a visit
   async checkInOutVisit(visitId) {
-    return new Promise((resolve) => {
+    return new Promise(async (resolve, reject) => {
       setTimeout(async () => {
-        const visitIndex = mockVisitsDb.findIndex((v) => v.id === visitId);
+        const visitIndex = this.mockVisits.findIndex((v) => v.id === visitId);
 
         if (visitIndex === -1) {
-          resolve({
-            success: false,
-            message: "Visit ID not found. Please verify.",
-          });
-          return;
+          return reject(new Error("Visit ID not found. Please verify."));
         }
 
-        const visit = mockVisitsDb[visitIndex];
-        const visitor = mockVisitorsDb.find((v) => v.id === visit.visitorId);
+        const visit = this.mockVisits[visitIndex];
+        const visitor = this.mockVisitors.find((v) => v.id === visit.visitorId);
 
         if (!visitor) {
-          resolve({ success: false, message: "Associated visitor not found." });
-          return;
+          return reject(new Error("Associated visitor not found."));
         }
 
-        // --- Blacklist Check (Crucial for Guard Actions) ---
+        //Blacklist Check
         const blacklist = await this.fetchBlacklist();
         if (await this.isVisitorOnBlacklist(visitor, blacklist)) {
-          resolve({
-            success: false,
-            message: `Visitor ${visitor.name} is blacklisted. Access denied.`,
-          });
-          return;
+          return reject(
+            new Error(`Visitor ${visitor.name} is blacklisted. Access denied.`)
+          );
         }
 
         let message = "";
@@ -501,7 +737,7 @@ export default {
           newStatus = visit.status;
         }
 
-        saveMockData();
+        this._saveAllMockData();
 
         console.log(
           `Mock: Check-in/out for Visit ID ${visitId}. Status: ${newStatus}`
@@ -515,7 +751,9 @@ export default {
         });
       }, 500);
     });
-  },
+  }
+
+  // Fetches today's visits
   async fetchTodayVisits() {
     return new Promise((resolve) => {
       setTimeout(() => {
@@ -524,7 +762,7 @@ export default {
         const endOfToday = new Date(today);
         endOfToday.setDate(today.getDate() + 1); // Start of tomorrow
 
-        const todayVisits = mockVisitsDb
+        const todayVisits = this.mockVisits
           .filter((visit) => {
             const visitDate = new Date(visit.visitDate);
             // Filter visits that are scheduled for today or have check-in/out today
@@ -539,8 +777,7 @@ export default {
             );
           })
           .map((visit) => {
-            // Enrich visit with visitor details
-            const visitor = mockVisitorsDb.find(
+            const visitor = this.mockVisitors.find(
               (v) => v.id === visit.visitorId
             );
             return {
@@ -557,7 +794,6 @@ export default {
             };
           });
 
-        // Sort by checkInTime if available, otherwise by visitDate
         todayVisits.sort((a, b) => {
           const timeA = a.checkInTime
             ? new Date(a.checkInTime)
@@ -572,60 +808,94 @@ export default {
         resolve(todayVisits);
       }, 500);
     });
-  },
+  }
 
+  // Fetches all visits for a specific host
   async fetchVisitsByHost(hostName) {
     return new Promise((resolve) => {
       setTimeout(() => {
-        const storedVisits = localStorage.getItem("mock_visits");
-        let hostVisits = [];
+        const hostVisits = this.mockVisits.filter(
+          (visit) =>
+            visit.host && visit.host.toLowerCase() === hostName.toLowerCase()
+        );
 
-        if (storedVisits) {
-          const visits = JSON.parse(storedVisits);
-          hostVisits = visits.filter(
-            (visit) =>
-              visit.host && visit.host.toLowerCase() === hostName.toLowerCase()
-          );
-        }
         resolve({
           success: true,
           visits: hostVisits,
           message: "Host visits fetched successfully (mock).",
         });
-      }, 500); // Simulate network delay
+      }, 500);
     });
-  },
+  }
 
+  // Updates the status of a visit
   async updateVisitStatus(visitId, newStatus) {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
-        const mock_visits = JSON.parse(localStorage.getItem("mock_visits"));
-        const visitIndex = mock_visits.findIndex(
+        const visitIndex = this.mockVisits.findIndex(
           (visit) => visit.id === visitId
         );
         if (visitIndex > -1) {
-          // Update the status
-          mock_visits[visitIndex].status = newStatus;
+          this.mockVisits[visitIndex].status = newStatus;
 
           if (
             newStatus === "Declined" ||
             newStatus === "Completed" ||
             newStatus === "Cancelled"
           ) {
-            if (!mock_visits[visitIndex].checkOutTime) {
-              mock_visits[visitIndex].checkOutTime = new Date().toISOString();
+            if (!this.mockVisits[visitIndex].checkOutTime) {
+              this.mockVisits[visitIndex].checkOutTime =
+                new Date().toISOString();
             }
           }
           console.log(`Mock: Visit ${visitId} status updated to ${newStatus}`);
 
-          // === NEW: Save the updated mock_visits array back to localStorage ===
-          localStorage.setItem("mock_visits", JSON.stringify(mock_visits));
+          this._saveAllMockData();
 
           resolve({ success: true, message: "Status updated successfully." });
         } else {
           reject(new Error("Visit not found."));
         }
-      }, 500); // Simulate API call delay
+      }, 500);
     });
-  },
-};
+  }
+
+  // Exports admin data to a JSON file
+  async exportAdminDataToJson() {
+    try {
+      const [visitors, visits, blacklist] = await Promise.all([
+        this.fetchVisitors(),
+        this.fetchAllVisits(),
+        this.fetchBlacklist(),
+      ]);
+
+      const exportData = {
+        exportDate: new Date().toISOString(),
+        visitors: visitors,
+        visits: visits,
+        blacklist: blacklist,
+      };
+
+      const jsonString = JSON.stringify(exportData, null, 2);
+
+      const blob = new Blob([jsonString], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `visitor_management_data_export_${new Date()
+        .toISOString()
+        .slice(0, 10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error exporting admin data:", error);
+      throw error;
+    }
+  }
+}
+
+// Export a single instance of the VisitorService
+export default new VisitorService();
