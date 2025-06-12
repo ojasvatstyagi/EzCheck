@@ -11,6 +11,8 @@ const initialAlertTimeout = 3000;
 
 let currentView = "login";
 let currentEmail = "";
+let currentRole = "";
+
 function showAlert(message, type) {
   const existingAlert = authContainer.querySelector(".alert");
   if (existingAlert) {

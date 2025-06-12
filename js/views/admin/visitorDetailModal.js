@@ -1,5 +1,5 @@
 // js/views/admin/visitorDetailModal.js
-
+import { getStatusColor } from "../../utils/helpers.js";
 export function showVisitorDetailModal(visitorDetails, containerElement) {
   if (!visitorDetails || !containerElement) {
     console.error("Missing visitorDetails or containerElement for modal.");
@@ -49,20 +49,11 @@ export function showVisitorDetailModal(visitorDetails, containerElement) {
                                   visitorDetails.currentVisit.host
                                 }</p>
                                 <p><strong>Scheduled Date:</strong> ${new Date(
-                                  visitorDetails.currentVisit.date
+                                  visitorDetails.currentVisit.visitDate
                                 ).toLocaleDateString()}</p>
-                                <p><strong>Status:</strong> <span class="badge bg-${
-                                  visitorDetails.currentVisit.status ===
-                                  "Checked-In"
-                                    ? "info"
-                                    : visitorDetails.currentVisit.status ===
-                                      "Pending"
-                                    ? "warning"
-                                    : visitorDetails.currentVisit.status ===
-                                      "Completed"
-                                    ? "success"
-                                    : "secondary"
-                                }">${
+                                <p><strong>Status:</strong> <span class="badge ${getStatusColor(
+                                  visitorDetails.currentVisit.status
+                                )}">${
                                 visitorDetails.currentVisit.status
                               }</span></p>
                                 <p><strong>Check-in Time:</strong> ${
@@ -154,6 +145,7 @@ export function showVisitorDetailModal(visitorDetails, containerElement) {
   visitorDetailModalElement.addEventListener(
     "hidden.bs.modal",
     function handler() {
+      document.body.focus();
       containerElement.innerHTML = "";
       visitorDetailModalElement.removeEventListener("hidden.bs.modal", handler);
     }

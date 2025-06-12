@@ -195,6 +195,7 @@ export function setupRegisterVisitorModal(onSuccessCallback, options = {}) {
   });
 
   modalElement.addEventListener("hidden.bs.modal", function (event) {
+    document.body.focus();
     modalsContainer.innerHTML = "";
   });
 }

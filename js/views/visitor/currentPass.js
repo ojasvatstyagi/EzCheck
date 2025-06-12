@@ -17,8 +17,11 @@ export function renderVisitStatus(visitorData) {
                 <p class="mb-1"><strong>Host:</strong> ${
                   visitorData.currentVisit.host
                 }</p>
+                <p class="mb-1"><strong>Visit ID:</strong> ${
+                  visitorData.currentVisit.id
+                }</p>
                 <p class="mb-1"><strong>Date:</strong> ${formatDateTime(
-                  visitorData.currentVisit.date
+                  visitorData.currentVisit.visitDate
                 )}</p>
                 <p class="mb-1"><strong>Status:</strong>
                   <span class="badge ${getStatusColor(

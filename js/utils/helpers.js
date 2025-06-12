@@ -54,7 +54,7 @@ export function hideLoading() {
 export function getStatusColor(status) {
   switch (status) {
     case "Approved":
-      return "bg-info text-dark";
+      return "bg-info";
     case "Checked-In":
       return "bg-secondary";
     case "Completed":
@@ -62,11 +62,11 @@ export function getStatusColor(status) {
     case "Cancelled":
       return "bg-danger";
     case "Pending":
-      return "bg-warning text-dark";
+      return "bg-warning ";
     case "Declined":
       return "bg-danger";
     default:
-      return "bg-light text-dark";
+      return "bg-light";
   }
 }
 

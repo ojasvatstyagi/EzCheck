@@ -20,194 +20,197 @@ class VisitorService {
   }
 
   _getDefaultVisitors() {
-    return [
-      {
-        id: "VISITOR-1749411258700-uh7a6z6yl",
-        name: "John Doe",
-        email: "john@example.com",
-        company: "ABC Corp",
-        phone: "123-456-7890",
-        idNumber: "DL12345",
-        photo: null,
-        isVIP: false,
-        registrationDate: "2025-06-01T10:00:00Z",
-      },
-      {
-        id: "VISITOR-123",
-        name: "Alice Wonderland",
-        email: "alice@example.com",
-        company: "Wonderland Inc",
-        phone: "987-654-3210",
-        idNumber: "PS54321",
-        photo: null,
-        isVIP: true,
-        registrationDate: "2025-05-20T11:00:00Z",
-      },
-      {
-        id: "VISITOR-003",
-        name: "Bob Johnson",
-        email: "bob@example.com",
-        company: "BuildIt",
-        phone: "555-123-4567",
-        idNumber: "DRV9876",
-        photo: null,
-        isVIP: false,
-        registrationDate: "2025-06-05T09:00:00Z",
-      },
-    ];
+    // return [
+    //   {
+    //     id: "VISITOR-1749411258700-uh7a6z6yl",
+    //     name: "John Doe",
+    //     email: "john@example.com",
+    //     company: "ABC Corp",
+    //     phone: "123-456-7890",
+    //     idNumber: "DL12345",
+    //     photo: null,
+    //     isVIP: false,
+    //     registrationDate: "2025-06-01T10:00:00Z",
+    //   },
+    //   {
+    //     id: "VISITOR-123",
+    //     name: "Alice Wonderland",
+    //     email: "alice@example.com",
+    //     company: "Wonderland Inc",
+    //     phone: "987-654-3210",
+    //     idNumber: "PS54321",
+    //     photo: null,
+    //     isVIP: true,
+    //     registrationDate: "2025-05-20T11:00:00Z",
+    //   },
+    //   {
+    //     id: "VISITOR-003",
+    //     name: "Bob Johnson",
+    //     email: "bob@example.com",
+    //     company: "BuildIt",
+    //     phone: "555-123-4567",
+    //     idNumber: "DRV9876",
+    //     photo: null,
+    //     isVIP: false,
+    //     registrationDate: "2025-06-05T09:00:00Z",
+    //   },
+    // ];
+    return [];
   }
 
   _getDefaultVisits() {
-    return [
-      {
-        id: "VISIT-mock1",
-        visitorId: "VISITOR-003",
-        purpose: "Meeting",
-        host: "Jane Doe",
-        visitDate: "2025-06-09T10:00:00.000Z",
-        notes: "Discussion on project Alpha",
-        status: "Checked-In",
-        requestDate: "2025-06-08T03:30:00.000Z",
-        checkInTime: "2025-06-08T18:40:58.965Z",
-        checkOutTime: null,
-      },
-      {
-        id: "VISIT-mock2",
-        visitorId: "VISITOR-1749411258700-uh7a6z6yl",
-        purpose: "Interview",
-        host: "host1",
-        visitDate: "2025-06-07T14:30:00.000Z",
-        notes: "Follow-up interview",
-        status: "Completed",
-        requestDate: "2025-06-06T04:30:00.000Z",
-        checkInTime: "2025-06-07T08:55:00.000Z",
-        checkOutTime: "2025-06-07T10:00:00.000Z",
-      },
-      {
-        id: "VISIT-1749403210010-3gloeqc9z",
-        visitorId: "VISITOR-1749411258700-uh7a6z6yl",
-        purpose: "Delivery",
-        host: "Rampal",
-        notes: "test ",
-        status: "Completed",
-        requestDate: "2025-06-08T17:20:10.010Z",
-        visitDate: "2025-06-08T17:20:00.000Z",
-        checkInTime: "2025-06-08T17:30:00.635Z",
-        checkOutTime: "2025-06-08T17:30:35.056Z",
-      },
-      {
-        id: "VISIT-1749405116110-jafkqa7gj",
-        visitorId: "VISITOR-1749411258700-uh7a6z6yl",
-        purpose: "Interview",
-        host: "host1",
-        visitDate: "2025-06-08T23:21:00.000Z",
-        notes: "test adding visitor from guard",
-        status: "Declined",
-        requestDate: "2025-06-08T17:51:56.110Z",
-        checkInTime: "2025-06-08T23:25:00.000Z",
-        checkOutTime: "2025-06-11T05:51:44.955Z",
-      },
-      {
-        id: "VISIT-1749405874353-puqsizrie",
-        visitorId: "VISITOR-1749411258700-uh7a6z6yl",
-        purpose: "Delivery",
-        host: "Mukesh",
-        visitDate: "2025-06-08T23:34:00.000Z",
-        notes: "test",
-        status: "Completed",
-        requestDate: "2025-06-08T18:04:34.353Z",
-        checkInTime: "2025-06-08T18:04:34.353Z",
-        checkOutTime: "2025-06-08T18:05:34.255Z",
-      },
-      {
-        id: "VISIT-1749407879678-w01iqjg13",
-        visitorId: "VISITOR-1749411258700-uh7a6z6yl",
-        visitorName: "test guard user",
-        purpose: "Delivery",
-        host: "host1",
-        visitDate: "2025-06-09T00:05:00.000Z",
-        notes: "testing",
-        status: "Pending",
-        requestDate: "2025-06-11T18:37:59.678Z",
-        checkInTime: "2025-06-09T00:10:00.000Z",
-        checkOutTime: null,
-        isWalkIn: true,
-      },
-      {
-        id: "VISIT-today-host1-1",
-        visitorId: "VISITOR-123",
-        visitorName: "Alice Wonderland",
-        purpose: "Consultation",
-        host: "host1",
-        visitDate: "2025-06-11T11:00:00.000Z",
-        notes: "Discuss Q3 projections",
-        status: "Approved",
-        requestDate: "2025-06-10T09:00:00.000Z",
-        checkInTime: "2025-06-11T11:05:00.000Z",
-        checkOutTime: null,
-      },
-      {
-        id: "VISIT-today-jane-1",
-        visitorId: "VISITOR-003",
-        visitorName: "Bob Johnson",
-        purpose: "Maintenance",
-        host: "Jane Doe",
-        visitDate: "2025-06-11T14:30:00.000Z",
-        notes: "Fixing AC unit",
-        status: "Checked-In",
-        requestDate: "2025-06-11T08:00:00.000Z",
-        checkInTime: "2025-06-11T09:00:00.000Z",
-        checkOutTime: null,
-      },
-      {
-        id: "VISIT-today-mukesh-1",
-        visitorId: "VISITOR-1749411258700-uh7a6z6yl",
-        visitorName: "John Doe",
-        purpose: "Performance Review",
-        host: "Mukesh",
-        visitDate: "2025-06-11T16:00:00.000Z",
-        notes: "Annual review",
-        status: "Approved",
-        requestDate: "2025-06-10T10:00:00.000Z",
-        checkInTime: "2025-06-11T16:05:00.000Z",
-        checkOutTime: "2025-06-11T17:00:00.000Z",
-      },
-      {
-        id: "VISIT-1749619810756-7o6pkz6u0",
-        visitorId: "VISITOR-003",
-        visitorName: "Ojas",
-        purpose: "Meeting",
-        host: "Host1",
-        visitDate: "2025-06-11T10:59:00.000Z",
-        notes: "testing host visit add",
-        status: "Approved",
-        requestDate: "2025-06-11T05:30:10.756Z",
-        checkInTime: "2025-06-11T11:00:00.000Z",
-        checkOutTime: null,
-        isWalkIn: false,
-      },
-    ];
+    // return [
+    //   {
+    //     id: "VISIT-mock1",
+    //     visitorId: "VISITOR-003",
+    //     purpose: "Meeting",
+    //     host: "Jane Doe",
+    //     visitDate: "2025-06-09T10:00:00.000Z",
+    //     notes: "Discussion on project Alpha",
+    //     status: "Checked-In",
+    //     requestDate: "2025-06-08T03:30:00.000Z",
+    //     checkInTime: "2025-06-08T18:40:58.965Z",
+    //     checkOutTime: null,
+    //   },
+    //   {
+    //     id: "VISIT-mock2",
+    //     visitorId: "VISITOR-1749411258700-uh7a6z6yl",
+    //     purpose: "Interview",
+    //     host: "host1",
+    //     visitDate: "2025-06-07T14:30:00.000Z",
+    //     notes: "Follow-up interview",
+    //     status: "Completed",
+    //     requestDate: "2025-06-06T04:30:00.000Z",
+    //     checkInTime: "2025-06-07T08:55:00.000Z",
+    //     checkOutTime: "2025-06-07T10:00:00.000Z",
+    //   },
+    //   {
+    //     id: "VISIT-1749403210010-3gloeqc9z",
+    //     visitorId: "VISITOR-1749411258700-uh7a6z6yl",
+    //     purpose: "Delivery",
+    //     host: "Rampal",
+    //     notes: "test ",
+    //     status: "Completed",
+    //     requestDate: "2025-06-08T17:20:10.010Z",
+    //     visitDate: "2025-06-08T17:20:00.000Z",
+    //     checkInTime: "2025-06-08T17:30:00.635Z",
+    //     checkOutTime: "2025-06-08T17:30:35.056Z",
+    //   },
+    //   {
+    //     id: "VISIT-1749405116110-jafkqa7gj",
+    //     visitorId: "VISITOR-1749411258700-uh7a6z6yl",
+    //     purpose: "Interview",
+    //     host: "host1",
+    //     visitDate: "2025-06-08T23:21:00.000Z",
+    //     notes: "test adding visitor from guard",
+    //     status: "Declined",
+    //     requestDate: "2025-06-08T17:51:56.110Z",
+    //     checkInTime: "2025-06-08T23:25:00.000Z",
+    //     checkOutTime: "2025-06-11T05:51:44.955Z",
+    //   },
+    //   {
+    //     id: "VISIT-1749405874353-puqsizrie",
+    //     visitorId: "VISITOR-1749411258700-uh7a6z6yl",
+    //     purpose: "Delivery",
+    //     host: "Mukesh",
+    //     visitDate: "2025-06-08T23:34:00.000Z",
+    //     notes: "test",
+    //     status: "Completed",
+    //     requestDate: "2025-06-08T18:04:34.353Z",
+    //     checkInTime: "2025-06-08T18:04:34.353Z",
+    //     checkOutTime: "2025-06-08T18:05:34.255Z",
+    //   },
+    //   {
+    //     id: "VISIT-1749407879678-w01iqjg13",
+    //     visitorId: "VISITOR-1749411258700-uh7a6z6yl",
+    //     visitorName: "test guard user",
+    //     purpose: "Delivery",
+    //     host: "host1",
+    //     visitDate: "2025-06-09T00:05:00.000Z",
+    //     notes: "testing",
+    //     status: "Pending",
+    //     requestDate: "2025-06-11T18:37:59.678Z",
+    //     checkInTime: "2025-06-09T00:10:00.000Z",
+    //     checkOutTime: null,
+    //     isWalkIn: true,
+    //   },
+    //   {
+    //     id: "VISIT-today-host1-1",
+    //     visitorId: "VISITOR-123",
+    //     visitorName: "Alice Wonderland",
+    //     purpose: "Consultation",
+    //     host: "host1",
+    //     visitDate: "2025-06-11T11:00:00.000Z",
+    //     notes: "Discuss Q3 projections",
+    //     status: "Approved",
+    //     requestDate: "2025-06-10T09:00:00.000Z",
+    //     checkInTime: "2025-06-11T11:05:00.000Z",
+    //     checkOutTime: null,
+    //   },
+    //   {
+    //     id: "VISIT-today-jane-1",
+    //     visitorId: "VISITOR-003",
+    //     visitorName: "Bob Johnson",
+    //     purpose: "Maintenance",
+    //     host: "Jane Doe",
+    //     visitDate: "2025-06-11T14:30:00.000Z",
+    //     notes: "Fixing AC unit",
+    //     status: "Checked-In",
+    //     requestDate: "2025-06-11T08:00:00.000Z",
+    //     checkInTime: "2025-06-11T09:00:00.000Z",
+    //     checkOutTime: null,
+    //   },
+    //   {
+    //     id: "VISIT-today-mukesh-1",
+    //     visitorId: "VISITOR-1749411258700-uh7a6z6yl",
+    //     visitorName: "John Doe",
+    //     purpose: "Performance Review",
+    //     host: "Mukesh",
+    //     visitDate: "2025-06-11T16:00:00.000Z",
+    //     notes: "Annual review",
+    //     status: "Approved",
+    //     requestDate: "2025-06-10T10:00:00.000Z",
+    //     checkInTime: "2025-06-11T16:05:00.000Z",
+    //     checkOutTime: "2025-06-11T17:00:00.000Z",
+    //   },
+    //   {
+    //     id: "VISIT-1749619810756-7o6pkz6u0",
+    //     visitorId: "VISITOR-003",
+    //     visitorName: "Ojas",
+    //     purpose: "Meeting",
+    //     host: "Host1",
+    //     visitDate: "2025-06-11T10:59:00.000Z",
+    //     notes: "testing host visit add",
+    //     status: "Approved",
+    //     requestDate: "2025-06-11T05:30:10.756Z",
+    //     checkInTime: "2025-06-11T11:00:00.000Z",
+    //     checkOutTime: null,
+    //     isWalkIn: false,
+    //   },
+    // ];
+    return [];
   }
 
   _getDefaultBlacklist() {
-    return [
-      {
-        id: "BL-12345",
-        name: "Bad Visitor One",
-        idNumber: "ID001",
-        mobile: "1112223333",
-        reason: "Unauthorized access attempt",
-        addedOn: "2025-01-15T09:00:00.000Z",
-      },
-      {
-        id: "BL-67890",
-        name: "Troublemaker Two",
-        idNumber: "ID002",
-        mobile: "4445556666",
-        reason: "Disruptive behavior",
-        addedOn: "2025-03-01T15:00:00.000Z",
-      },
-    ];
+    // return [
+    //   {
+    //     id: "BL-12345",
+    //     name: "Bad Visitor One",
+    //     idNumber: "ID001",
+    //     mobile: "1112223333",
+    //     reason: "Unauthorized access attempt",
+    //     addedOn: "2025-01-15T09:00:00.000Z",
+    //   },
+    //   {
+    //     id: "BL-67890",
+    //     name: "Troublemaker Two",
+    //     idNumber: "ID002",
+    //     mobile: "4445556666",
+    //     reason: "Disruptive behavior",
+    //     addedOn: "2025-03-01T15:00:00.000Z",
+    //   },
+    // ];
+    return [];
   }
 
   _saveAllMockData() {
@@ -247,15 +250,25 @@ class VisitorService {
   async addToBlacklist(entry) {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
+        // Check if already in blacklist (by email or phone)
         const exists = this.mockBlacklist.some(
-          (b) => b.idNumber === entry.idNumber || b.mobile === entry.mobile
+          (b) => b.email === entry.email || b.mobile === entry.mobile
         );
         if (exists) {
           return reject(
-            new Error("Visitor with this ID or Mobile already in blacklist.")
+            new Error("Visitor with this email or phone already in blacklist.")
           );
         }
 
+        // Mark visitor as blocked
+        const visitor = this.mockVisitors.find(
+          (v) => v.email === entry.email || v.phone === entry.mobile
+        );
+        if (visitor) {
+          visitor.isBlocked = true;
+        }
+
+        // Add to blacklist
         const newEntry = {
           id: generateUniqueId("BL"),
           addedOn: new Date().toISOString(),
@@ -277,15 +290,27 @@ class VisitorService {
   async removeFromBlacklist(id) {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
-        const initialLength = this.mockBlacklist.length;
-        this.mockBlacklist = this.mockBlacklist.filter(
-          (entry) => entry.id !== id
+        // Find the blacklist entry to be removed
+        const entryToRemove = this.mockBlacklist.find(
+          (entry) => entry.id === id
         );
-
-        if (this.mockBlacklist.length === initialLength) {
+        if (!entryToRemove) {
           return reject(new Error("Blacklist entry not found."));
         }
 
+        // Mark visitor as unblocked
+        const visitor = this.mockVisitors.find(
+          (v) =>
+            v.email === entryToRemove.email || v.phone === entryToRemove.mobile
+        );
+        if (visitor) {
+          visitor.isBlocked = false;
+        }
+
+        // Remove from blacklist
+        this.mockBlacklist = this.mockBlacklist.filter(
+          (entry) => entry.id !== id
+        );
         this._saveAllMockData();
         resolve({ success: true, message: "Removed from blacklist" });
       }, 300);
@@ -392,7 +417,7 @@ class VisitorService {
                 id: currentVisit.id,
                 purpose: currentVisit.purpose,
                 host: currentVisit.host || "N/A",
-                date: currentVisit.visitDate,
+                visitDate: currentVisit.visitDate,
                 status: currentVisit.status,
                 entryTime: currentVisit.checkInTime || "",
                 checkOutTime: currentVisit.checkOutTime || "",

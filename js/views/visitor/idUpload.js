@@ -48,6 +48,16 @@ export function showIdUploadModal(visitorId, onSuccess) {
   const modal = new bootstrap.Modal(modalElement);
   modal.show();
 
+  // Add event listener to move focus and clear modal on close
+  modalElement.addEventListener(
+    "hidden.bs.modal",
+    () => {
+      document.body.focus();
+      modals.innerHTML = "";
+    },
+    { once: true }
+  );
+
   document
     .getElementById("idUploadForm")
     .addEventListener("submit", async (e) => {
@@ -115,6 +125,12 @@ export function showIdUploadModal(visitorId, onSuccess) {
         hideLoading();
       }
     });
+}
+
+export function setupIdUploadListener(visitorId, onSuccess) {
+  document.getElementById("uploadIdBtn")?.addEventListener("click", () => {
+    showIdUploadModal(visitorId, onSuccess);
+  });
 }
 
 export function setupIdUploadListener(visitorId, onSuccess) {

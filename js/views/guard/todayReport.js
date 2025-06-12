@@ -7,16 +7,11 @@ import {
 } from "../../utils/helpers.js";
 import VisitorService from "../../../api/visitorApi.js";
 
+import { getStatusColor } from "../../utils/helpers.js";
+
 function renderVisitRow(visit) {
   const visitorName = visit.visitor?.name || "N/A";
   const visitorCompany = visit.visitor?.company || "N/A";
-  const statusClass =
-    {
-      Pending: "badge bg-warning text-dark",
-      "Checked-In": "badge bg-success",
-      Completed: "badge bg-info",
-      Cancelled: "badge bg-danger",
-    }[visit.status] || "badge bg-secondary";
 
   return `
     <tr>
@@ -26,7 +21,9 @@ function renderVisitRow(visit) {
       <td>${visit.host}</td>
       <td>${formatDateTime(visit.checkInTime)}</td>
       <td>${formatDateTime(visit.checkOutTime)}</td>
-      <td><span class="${statusClass}">${visit.status}</span></td>
+      <td><span class="badge ${getStatusColor(visit.status)}">${
+    visit.status
+  }</span></td>
       <td>${visit.id}</td>
     </tr>
   `;
@@ -119,7 +116,7 @@ export default async function initTodayVisitReport(onReturnCallback) {
       allTodayVisits = await VisitorService.fetchTodayVisits();
 
       const expected = allTodayVisits.filter(
-        (visit) => visit.status === "Pending"
+        (visit) => visit.status === "Pending" || visit.status === "Approved"
       );
       const checkedIn = allTodayVisits.filter(
         (visit) => visit.status === "Checked-In"

@@ -12,17 +12,18 @@ export function createBlacklistModal() {
           <div class="modal-body">
             <form id="blacklistForm">
               <div class="mb-3">
-                <label for="blacklistVisitorName" class="form-label">Visitor Name</label>
-                <input type="text" class="form-control" id="blacklistVisitorName" name="name" required>
+              <label for="blacklistVisitorName" class="form-label">Name</label>
+              <input type="text" class="form-control" id="blacklistVisitorName" name="name" required>
               </div>
               <div class="mb-3">
-                <label for="blacklistIdNumber" class="form-label">ID Number</label>
-                <input type="text" class="form-control" id="blacklistIdNumber" name="idNumber" required>
+                <label for="blacklistEmail" class="form-label">Email</label>
+                <input type="email" class="form-control" id="blacklistEmail" name="email" required>
               </div>
               <div class="mb-3">
-                <label for="blacklistMobileNumber" class="form-label">Mobile Number</label>
+                <label for="blacklistMobileNumber" class="form-control-label">Phone Number</label>
                 <input type="tel" class="form-control" id="blacklistMobileNumber" name="mobile" required>
               </div>
+              <!-- Optional: Reason field -->
               <div class="mb-3">
                 <label for="blacklistReason" class="form-label">Reason (Optional)</label>
                 <textarea class="form-control" id="blacklistReason" name="reason" rows="3"></textarea>

@@ -81,6 +81,7 @@ async function renderVisitorViewContent(visitorId, editingMode = false) {
 
     setupEventListeners(
       visitorData.id,
+      visitorData.name,
       visitorData.currentVisit?.id,
       (newEditingMode = false) =>
         renderVisitorViewContent(visitorId, newEditingMode)
@@ -97,8 +98,13 @@ async function renderVisitorViewContent(visitorId, editingMode = false) {
   }
 }
 
-function setupEventListeners(visitorId, currentVisitId, refreshCallback) {
-  setupVisitRequestListener(visitorId, refreshCallback);
+function setupEventListeners(
+  visitorId,
+  visitorName,
+  currentVisitId,
+  refreshCallback
+) {
+  setupVisitRequestListener(visitorId, visitorName, refreshCallback);
 
   if (currentVisitId) {
     setupVisitCancelListener(currentVisitId, refreshCallback);

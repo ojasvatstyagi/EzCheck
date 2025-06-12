@@ -18,23 +18,23 @@ export default async function initBlacklistManagement() {
         <table class="table table-hover">
           <thead>
             <tr>
-                <th>Name</th>
-                <th>ID Number</th>
-                <th>Mobile</th>
-                <th>Reason</th>
-                <th>Added On</th>
-                <th>Actions</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Reason</th>
+              <th>Added On</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            ${
-              blacklist.length > 0
-                ? blacklist
-                    .map(
-                      (entry) => `
+    ${
+      blacklist.length > 0
+        ? blacklist
+            .map(
+              (entry) => `
               <tr>
                 <td>${entry.name || "N/A"}</td>
-                <td>${entry.idNumber || "N/A"}</td>
+                <td>${entry.email || "N/A"}</td>
                 <td>${entry.mobile || "N/A"}</td>
                 <td>${entry.reason || "-"}</td>
                 <td>${
@@ -43,15 +43,15 @@ export default async function initBlacklistManagement() {
                     : "N/A"
                 }</td>
                 <td>
-                    <button class="btn btn-sm btn-outline-danger remove-blacklist-btn" data-id="${
-                      entry.id
-                    }">Remove</button>
+                  <button class="btn btn-sm btn-outline-danger remove-blacklist-btn" data-id="${
+                    entry.id
+                  }">Remove</button>
                 </td>
               </tr>`
-                    )
-                    .join("")
-                : `<tr><td colspan="6" class="text-center">No blacklisted entries found.</td></tr>`
-            }
+            )
+            .join("")
+        : `<tr><td colspan="6" class="text-center">No blacklisted entries found.</td></tr>`
+    }
           </tbody>
         </table>
       </div>
@@ -77,8 +77,8 @@ export default async function initBlacklistManagement() {
             const name = document
               .getElementById("blacklistVisitorName")
               .value.trim();
-            const idNumber = document
-              .getElementById("blacklistIdNumber")
+            const email = document
+              .getElementById("blacklistEmail")
               .value.trim();
             const mobile = document
               .getElementById("blacklistMobileNumber")
@@ -87,10 +87,10 @@ export default async function initBlacklistManagement() {
               .getElementById("blacklistReason")
               .value.trim();
 
-            if (!name || !idNumber || !mobile) {
+            if (!name || !email || !mobile) {
               showAlert(
                 content,
-                "Please fill in all required fields (Name, ID Number, Mobile Number).",
+                "Please fill in all required fields (Name, Email, Phone Number).",
                 "warning"
               );
               return;
@@ -100,7 +100,7 @@ export default async function initBlacklistManagement() {
             try {
               await VisitorService.addToBlacklist({
                 name,
-                idNumber,
+                email,
                 mobile,
                 reason: reason || null,
                 addedOn: new Date().toISOString(),
@@ -118,6 +118,7 @@ export default async function initBlacklistManagement() {
               blacklistModalElement.addEventListener(
                 "hidden.bs.modal",
                 function handler() {
+                  document.body.focus();
                   modalsContainer.innerHTML = "";
                   blacklistModalElement.removeEventListener(
                     "hidden.bs.modal",

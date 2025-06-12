@@ -160,7 +160,11 @@ async function loadHostDashboardData(name) {
 
     const upcomingVisits = allHostVisits.filter((visit) => {
       const visitDate = new Date(visit.visitDate);
-      return visitDate > today;
+      return (
+        visitDate > today &&
+        visit.status !== "Completed" &&
+        visit.status !== "Cancelled"
+      );
     });
 
     renderUpcomingVisitsSection(upcomingVisits, name);

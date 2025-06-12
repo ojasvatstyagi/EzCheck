@@ -22,12 +22,17 @@ export function setupProfileUpdateListener(visitorId, refreshCallback) {
         company: form.elements.profileCompany.value,
         idNumber: form.elements.profileIdNumber.value,
       };
+      const filteredData = Object.fromEntries(
+        Object.entries(updatedData).filter(
+          ([key, value]) => value.trim() !== ""
+        )
+      );
 
       try {
         showLoading();
         const response = await VisitorService.updateProfile(
           visitorId,
-          updatedData
+          filteredData
         );
 
         if (response.success) {

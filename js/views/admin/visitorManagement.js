@@ -25,13 +25,18 @@ function renderVisitorTable(visitorsToDisplay) {
               } else if (latestVisit && latestVisit.status === "Checked-In") {
                 exitTime = "Inside";
               }
-
               return `
                 <tr>
                     <td>${v.name}</td>
-                    <td>${v.idNumber || "-"}</td>
+                    <td>${v.email || "-"}</td>
+                    <td>${v.phone || "-"}</td>
                     <td>${entryTime}</td>
                     <td>${exitTime}</td>
+                    <td>${
+                      v.isBlocked
+                        ? '<span class="badge bg-danger">Yes</span>'
+                        : '<span class="badge bg-success">No</span>'
+                    }</td>
                     <td>
                         <button class="btn btn-sm btn-outline-primary-custom view-visitor-btn" data-id="${
                           v.id
@@ -40,7 +45,7 @@ function renderVisitorTable(visitorsToDisplay) {
                 </tr>`;
             })
             .join("")
-        : `<tr><td colspan="5" class="text-center">No visitors found.</td></tr>`
+        : `<tr><td colspan="7" class="text-center">No visitors found.</td></tr>`
     }
   `;
 }
@@ -61,7 +66,7 @@ export default async function initVisitorManagement() {
         .sort((a, b) => {
           const dateA = new Date(a.checkInTime || a.requestDate);
           const dateB = new Date(b.checkInTime || b.requestDate);
-          return dateB.getTime() - dateA.getTime(); // Newest first
+          return dateB.getTime() - dateA.getTime();
         });
 
       const latestVisit = visitorVisits.length > 0 ? visitorVisits[0] : null;
@@ -74,15 +79,17 @@ export default async function initVisitorManagement() {
 
     content.innerHTML = `
       <h4 class="mb-4">Visitor Management</h4>
-      <input type="text" id="searchVisitor" placeholder="Search by Name or ID Number..." class="form-control mb-3">
+      <input type="text" id="searchVisitor" placeholder="Search by Name, Email, or Phone..." class="form-control mb-3">
       <div class="table-responsive">
           <table class="table table-hover" id="visitorTable">
               <thead>
                   <tr>
                       <th>Name</th>
-                      <th>ID Number</th>
-                      <th>Latest Entry</th>
-                      <th>Latest Exit / Status</th>
+                      <th>Email</th>
+                      <th>Phone</th>
+                      <th>Last Entry</th>
+                      <th>Latest Exit/Status</th>
+                      <th>Blacklisted</th>
                       <th>Actions</th>
                   </tr>
               </thead>
@@ -100,10 +107,14 @@ export default async function initVisitorManagement() {
         const searchTerm = event.target.value.toLowerCase().trim();
         const filteredVisitors = allVisitorsData.filter((visitor) => {
           const matchesName = visitor.name.toLowerCase().includes(searchTerm);
+          const matchesEmail =
+            visitor.email && visitor.email.toLowerCase().includes(searchTerm);
+          const matchesPhone =
+            visitor.phone && visitor.phone.toLowerCase().includes(searchTerm);
           const matchesId =
             visitor.idNumber &&
             visitor.idNumber.toLowerCase().includes(searchTerm);
-          return matchesName || matchesId;
+          return matchesName || matchesEmail || matchesPhone || matchesId;
         });
         renderVisitorTable(filteredVisitors);
       });
