@@ -58,6 +58,7 @@ async function loadPage(page) {
     host: () => import("../views/host.js"),
     visitor: () => import("../views/visitor.js"),
     guard: () => import("../views/guard.js"),
+    users: () => import("../views/admin/userManagement.js"),
   };
 
   try {

@@ -1,4 +1,41 @@
 // js/components/addToBlock.js
+export function populateVisitorSelect(visitors) {
+  const select = document.getElementById("blacklistVisitorSelect");
+  if (!select) return;
+
+  select.innerHTML =
+    '<option value="">-- Select an existing visitor --</option>';
+  visitors.forEach((visitor) => {
+    const option = document.createElement("option");
+    option.value = visitor.id;
+    option.textContent = `${visitor.name} (${visitor.email || "No email"})`;
+    select.appendChild(option);
+  });
+
+  // Setup auto-fill logic here
+  select.addEventListener("change", function () {
+    const visitorId = this.value;
+    const nameInput = document.getElementById("blacklistVisitorName");
+    const emailInput = document.getElementById("blacklistEmail");
+    const mobileInput = document.getElementById("blacklistMobileNumber");
+    const reasonInput = document.getElementById("blacklistReason");
+
+    if (visitorId && visitorId !== "new") {
+      // If a valid visitor is selected
+      const visitor = visitors.find((v) => v.id === visitorId);
+      if (visitor) {
+        nameInput.value = visitor.name || "";
+        emailInput.value = visitor.email || "";
+        mobileInput.value = visitor.phone || "";
+      }
+    } else {
+      nameInput.value = "";
+      emailInput.value = "";
+      mobileInput.value = "";
+      reasonInput.value = "";
+    }
+  });
+}
 
 export function createBlacklistModal() {
   return `
@@ -12,8 +49,13 @@ export function createBlacklistModal() {
           <div class="modal-body">
             <form id="blacklistForm">
               <div class="mb-3">
-              <label for="blacklistVisitorName" class="form-label">Name</label>
-              <input type="text" class="form-control" id="blacklistVisitorName" name="name" required>
+                <label for="blacklistVisitorSelect" class="form-label">Select Existing Visitor (Optional)</label>
+                <select class="form-control" id="blacklistVisitorSelect" name="visitorId">
+                  </select>
+              </div>
+              <div class="mb-3">
+                <label for="blacklistVisitorName" class="form-label">Name</label>
+                <input type="text" class="form-control" id="blacklistVisitorName" name="name" required>
               </div>
               <div class="mb-3">
                 <label for="blacklistEmail" class="form-label">Email</label>
@@ -22,7 +64,7 @@ export function createBlacklistModal() {
               <div class="mb-3">
                 <label for="blacklistMobileNumber" class="form-control-label">Phone Number (Optional)</label>
                 <input type="tel" class="form-control" id="blacklistMobileNumber" name="mobile" pattern="[0-9]{10}"
-    title="Please enter a 10-digit phone number">
+                  title="Please enter a 10-digit phone number or leave blank">
               </div>
               <div class="mb-3">
                 <label for="blacklistReason" class="form-label">Reason</label>
@@ -38,38 +80,4 @@ export function createBlacklistModal() {
       </div>
     </div>
   `;
-}
-export function createVisitorCard(visitor) {
-  return `
-    <div class="card mb-3">
-      <div class="card-body">
-        <h5 class="card-title">${visitor.name} <span class="badge bg-${
-    visitor.isVIP ? "warning" : "secondary"
-  }">${visitor.isVIP ? "VIP" : "Regular"}</span></h5>
-        <p class="card-text"><strong>Company:</strong> ${
-          visitor.company || "N/A"
-        }</p>
-        <p class="card-text"><strong>Host:</strong> ${visitor.host || "N/A"}</p>
-        <p class="card-text"><strong>Check-in:</strong> ${
-          visitor.checkInTime
-            ? new Date(visitor.checkInTime).toLocaleString()
-            : "N/A"
-        }</p>
-        <p class="card-text"><strong>Check-out:</strong> ${
-          visitor.checkOutTime
-            ? new Date(visitor.checkOutTime).toLocaleString()
-            : "Not checked out"
-        }</p>
-        <button class="btn btn-danger" data-visitor-id="${
-          visitor.id
-        }" data-bs-toggle="modal" data-bs-target="#blacklistModal">Blacklist</button>
-        <button class="btn btn-primary" data-visitor-id="${
-          visitor.id
-        }" data-bs-toggle="modal" data-bs-target="#checkOutModal">Check Out</button>
-      </div>
-        <div class="card-footer text-muted">
-            <small>Visitor ID: ${visitor.id}</small>
-        </div>
-    </div>
-    `;
 }

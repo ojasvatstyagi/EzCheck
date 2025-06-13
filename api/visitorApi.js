@@ -234,6 +234,17 @@ class VisitorService {
     });
   }
 
+  async fetchVisitorsIfNotBlacklisted() {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        let filteredVisitors = this.mockVisitors.filter(
+          (visitor) => !visitor.isBlocked
+        );
+        resolve(filteredVisitors);
+      }, 500);
+    });
+  }
+
   // fetches the list of all visit records.
   async fetchAllVisits() {
     return new Promise((resolve) => {

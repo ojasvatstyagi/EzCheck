@@ -2,7 +2,7 @@
 
 import VisitorService from "../../../api/visitorApi.js";
 import { showAlert, showLoading, hideLoading } from "../../utils/helpers.js";
-import { createBlacklistModal } from "./addToBlock.js";
+import { createBlacklistModal, populateVisitorSelect } from "./addToBlock.js";
 
 export default async function initBlacklistManagement() {
   const content = document.getElementById("role-content");
@@ -10,6 +10,7 @@ export default async function initBlacklistManagement() {
 
   try {
     const blacklist = await VisitorService.fetchBlacklist();
+    const visitors = await VisitorService.fetchVisitorsIfNotBlacklisted();
 
     content.innerHTML = `
       <h4 class="mb-4">Blacklist Management</h4>
@@ -27,11 +28,11 @@ export default async function initBlacklistManagement() {
             </tr>
           </thead>
           <tbody>
-    ${
-      blacklist.length > 0
-        ? blacklist
-            .map(
-              (entry) => `
+            ${
+              blacklist.length > 0
+                ? blacklist
+                    .map(
+                      (entry) => `
               <tr>
                 <td>${entry.name || "N/A"}</td>
                 <td>${entry.email || "N/A"}</td>
@@ -48,32 +49,37 @@ export default async function initBlacklistManagement() {
                   }">Remove</button>
                 </td>
               </tr>`
-            )
-            .join("")
-        : `<tr><td colspan="6" class="text-center">No blacklisted entries found.</td></tr>`
-    }
+                    )
+                    .join("")
+                : `<tr><td colspan="6" class="text-center">No blacklisted entries found.</td></tr>`
+            }
           </tbody>
         </table>
       </div>
       <div id="modals-container"></div>
     `;
 
+    // Add Blacklist Entry Button Click Handler
     document
       .getElementById("addBlacklistEntryBtn")
       .addEventListener("click", () => {
         const modalsContainer = document.getElementById("modals-container");
-        modalsContainer.innerHTML = createBlacklistModal();
+        modalsContainer.innerHTML = createBlacklistModal(); // Create and append the modal HTML
 
         const blacklistModalElement = document.getElementById("blacklistModal");
         const blacklistModal = new bootstrap.Modal(blacklistModalElement);
         blacklistModal.show();
 
+        // Populate visitor select and set up auto-fill
+        populateVisitorSelect(visitors);
+
         const blacklistForm = document.getElementById("blacklistForm");
+        const modalBody = blacklistModalElement.querySelector(".modal-body");
+
         if (blacklistForm) {
           blacklistForm.addEventListener("submit", async (event) => {
             event.preventDefault();
 
-            // Retrieve form values using their IDs
             const name = document
               .getElementById("blacklistVisitorName")
               .value.trim();
@@ -87,10 +93,10 @@ export default async function initBlacklistManagement() {
               .getElementById("blacklistReason")
               .value.trim();
 
-            if (!name || !email || !mobile) {
+            if (!name || !email) {
               showAlert(
-                content,
-                "Please fill in all required fields (Name, Email, Phone Number).",
+                modalBody, // Show alert inside the modal body
+                "Please fill in all required fields (Name, Email).",
                 "warning"
               );
               return;
@@ -101,7 +107,7 @@ export default async function initBlacklistManagement() {
               await VisitorService.addToBlacklist({
                 name,
                 email,
-                mobile,
+                mobile: mobile || null, // Mobile is now optional
                 reason: reason || null,
                 addedOn: new Date().toISOString(),
                 id: `BL-${Date.now()}-${Math.random()
@@ -115,22 +121,22 @@ export default async function initBlacklistManagement() {
                 "success"
               );
               blacklistModal.hide();
+
               blacklistModalElement.addEventListener(
                 "hidden.bs.modal",
                 function handler() {
-                  document.body.focus();
                   modalsContainer.innerHTML = "";
                   blacklistModalElement.removeEventListener(
                     "hidden.bs.modal",
                     handler
-                  ); // Remove listener to prevent memory leaks
+                  );
+                  initBlacklistManagement(); // Re-render the blacklist table
                 }
               );
-              initBlacklistManagement();
             } catch (error) {
               console.error("Error adding to blacklist:", error);
               showAlert(
-                content,
+                modalBody,
                 `Failed to add visitor to blacklist: ${error.message}`,
                 "danger"
               );
@@ -141,6 +147,7 @@ export default async function initBlacklistManagement() {
         }
       });
 
+    // Event Listener for removing from Blacklist
     document
       .querySelector("table tbody")
       .addEventListener("click", async (event) => {
