@@ -15,6 +15,8 @@ class VisitorService {
     this.mockBlacklist =
       JSON.parse(localStorage.getItem("mock_blacklist")) ||
       this._getDefaultBlacklist();
+    this.vmsUsers =
+      JSON.parse(localStorage.getItem("vms_users")) || this._getDefaultUsers();
 
     this._saveAllMockData();
   }
@@ -213,10 +215,14 @@ class VisitorService {
     return [];
   }
 
+  _getDefaultUsers() {
+    return [];
+  }
   _saveAllMockData() {
     localStorage.setItem("mock_visitors", JSON.stringify(this.mockVisitors));
     localStorage.setItem("mock_visits", JSON.stringify(this.mockVisits));
     localStorage.setItem("mock_blacklist", JSON.stringify(this.mockBlacklist));
+    localStorage.setItem("vms_users", JSON.stringify(this.vmsUsers));
   }
 
   // fetches the list of all registered visitors.
@@ -246,6 +252,22 @@ class VisitorService {
     });
   }
 
+  async fetchHosts() {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const hosts = this.vmsUsers
+          .filter((user) => user.role === "host")
+          .map((hostUser) => ({
+            id: hostUser.id,
+            name: hostUser.name,
+            email: hostUser.email,
+          }));
+        console.log("Fetched hosts:", hosts);
+        resolve(JSON.parse(JSON.stringify(hosts)));
+      }, 200); // Simulate network delay
+    });
+  }
+
   // Adds a visitor entry to the blacklist.
   async addToBlacklist(entry) {
     return new Promise((resolve, reject) => {
@@ -261,10 +283,9 @@ class VisitorService {
         }
 
         // Mark visitor as blocked
-        const visitor = this.mockVisitors.find(
-          (v) => v.email === entry.email || v.phone === entry.mobile
-        );
+        const visitor = this.mockVisitors.find((v) => v.email === entry.email);
         if (visitor) {
+          console.log("Visitor found:", visitor);
           visitor.isBlocked = true;
         }
 
@@ -283,6 +304,69 @@ class VisitorService {
           entry: newEntry,
         });
       }, 300);
+    });
+  }
+
+  // Allow host to cancel an approved visit within a time buffer
+  async cancelApprovedVisitByHost(visitId, requestingHostName) {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const visitIndex = this.mockVisits.findIndex((v) => v.id === visitId);
+
+        if (visitIndex === -1) {
+          return resolve({ success: false, message: "Visit not found." });
+        }
+
+        const visit = this.mockVisits[visitIndex];
+
+        // 1. Authorization Check
+        if (visit.host !== requestingHostName) {
+          return resolve({
+            success: false,
+            message: "You are not authorized to cancel this visit.",
+          });
+        }
+
+        // 2. Status Check
+        if (visit.status !== "Approved") {
+          return resolve({
+            success: false,
+            message: `Visit status is '${visit.status}'. Only 'Approved' visits can be cancelled by the host.`,
+          });
+        }
+
+        // 3. Time Check: Only allow cancellation before the day of the visit
+        const visitDate = new Date(visit.visitDate);
+        visitDate.setHours(0, 0, 0, 0);
+        const currentDate = new Date();
+        currentDate.setHours(0, 0, 0, 0);
+
+        // Allow cancellation only if visitDate is after currentDate (future visit)
+        if (visitDate > currentDate) {
+          // Proceed with cancellation
+          visit.status = "Cancelled";
+          visit.checkOutTime = new Date().toISOString(); // Record cancellation time as checkout
+          this._saveAllMockData();
+
+          console.log(
+            `Mock: Visit ${visitId} cancelled by host ${requestingHostName}.`
+          );
+          return resolve({
+            success: true,
+            message: "Visit cancelled successfully.",
+          });
+        } else {
+          // Do not allow cancellation if visit is today or in the past
+          const message =
+            visitDate.getTime() === currentDate.getTime()
+              ? "Cancellation not allowed on the day of the visit."
+              : "Cancellation not allowed for past or same-day visits.";
+          return resolve({
+            success: false,
+            message,
+          });
+        }
+      }, 500); // Simulate network delay
     });
   }
 
@@ -614,8 +698,12 @@ class VisitorService {
   async updateProfile(visitorId, updatedData) {
     return new Promise((resolve) => {
       setTimeout(() => {
+        // Find index in mockVisitors
         const visitorIndex = this.mockVisitors.findIndex(
           (v) => v.id === visitorId
+        );
+        const userIndex = this.vmsUsers.findIndex(
+          (u) => u.visitorId === visitorId
         );
 
         if (visitorIndex === -1) {
@@ -630,12 +718,15 @@ class VisitorService {
           ...this.mockVisitors[visitorIndex],
           ...updatedData,
         };
-        this._saveAllMockData();
 
-        console.log(
-          `Mock: Profile updated for visitor ${visitorId}.`,
-          updatedData
-        );
+        if (userIndex !== -1) {
+          this.vmsUsers[userIndex] = {
+            ...this.vmsUsers[userIndex],
+            ...updatedData,
+          };
+        }
+
+        this._saveAllMockData();
         resolve({
           success: true,
           message: "Profile updated successfully (mock).",

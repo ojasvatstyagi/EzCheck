@@ -92,17 +92,24 @@ export function validateEmail(email) {
 }
 
 export function validatePhone(phone) {
-  const re = /^[6-9]\d{9}$/; // Indian format
+  const re = /^(?:\+91|0)?[6-9]\d{9}$/; // Allows +91 or 0 as prefix, and 10 digits starting with 6-9
   return re.test(phone);
 }
 
 export function validatePassword(password) {
-  const re = /^(?=.*[A-Z])(?=.*\d).{6,}$/; // At least 1 uppercase and 1 digit
+  // At least 1 uppercase, 1 lowercase, 1 digit, 1 special char, min 6 chars
+  const re =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
   return re.test(password);
 }
 
 export function validateName(name) {
   return name.trim().length >= 2;
+}
+
+export function validateOTP(otp, length = 6) {
+  const re = new RegExp(`^\\d{${length}}$`);
+  return re.test(otp);
 }
 
 // ==================== DATA HELPERS ===================

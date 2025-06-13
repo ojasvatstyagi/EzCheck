@@ -20,13 +20,13 @@ export function createBlacklistModal() {
                 <input type="email" class="form-control" id="blacklistEmail" name="email" required>
               </div>
               <div class="mb-3">
-                <label for="blacklistMobileNumber" class="form-control-label">Phone Number</label>
-                <input type="tel" class="form-control" id="blacklistMobileNumber" name="mobile" required>
+                <label for="blacklistMobileNumber" class="form-control-label">Phone Number (Optional)</label>
+                <input type="tel" class="form-control" id="blacklistMobileNumber" name="mobile" pattern="[0-9]{10}"
+    title="Please enter a 10-digit phone number">
               </div>
-              <!-- Optional: Reason field -->
               <div class="mb-3">
-                <label for="blacklistReason" class="form-label">Reason (Optional)</label>
-                <textarea class="form-control" id="blacklistReason" name="reason" rows="3"></textarea>
+                <label for="blacklistReason" class="form-label">Reason</label>
+                <textarea class="form-control" id="blacklistReason" name="reason" rows="3" required></textarea>
               </div>
             </form>
           </div>

@@ -132,9 +132,3 @@ export function setupIdUploadListener(visitorId, onSuccess) {
     showIdUploadModal(visitorId, onSuccess);
   });
 }
-
-export function setupIdUploadListener(visitorId, onSuccess) {
-  document.getElementById("uploadIdBtn")?.addEventListener("click", () => {
-    showIdUploadModal(visitorId, onSuccess);
-  });
-}

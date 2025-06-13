@@ -48,7 +48,7 @@ export default async function loadHostView() {
                             </div>
                             <div class="col-md-4 text-md-end">
                                 <button id="hostRegisterVisitorBtn" class="btn btn-light rounded-pill px-4">
-                                    <i class="fas fa-plus me-2"></i>Add New Visitor
+                                    <i class="fas fa-plus me-2"></i>Add New Visit
                                 </button>
                             </div>
                         </div>
@@ -156,18 +156,19 @@ async function loadHostDashboardData(name) {
       const visitDate = new Date(visit.visitDate);
       return visitDate.toDateString() === today.toDateString();
     });
-    renderTodaysVisitsSection(todaysVisits, name);
+    renderTodaysVisitsSection(todaysVisits, name, loadHostDashboardData);
 
     const upcomingVisits = allHostVisits.filter((visit) => {
       const visitDate = new Date(visit.visitDate);
       return (
         visitDate > today &&
         visit.status !== "Completed" &&
-        visit.status !== "Cancelled"
+        visit.status !== "Cancelled" &&
+        visit.status !== "Declined"
       );
     });
 
-    renderUpcomingVisitsSection(upcomingVisits, name);
+    renderUpcomingVisitsSection(upcomingVisits, name, loadHostDashboardData);
 
     const hostVisitHistory = allHostVisits.filter((visit) => {
       const visitDate = new Date(visit.visitDate);
@@ -178,7 +179,7 @@ async function loadHostDashboardData(name) {
         visit.status === "Completed" ||
         visit.status === "Declined" ||
         visit.status === "Cancelled" ||
-        (visitDate < now &&
+        (new Date(visit.visitDate).getTime() < now.getTime() &&
           visit.status !== "Pending" &&
           visit.status !== "Approved" &&
           visit.status !== "Checked-In")

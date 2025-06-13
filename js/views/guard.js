@@ -12,7 +12,7 @@ function renderDashboardLayout() {
         <p class="text-muted">You are responsible for verifying and checking in visitors at the gate.</p>
         <div class="col-md-4 text-md-end">
           <button id="addVisitorBtn" class="btn btn-light rounded-pill px-4">
-            <i class="fas fa-plus me-2"></i>Add New Visitor
+            <i class="fas fa-plus me-2"></i>Add New Visit
           </button>
         </div>
       </div>

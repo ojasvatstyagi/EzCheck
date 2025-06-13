@@ -43,9 +43,10 @@ export function initProfileView(visitorData, isEditing = false) {
             </div>
             <div class="mb-3 text-start">
               <label for="profilePhone" class="form-label">Phone</label>
-              <input type="tel" class="form-control" id="profilePhone" value="${
-                visitorData.phone || ""
-              }" required>
+              <input type="tel" pattern="[0-9]{10}"
+    title="Please enter a 10-digit phone number" class="form-control" id="profilePhone" value="${
+      visitorData.phone || ""
+    }" required>
             </div>
             <div class="mb-3 text-start">
               <label for="profileCompany" class="form-label">Company</label>

@@ -35,22 +35,7 @@ async function renderVisitorViewContent(visitorId, editingMode = false) {
       return;
     }
 
-    if (visitorData.isBlocked) {
-      content.innerHTML = `
-        <div class="container mt-4 text-center">
-          <div class="alert alert-danger" role="alert">
-            <i class="fas fa-ban fa-3x mb-3"></i>
-            <h4 class="alert-heading">Access Denied!</h4>
-            <p>Your request cannot be processed at this time. You may not apply for new visits or access certain features.</p>
-            <hr>
-            <p class="mb-0">Please contact the administration for assistance.</p>
-          </div>
-        </div>
-      `;
-      hideLoading();
-      return;
-    }
-
+    // Always render the main structure
     content.innerHTML = `
       <div class="container mt-4">
         <div class="row align-items-center">
@@ -62,22 +47,41 @@ async function renderVisitorViewContent(visitorId, editingMode = false) {
       </div>
     `;
 
+    // Always render profile section
     document.getElementById("profile-section").innerHTML = `
       ${initProfileView(visitorData, editingMode)}
     `;
-    document.getElementById("current-pass-section").innerHTML = `
-      ${renderVisitStatus(visitorData)}
-    `;
+
+    // Render current pass section based on blocked status
+    if (visitorData.isBlocked) {
+      document.getElementById("current-pass-section").innerHTML = `
+        <div class="container mt-4 text-center">
+          <div class="alert alert-danger" role="alert">
+            <i class="fas fa-ban fa-3x mb-3"></i>
+            <h4 class="alert-heading">Access Denied!</h4>
+            <p>Your request cannot be processed at this time. You may not apply for new visits or access certain features.</p>
+            <hr>
+            <p class="mb-0">Please contact the administration for assistance.</p>
+          </div>
+        </div>
+      `;
+    } else {
+      document.getElementById("current-pass-section").innerHTML = `
+        ${renderVisitStatus(visitorData)}
+      `;
+
+      if (visitorData.currentVisit?.status === "Approved") {
+        await generateQRCode(
+          "visitQrCode",
+          `VISITOR ID:${visitorData.id}|NAME:${visitorData.name}|VISIT ID:${visitorData.currentVisit.id}`
+        );
+      }
+    }
+
+    // Always render visit history
     document.getElementById("visit-history-section").innerHTML = `
       ${renderVisitHistory(visitorData)}
     `;
-
-    if (visitorData.currentVisit?.status === "Approved") {
-      await generateQRCode(
-        "visitQrCode",
-        `VISITOR ID:${visitorData.id}|NAME:${visitorData.name}|VISIT ID:${visitorData.currentVisit.id}`
-      );
-    }
 
     setupEventListeners(
       visitorData.id,

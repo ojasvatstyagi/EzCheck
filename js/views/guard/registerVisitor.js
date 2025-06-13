@@ -1,9 +1,11 @@
-// js/views/visitor/registerVisitor.js
 import { showAlert, showLoading, hideLoading } from "../../utils/helpers.js";
 import VisitorService from "../../../api/visitorApi.js";
 import { getCurrentUser } from "../../utils/helpers.js";
 
-export function setupRegisterVisitorModal(onSuccessCallback, options = {}) {
+export async function setupRegisterVisitorModal(
+  onSuccessCallback,
+  options = {}
+) {
   const modalsContainer = document.getElementById("modals-container");
   if (!modalsContainer) {
     console.error("Modal container not found!");
@@ -11,11 +13,39 @@ export function setupRegisterVisitorModal(onSuccessCallback, options = {}) {
   }
 
   const currentUser = getCurrentUser();
-  const prefillHostName =
-    options.prefillHostName ||
-    (options.isHostRegistering ? currentUser?.username : "");
   const isHostRegistering =
     options.isHostRegistering || currentUser?.role === "host";
+
+  showLoading(modalsContainer);
+  let hosts = [];
+  try {
+    hosts = await VisitorService.fetchHosts();
+    console.log("Fetched hosts for registration modal:", hosts);
+  } catch (error) {
+    showAlert(
+      document.body,
+      "Failed to load host list: " + error.message,
+      "danger"
+    );
+    hideLoading();
+    return;
+  } finally {
+    hideLoading();
+  }
+
+  const hostOptions = hosts
+    .map((host) => `<option value="${host.id}">${host.name}</option>`)
+    .join("");
+
+  let prefillHostId = "";
+  let hostDropdownDisabled = "";
+
+  if (isHostRegistering && currentUser?.id) {
+    prefillHostId = currentUser.id;
+    hostDropdownDisabled = "disabled";
+  } else if (options.prefillHostId) {
+    prefillHostId = options.prefillHostId;
+  }
 
   modalsContainer.innerHTML = `
     <div class="modal fade" id="registerVisitorModal" tabindex="-1" aria-labelledby="registerVisitorModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
@@ -35,7 +65,8 @@ export function setupRegisterVisitorModal(onSuccessCallback, options = {}) {
                 </div>
                 <div class="col-md-6 mb-3">
                   <label for="visitorPhoneInput" class="form-label">Phone Number</label>
-                  <input type="tel" class="form-control" id="visitorPhoneInput" name="phone" required>
+                  <input type="tel" class="form-control" id="visitorPhoneInput" name="phone" required pattern="[0-9]{10}"
+    title="Please enter a 10-digit phone number">
                 </div>
               </div>
               <div class="row">
@@ -63,13 +94,10 @@ export function setupRegisterVisitorModal(onSuccessCallback, options = {}) {
               </div>
               <div class="mb-3">
                 <label for="hostInput" class="form-label">Host/Contact Person</label>
-                <input type="text" class="form-control" id="hostInput" name="host" required ${
-                  prefillHostName
-                    ? `value="${prefillHostName}" ${
-                        isHostRegistering ? "readonly" : ""
-                      }`
-                    : ""
-                }>
+                <select class="form-select" id="hostInput" name="hostId" required ${hostDropdownDisabled}>
+                  <option value="">Select a host</option>
+                  ${hostOptions}
+                </select>
               </div>
               <div class="mb-3">
                 <label for="visitDateInput" class="form-label">Scheduled Date/Time</label>
@@ -102,6 +130,12 @@ export function setupRegisterVisitorModal(onSuccessCallback, options = {}) {
   const registerVisitorForm = document.getElementById("registerVisitorForm");
   const visitDateInput = document.getElementById("visitDateInput");
   const isWalkInCheckbox = document.getElementById("isWalkInCheckbox");
+  const hostInput = document.getElementById("hostInput");
+
+  // Set the pre-selected host if applicable
+  if (prefillHostId && hostInput) {
+    hostInput.value = prefillHostId;
+  }
 
   if (visitDateInput) {
     const now = new Date();
@@ -127,9 +161,15 @@ export function setupRegisterVisitorModal(onSuccessCallback, options = {}) {
       company: document.getElementById("visitorCompanyInput").value.trim(),
     };
 
+    // Get selected host ID from the dropdown
+    const selectedHostId = hostInput.value;
+    const selectedHost = hosts.find((h) => h.id === selectedHostId);
+    const hostName = selectedHost ? selectedHost.name : ""; // Fallback for safety
+
     const visitData = {
       purpose: document.getElementById("purposeInput").value.trim(),
-      host: document.getElementById("hostInput").value.trim(),
+      host: hostName,
+      hostId: selectedHostId,
       visitDate: document.getElementById("visitDateInput").value,
       notes: document.getElementById("notesInput").value.trim(),
     };
@@ -145,7 +185,7 @@ export function setupRegisterVisitorModal(onSuccessCallback, options = {}) {
 
       if (isBlocked) {
         showAlert(
-          modalElement, // Alert inside the modal
+          modalElement,
           "This visitor is blacklisted. Registration denied.",
           "danger"
         );
@@ -163,12 +203,12 @@ export function setupRegisterVisitorModal(onSuccessCallback, options = {}) {
         return;
       }
 
-      const visitorId = registrationResult.visitorId;
+      const visitorId = registrationResult.visitor.id;
       console.log("Visitor ID after registration:", visitorId);
       const visitRequestResult = await VisitorService.requestVisit(
         visitorId,
-        registrationResult.visitor.name || visitorData.name, // Pass visitorName
-        visitData,
+        registrationResult.visitor.name || visitorData.name,
+        visitData, // Pass the updated visitData with hostId
         isWalkIn
       );
 

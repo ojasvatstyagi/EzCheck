@@ -5,6 +5,14 @@ import {
   renderOTPForm,
 } from "../views/authView.js";
 import AuthService from "../../api/authApi.js";
+import {
+  validateEmail,
+  validatePassword,
+  validateName,
+  validateOTP,
+} from "../utils/helpers.js";
+
+const OTP_LENGTH = 6;
 
 const authContainer = document.getElementById("authContainer");
 const initialAlertTimeout = 3000;
@@ -80,6 +88,18 @@ function setupLoginListeners() {
     const email = document.getElementById("loginEmail").value;
     const password = document.getElementById("loginPassword").value;
 
+    if (!validateEmail(email)) {
+      showAlert("Please enter a valid email address.", "danger");
+      return;
+    }
+    // if (!validatePassword(password)) {
+    //   showAlert(
+    //     "Password must be at least 6 characters, include 1 uppercase letter and 1 digit.",
+    //     "danger"
+    //   );
+    //   return;
+    // }
+
     setButtonLoading(loginButton, true, "Logging in...", originalLoginBtnText);
 
     try {
@@ -122,18 +142,30 @@ function setupRegisterListeners() {
     const name = document.getElementById("registerName").value;
     const email = document.getElementById("registerEmail").value;
     const password = document.getElementById("registerPassword").value;
+    const rePassword = document.getElementById("registerRePassword").value;
     const role = document.getElementById("registerRole").value;
 
-    if (!name || !email || !password || !role) {
-      showAlert("All fields are required.", "danger");
+    if (!validateName(name)) {
+      showAlert("Please enter a valid name (at least 2 characters).", "danger");
       return;
     }
-    if (password.length < 6) {
-      showAlert("Password must be at least 6 characters long.", "danger");
-      return;
-    }
-    if (!/\S+@\S+\.\S+/.test(email)) {
+    if (!validateEmail(email)) {
       showAlert("Please enter a valid email address.", "danger");
+      return;
+    }
+    if (!validatePassword(password)) {
+      showAlert(
+        "Password must be at least 6 characters, include 1 uppercase letter and 1 digit.",
+        "danger"
+      );
+      return;
+    }
+    if (password !== rePassword) {
+      showAlert("Passwords do not match.", "danger");
+      return;
+    }
+    if (!role) {
+      showAlert("Please select a role.", "danger");
       return;
     }
 
@@ -147,8 +179,8 @@ function setupRegisterListeners() {
     try {
       const response = await AuthService.register(name, email, password, role);
       if (response.success) {
-        currentEmail = email;
-        currentRole = role;
+        currentEmail = email; // Store email for OTP verification
+        currentRole = role; // Store role if needed for subsequent steps
         showAlert(
           "Registration successful! Please verify your email with the OTP.",
           "success"
@@ -156,7 +188,7 @@ function setupRegisterListeners() {
         setTimeout(() => {
           currentView = "otp";
           renderView();
-        }, 1500);
+        }, 1500); // Give user time to read success message before changing view
       } else {
         showAlert(
           response.message || "Registration failed. Please try again.",
@@ -165,10 +197,7 @@ function setupRegisterListeners() {
       }
     } catch (error) {
       console.error("Registration attempt failed:", error);
-      showAlert(
-        "A network error occurred during registration. Please try again.",
-        "danger"
-      );
+      showAlert("A network error occurred. Please try again.", "danger");
     } finally {
       setButtonLoading(
         registerButton,
@@ -187,11 +216,15 @@ function setupOTPListeners() {
   const verifyButton = verifyOtpForm.querySelector('button[type="submit"]');
   const originalVerifyBtnText = verifyButton.innerHTML;
 
+  let otpError = false;
+
   if (otpInputs.length > 0) {
     otpInputs[0].focus();
   }
 
   otpInputs.forEach((input, index) => {
+    input.setAttribute("aria-label", `OTP digit ${index + 1}`);
+
     input.addEventListener("input", (e) => {
       e.target.value = e.target.value.replace(/[^0-9]/g, "").slice(0, 1);
       if (e.target.value.length === 1 && index < otpInputs.length - 1) {
@@ -201,6 +234,15 @@ function setupOTPListeners() {
         index === otpInputs.length - 1
       ) {
         e.target.blur();
+      }
+    });
+
+    input.addEventListener("paste", (e) => {
+      const pasteData = e.clipboardData.getData("text").replace(/\D/g, "");
+      if (pasteData.length === OTP_LENGTH) {
+        otpInputs.forEach((field, i) => (field.value = pasteData[i]));
+        otpInputs[OTP_LENGTH - 1].focus();
+        e.preventDefault();
       }
     });
 
@@ -221,11 +263,15 @@ function setupOTPListeners() {
 
     input.addEventListener("focus", (e) => {
       e.target.select();
+      if (otpError) {
+        otpInputs.forEach((i) => (i.value = ""));
+        otpInputs[0].focus();
+        otpError = false;
+      }
     });
   });
 
   resendOtpBtn.addEventListener("click", async () => {
-    // Disable resend button to prevent spamming
     resendOtpBtn.disabled = true;
     resendOtpBtn.textContent = "Sending...";
 
@@ -233,7 +279,6 @@ function setupOTPListeners() {
       const response = await AuthService.resendOTP(currentEmail);
       if (response.success) {
         showAlert("New OTP sent successfully!", "success");
-        // Clear OTP fields for new entry
         otpInputs.forEach((input) => (input.value = ""));
         if (otpInputs.length > 0) otpInputs[0].focus();
       } else {
@@ -243,7 +288,6 @@ function setupOTPListeners() {
       console.error("Resend OTP error:", error);
       showAlert("A network error occurred while resending OTP.", "danger");
     } finally {
-      // Re-enable resend button after a delay (e.g., 30 seconds) to prevent spam
       setTimeout(() => {
         resendOtpBtn.disabled = false;
         resendOtpBtn.textContent = "Resend OTP";
@@ -257,13 +301,13 @@ function setupOTPListeners() {
       .map((input) => input.value)
       .join("");
 
-    // Basic OTP length validation
-    if (otp.length !== 6 || !/^\d{6}$/.test(otp)) {
-      showAlert("Please enter a valid 6-digit OTP.", "danger");
+    if (!validateOTP(otp, OTP_LENGTH)) {
+      showAlert(`Please enter a valid ${OTP_LENGTH}-digit OTP.`, "danger");
+      otpError = true;
       return;
     }
 
-    setButtonLoading(verifyButton, true, "Verifying...", originalVerifyBtnText); // Show loading state
+    setButtonLoading(verifyButton, true, "Verifying...", originalVerifyBtnText);
 
     try {
       const response = await AuthService.verifyOTP(currentEmail, otp);
@@ -274,6 +318,7 @@ function setupOTPListeners() {
         );
         currentEmail = "";
         currentRole = "";
+        otpError = false;
         setTimeout(() => {
           currentView = "login";
           renderView();
@@ -283,6 +328,7 @@ function setupOTPListeners() {
           response.message || "Invalid OTP. Please try again.",
           "danger"
         );
+        otpError = true;
       }
     } catch (error) {
       console.error("OTP verification error:", error);
@@ -290,6 +336,7 @@ function setupOTPListeners() {
         "A network error occurred during verification. Please try again.",
         "danger"
       );
+      otpError = true;
     } finally {
       setButtonLoading(
         verifyButton,
