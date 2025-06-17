@@ -8,45 +8,52 @@ let allVisitorsData = [];
 
 function renderVisitorTable(visitorsToDisplay) {
   const tableBody = document.querySelector("#visitorTable tbody");
+  const emptyState = document.getElementById("emptyState");
   if (!tableBody) return;
 
-  tableBody.innerHTML = `
-    ${
-      visitorsToDisplay.length > 0
-        ? visitorsToDisplay
-            .map((v) => {
-              const latestVisit = v.latestVisit;
-              const entryTime = latestVisit
-                ? new Date(latestVisit.checkInTime).toLocaleString()
-                : "-";
-              let exitTime = "-";
-              if (latestVisit && latestVisit.checkOutTime) {
-                exitTime = new Date(latestVisit.checkOutTime).toLocaleString();
-              } else if (latestVisit && latestVisit.status === "Checked-In") {
-                exitTime = "Inside";
+  if (visitorsToDisplay.length > 0) {
+    tableBody.innerHTML = visitorsToDisplay
+      .map((v) => {
+        const latestVisit = v.latestVisit;
+        const entryTime = latestVisit
+          ? new Date(latestVisit.checkInTime).toLocaleString()
+          : "-";
+        let exitTime = "-";
+        if (latestVisit && latestVisit.checkOutTime) {
+          exitTime = new Date(latestVisit.checkOutTime).toLocaleString();
+        } else if (latestVisit && latestVisit.status === "Checked-In") {
+          exitTime =
+            '<span class="badge bg-success bg-opacity-25 text-success">Inside</span>';
+        }
+        return `
+          <tr>
+            <td class="fw-medium">${v.name}</td>
+            <td>${v.phone || "-"}</td>
+            <td>${entryTime}</td>
+            <td>${exitTime}</td>
+            <td>
+              ${
+                v.isBlocked
+                  ? '<span class="badge bg-danger"><i class="fa-solid fa-ban me-1"></i> Yes</span>'
+                  : '<span class="badge bg-success"><i class="fa-solid fa-check me-1"></i> No</span>'
               }
-              return `
-                <tr>
-                    <td>${v.name}</td>
-                    <td>${v.phone || "-"}</td>
-                    <td>${entryTime}</td>
-                    <td>${exitTime}</td>
-                    <td>${
-                      v.isBlocked
-                        ? '<span class="badge bg-danger">Yes</span>'
-                        : '<span class="badge bg-success">No</span>'
-                    }</td>
-                    <td>
-                        <button class="btn btn-sm btn-outline-primary-custom view-visitor-btn" data-id="${
-                          v.id
-                        }">View</button>
-                    </td>
-                </tr>`;
-            })
-            .join("")
-        : `<tr><td colspan="7" class="text-center">No visitors found.</td></tr>`
-    }
-  `;
+            </td>
+            <td>
+              <button class="btn btn-sm btn-outline-primary view-visitor-btn" data-id="${
+                v.id
+              }" aria-label="View Details" title="View Details">
+                <i class="fa-solid fa-eye"></i>
+              </button>
+            </td>
+          </tr>
+        `;
+      })
+      .join("");
+    if (emptyState) emptyState.classList.add("d-none");
+  } else {
+    tableBody.innerHTML = "";
+    if (emptyState) emptyState.classList.remove("d-none");
+  }
 }
 
 export default async function initVisitorManagement() {
@@ -76,29 +83,42 @@ export default async function initVisitorManagement() {
       };
     });
 
+    // Enhanced HTML structure
     content.innerHTML = `
-      <h4 class="mb-4">Visitor Management</h4>
-      <input type="text" id="searchVisitor" placeholder="Search by Name, or Phone..." class="form-control mb-3">
-      <div class="table-responsive">
-          <table class="table table-hover" id="visitorTable">
-              <thead>
-                  <tr>
-                      <th>Name</th>
-                      <th>Phone</th>
-                      <th>Last Entry</th>
-                      <th>Latest Exit/Status</th>
-                      <th>Blacklisted</th>
-                      <th>Actions</th>
-                  </tr>
-              </thead>
-              <tbody></tbody>
+      <div class="visitor-management-container">
+        <h4 class="mb-4 fw-semibold">
+          <i class="fa-solid fa-address-book me-2 text-dark"></i> Visitor Management
+        </h4>
+        <div class="input-group mb-3">
+          <span class="input-group-text bg-light"><i class="fa-solid fa-search text-muted"></i></span>
+          <input type="text" id="searchVisitor" placeholder="Search by Name, Phone, or ID..." class="form-control" />
+        </div>
+        <div class="table-responsive rounded shadow-sm">
+          <table class="table table-hover table-striped align-middle" id="visitorTable">
+            <thead class="table-light sticky-top">
+              <tr>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Last Entry</th>
+                <th>Latest Exit/Status</th>
+                <th>Blacklisted</th>
+                <th>Full Details</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
           </table>
+          <div id="emptyState" class="text-center py-5 d-none">
+            <i class="fa-solid fa-user-slash fa-2x text-muted mb-2"></i>
+            <div class="text-muted">No visitors found.</div>
+          </div>
+        </div>
+        <div id="visitorDetailsModalContainer"></div>
       </div>
-      <div id="visitorDetailsModalContainer"></div>
     `;
 
     renderVisitorTable(allVisitorsData);
 
+    // Search functionality
     const searchInput = document.getElementById("searchVisitor");
     if (searchInput) {
       searchInput.addEventListener("input", (event) => {
@@ -107,20 +127,19 @@ export default async function initVisitorManagement() {
           const matchesName = visitor.name.toLowerCase().includes(searchTerm);
           const matchesPhone =
             visitor.phone && visitor.phone.toLowerCase().includes(searchTerm);
-          const matchesId =
-            visitor.idNumber &&
-            visitor.idNumber.toLowerCase().includes(searchTerm);
-          return matchesName || matchesPhone || matchesId;
+          return matchesName || matchesPhone;
         });
         renderVisitorTable(filteredVisitors);
       });
     }
 
+    // View details button
     const visitorTable = document.getElementById("visitorTable");
     if (visitorTable) {
       visitorTable.addEventListener("click", async (event) => {
-        if (event.target.classList.contains("view-visitor-btn")) {
-          const visitorId = event.target.dataset.id;
+        if (event.target.closest(".view-visitor-btn")) {
+          const btn = event.target.closest(".view-visitor-btn");
+          const visitorId = btn.dataset.id;
           if (visitorId) {
             showLoading(content);
             try {

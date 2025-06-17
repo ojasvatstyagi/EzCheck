@@ -7,12 +7,17 @@ import initTodayVisitReport from "./guard/todayReport.js";
 function renderDashboardLayout() {
   return `
     <div class="container mt-4">
-      <div class="card shadow rounded-4 p-4 mb-4 d-flex flex-row justify-content-between align-items-center">
-        <p class="text-muted">You are responsible for verifying and checking in visitors at the gate.</p>
-        <div class="col-md-4 text-md-end">
-          <button id="addVisitorBtn" class="btn btn-light rounded-pill px-4">
+      <div class="card shadow rounded-4 p-0 mb-4">
+        <div class="card-header text-dark rounded-top-4 d-flex align-items-center"
+         style="background: linear-gradient(90deg, #ffc300 0%, #ff9100 100%);">
+          <i class="fas fa-shield-alt fa-2x me-3 text-white"></i>
+          <h4 class="mb-0 fw-bold flex-grow-1 text-white">Guard Dashboard</h4>
+          <button id="addVisitorBtn" class="btn btn-light rounded-pill px-4 py-2 shadow-sm ms-auto">
             <i class="fas fa-plus me-2"></i>Add New Visit
           </button>
+        </div>
+        <div class="card-body">
+          <p class="text-muted mb-0">Thank you for your dedication to keeping our building safe and secure. Stay alert. Stay safe. You make a difference every day!</p>
         </div>
       </div>
       <div id="guard-dynamic-content" class="mt-4"></div>

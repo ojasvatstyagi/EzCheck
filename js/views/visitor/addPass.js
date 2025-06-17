@@ -8,7 +8,7 @@ export async function showVisitRequestModal(visitorId, visitorName, onSuccess) {
   const modals = document.getElementById("modals-container");
   modals.innerHTML = "";
 
-  showLoading(); // Show loading indicator while fetching hosts
+  showLoading();
   let hosts = [];
   try {
     hosts = await VisitorService.fetchHosts();
@@ -19,60 +19,84 @@ export async function showVisitRequestModal(visitorId, visitorName, onSuccess) {
       "danger"
     );
     hideLoading();
-    return; // Exit if hosts cannot be loaded
+    return;
   } finally {
     hideLoading();
   }
+
   const hostOptions = hosts
     .map((host) => `<option value="${host.id}">${host.name}</option>`)
     .join("");
 
   modals.innerHTML = `
-        <div class="modal fade" id="requestVisitModal" tabindex="-1">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header bg-dark text-white">
-                        <h5 class="modal-title">Request New Visit</h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <form id="visitRequestForm">
-                            <div class="mb-3">
-                                <label for="purposeOfVisit" class="form-label">Purpose of Visit</label>
-                                <select id="purposeOfVisit" name="purpose" class="form-select" required>
-                                    <option value="">Select purpose</option>
-                                    <option value="Meeting">Meeting</option>
-                                    <option value="Delivery">Delivery</option>
-                                    <option value="Interview">Interview</option>
-                                    <option value="Maintenance">Maintenance</option>
-                                    <option value="Other">Other</option>
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label for="hostPerson" class="form-label">Host/Contact Person</label>
-                                <select id="hostPerson" name="hostId" class="form-select" required>
-                                    <option value="">Select a host</option>
-                                    ${hostOptions}
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label for="visitDateTime" class="form-label">Visit Date</label>
-                                <input type="datetime-local" id="visitDateTime" name="visitDate" class="form-control" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="additionalNotes" class="form-label">Additional Notes</label>
-                                <textarea id="additionalNotes" name="notes" class="form-control" rows="3"></textarea>
-                            </div>
-                        </form>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" form="visitRequestForm" class="btn btn-outline-primary-custom">Submit Request</button>
-                    </div>
+    <div class="modal fade" id="requestVisitModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header bg-dark text-white">
+            <h5 class="modal-title">Request New Visit</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <form id="visitRequestForm">
+              <div class="mb-3">
+                <label for="purposeOfVisit" class="form-label">Purpose of Visit</label>
+                <select id="purposeOfVisit" name="purpose" class="form-select" required>
+                  <option value="">Select purpose</option>
+                  <option value="Meeting">Meeting</option>
+                  <option value="Delivery">Delivery</option>
+                  <option value="Interview">Interview</option>
+                  <option value="Maintenance">Maintenance</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="hostPerson" class="form-label">Host/Contact Person</label>
+                <select id="hostPerson" name="hostId" class="form-select" required>
+                  <option value="">Select a host</option>
+                  ${hostOptions}
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="visitDate" class="form-label">Visit Date</label>
+                <input type="date" id="visitDate" name="visitDate" class="form-control" required min="${
+                  new Date().toISOString().split("T")[0]
+                }">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Visit Duration</label>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="visitDuration" id="morningVisit" value="morning" checked required>
+                  <label class="form-check-label" for="morningVisit">
+                    Morning (9 AM - 1 PM)
+                  </label>
                 </div>
-            </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="visitDuration" id="afternoonVisit" value="afternoon">
+                  <label class="form-check-label" for="afternoonVisit">
+                    Afternoon (2 PM - 6 PM)
+                  </label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="visitDuration" id="fullDayVisit" value="fullday">
+                  <label class="form-check-label" for="fullDayVisit">
+                    Full Day (9 AM - 6 PM)
+                  </label>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="additionalNotes" class="form-label">Additional Notes</label>
+                <textarea id="additionalNotes" name="notes" class="form-control" rows="3" required></textarea>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" form="visitRequestForm" class="btn btn-outline-primary-custom">Submit Request</button>
+          </div>
         </div>
-    `;
+      </div>
+    </div>
+  `;
 
   const modalElement = document.getElementById("requestVisitModal");
   const modal = new bootstrap.Modal(modalElement);
@@ -86,23 +110,46 @@ export async function showVisitRequestModal(visitorId, visitorName, onSuccess) {
         showLoading();
 
         const formElements = e.target.elements;
-        const selectedHostId = formElements.hostId.value; // Get the ID from the select
-        // Find the host name from the fetched hosts array using the ID
+        const selectedHostId = formElements.hostId.value;
         const selectedHost = hosts.find((h) => h.id === selectedHostId);
-        const hostName = selectedHost ? selectedHost.name : ""; // Get the name for submission
+        const hostName = selectedHost ? selectedHost.name : "";
+
+        // Calculate time slots based on duration
+        const visitDate = new Date(formElements.visitDate.value);
+        let startTime, endTime;
+
+        switch (formElements.visitDuration.value) {
+          case "morning":
+            startTime = new Date(visitDate.setHours(9, 0, 0, 0));
+            endTime = new Date(visitDate.setHours(13, 0, 0, 0));
+            break;
+          case "afternoon":
+            startTime = new Date(visitDate.setHours(14, 0, 0, 0));
+            endTime = new Date(visitDate.setHours(18, 0, 0, 0));
+            break;
+          case "fullday":
+            startTime = new Date(visitDate.setHours(9, 0, 0, 0));
+            endTime = new Date(visitDate.setHours(18, 0, 0, 0));
+            break;
+        }
 
         const visitData = {
           purpose: formElements.purpose.value,
-          host: hostName, // Submit the host's name
-          hostId: selectedHostId, // Also submit the ID if your backend needs it
-          visitDate: formElements.visitDate.value,
+          host: hostName,
+          hostId: selectedHostId,
+          visitDate: visitDate.toISOString(),
+          startTime: startTime.toISOString(),
+          endTime: endTime.toISOString(),
+          duration: formElements.visitDuration.value,
           notes: formElements.notes.value,
         };
+
         const response = await VisitorService.requestVisit(
           visitorId,
           visitorName,
           visitData
         );
+
         if (response.success) {
           modal.hide();
           modalElement.addEventListener(
@@ -119,9 +166,7 @@ export async function showVisitRequestModal(visitorId, visitorName, onSuccess) {
             response.message || "Visit request submitted successfully",
             "success"
           );
-          if (onSuccess) {
-            onSuccess(); // This is the refreshCallback from visitor.js
-          }
+          if (onSuccess) onSuccess();
         } else {
           showAlert(
             document.body,

@@ -23,6 +23,7 @@ async function renderVisitorViewContent(visitorId, editingMode = false) {
 
   try {
     const visitorData = await VisitorService.fetchVisitorData(visitorId);
+    console.log(visitorData);
 
     if (!visitorData || !visitorData.id) {
       showAlert(
@@ -52,14 +53,32 @@ async function renderVisitorViewContent(visitorId, editingMode = false) {
       return;
     }
 
-    // Main structure
+    // Main structure - Updated layout
     content.innerHTML = `
       <div class="container mt-4">
-        <div class="row align-items-center">
-          <div id="profile-section" class="col-md-5 mb-3"></div>
-          <div id="current-pass-section" class="col-md-7 mb-3"></div>
+        <div class="row">
+          <!-- Profile Section - Full width on mobile, 4 columns on desktop -->
+          <div class="col-12 col-lg-4 mb-4">
+            <div class="card shadow-sm h-100">
+              <div id="profile-section"></div>
+            </div>
+          </div>
+          
+          <!-- Current Pass Section - Full width on mobile, 8 columns on desktop -->
+          <div class="col-12 col-lg-8 mb-4">
+            <div class="card shadow-sm h-100">
+              <div id="current-pass-section"></div>
+            </div>
+          </div>
         </div>
-        <div id="visit-history-section" class="mb-3"></div>
+        
+        <!-- Visit History Section - Full width -->
+        <div class="row">
+          <div class="col-12 mb-4">
+              <div id="visit-history-section"></div>
+          </div>
+        </div>
+        
         <div id="modals-container"></div>
       </div>
     `;
@@ -74,11 +93,18 @@ async function renderVisitorViewContent(visitorId, editingMode = false) {
       ${renderVisitStatus(visitorData)}
     `;
 
-    if (visitorData.currentVisit?.status === "Approved") {
-      await generateQRCode(
-        "visitQrCode",
-        `VISITOR ID:${visitorData.id}|NAME:${visitorData.name}|VISIT ID:${visitorData.currentVisit.id}`
-      );
+    // Generate QR codes for approved visits
+    const activeVisits = (visitorData.visitHistory || []).filter(
+      (visit) => visit.status === "Approved" || visit.status === "Pending"
+    );
+
+    for (const visit of activeVisits) {
+      if (visit.status === "Approved") {
+        await generateQRCode(
+          `visitQrCode-${visit.id}`,
+          `VISITOR ID:${visitorData.id}|NAME:${visitorData.name}|VISIT ID:${visit.id}`
+        );
+      }
     }
 
     // Render visit history
