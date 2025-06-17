@@ -66,13 +66,13 @@ function renderVisitRow(visit, fetchAndRenderVisitsCallback) {
   // Determine which button to show based on status
   if (visit.status === "Pending" || visit.status === "Approved") {
     actionButton = `
-      <button class="btn btn-sm btn-success check-in-btn" data-visit-id="${visit.id}" data-action="checkIn">
+      <button class="btn btn-sm btn-success check-in-btn rounded-pill" data-visit-id="${visit.id}" data-action="checkIn">
         <i class="fas fa-sign-in-alt me-1"></i> Check-In
       </button>
     `;
   } else if (visit.status === "Checked-In") {
     actionButton = `
-      <button class="btn btn-sm btn-warning check-out-btn" data-visit-id="${visit.id}" data-action="checkOut">
+      <button class="btn btn-sm btn-warning check-out-btn rounded-pill" data-visit-id="${visit.id}" data-action="checkOut">
         <i class="fas fa-sign-out-alt me-1"></i> Check-Out
       </button>
     `;
@@ -152,7 +152,7 @@ export default async function initTodayVisitReport(onReturnCallback) {
   content.innerHTML = `
     <div class="card shadow-sm rounded-4 mb-4">
       <div class="card-header bg-light text-dark rounded-top-4 d-flex justify-content-between align-items-center">
-        <h2 class="mb-0">Today's Schedule</h2>
+        <h2 class="mb-0"><i class="fas fa-calendar-day me-2"></i>Visits Report</h2>
         <button id="refreshReportBtn" class="btn btn-light btn-sm rounded-pill px-3">
           <i class="fas fa-sync-alt me-2"></i>Refresh
         </button>

@@ -41,62 +41,72 @@ export default async function loadHostView() {
                 <div id="section-dashboard" class="section-content">
                     <div class="host-dashboard">
 
-                        <div class="card shadow rounded-4 p-4 mb-4 d-flex flex-row justify-content-between align-items-center">
-                            <div class="col-md-8">
-                                <h2 class="mb-3"><i class="fas fa-user me-2"></i>Register Visitors</h2>
-                                <p class="mb-0 text-muted">Manage you visitors, check you upcoming visits, and generate reports</p>
+                        <div class="container mt-4">
+                          <div class="card shadow rounded-4 p-0 mb-4">
+                            <div class="card-header text-dark rounded-top-4 d-flex align-items-center"
+                                style="background: linear-gradient(90deg, #ffc300 0%, #ff9100 100%);">
+                              <i class="fas fa-user fa-2x me-3 text-white"></i>
+                              <h4 class="mb-0 fw-bold flex-grow-1 text-white">Manage Your Visitors</h4>
+                              <button id="hostRegisterVisitorBtn" class="btn btn-light rounded-pill px-4 py-2 shadow-sm ms-2">
+                                <i class="fas fa-plus me-2"></i>Add New Visit
+                              </button>
+                              <button id="exportHostReportBtn" class="btn btn-light rounded-pill px-4 py-2 shadow-sm ms-2">
+                                <i class="fas fa-download me-2"></i>Export Report
+                              </button>
                             </div>
-                            <div class="col-md-4 text-md-end">
-                                <button id="hostRegisterVisitorBtn" class="btn btn-light rounded-pill px-4">
-                                    <i class="fas fa-plus me-2"></i>Add New Visit
-                                </button>
+                            <div class="card-body">
+                              <p class="text-muted mb-2">
+                                Manage your visitors, check your upcoming visits, and generate detailed reports. 
+                                Stay organized and enhance security with streamlined visitor registration and reporting features.
+                              </p>
                             </div>
-                        </div>
-
-                        <div class="card shadow rounded-4 p-4 mb-4 d-flex flex-row justify-content-between">
-                          <div class="col-md-8">
-                            <h2 class="mb-3"><i class="fas fa-file-alt me-2"></i>Reporting</h2>
-                            <p class="mb-0 text-muted">Click the button above to export visitor data.</p>
-                          </div>
-                          <div class="col-md-4 text-md-end">
-                            <button class="btn btn-light rounded-pill px-4" id="exportHostReportBtn">
-                              <i class="fas fa-download me-2"></i>Export Report
-                            </button>
                           </div>
                         </div>
             
-                        <div class="pending-requests card shadow-sm mb-4">
-                          <div class="card-header bg-gray-custom text-dark">
-                              <h2 class="requests-title mb-0">Pending Requests</h2>
-                              <a href="#" data-section="requests" class="btn btn-sm btn-link-custom d-none">View All</a>
+                        <div class="card shadow-lg mb-4">
+                          <div class="card-body">
+                          <ul class="nav nav-tabs" id="hostDashboardTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                              <button class="nav-link active text-primary-custom" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending" type="button" role="tab">
+                                Pending Requests
+                                <span class="badge bg-danger ms-2" id="pending-badge-count">0</span>
+                              </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                              <button class="nav-link text-primary-custom" id="today-tab" data-bs-toggle="tab" data-bs-target="#today" type="button" role="tab">
+                                Today's Visits
+                                <span class="badge bg-primary ms-2" id="today-badge-count">0</span>
+                              </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                              <button class="nav-link text-primary-custom" id="upcoming-tab" data-bs-toggle="tab" data-bs-target="#upcoming" type="button" role="tab">
+                                Upcoming Visits
+                                <span class="badge bg-warning text-dark ms-2" id="upcoming-badge-count">0</span>
+                              </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                              <button class="nav-link text-primary-custom" id="history-tab" data-bs-toggle="tab" data-bs-target="#history" type="button" role="tab">
+                                Visit History
+                              </button>
+                            </li>
+                          </ul>
+                          
+                          <div class="tab-content p-3 border border-top-0 rounded-bottom" id="hostDashboardTabsContent">
+                            <div class="tab-pane fade show active" id="pending" role="tabpanel">
+                              <div id="pending-requests-container"></div>
+                            </div>
+                            <div class="tab-pane fade" id="today" role="tabpanel">
+                              <div id="today-visits-container"></div>
+                            </div>
+                            <div class="tab-pane fade" id="upcoming" role="tabpanel">
+                              <div id="upcoming-visits-container"></div>
+                            </div>
+                            <div class="tab-pane fade" id="history" role="tabpanel">
+                              <div id="host-visit-history-container"></div>
+                            </div>
                           </div>
-                          <div class="card-body" id="pending-requests-container">
-                              
-                          </div>
+                        </div>
                       </div>
-                        
-                        <div class="upcoming-visits card shadow-sm mb-4"> <div class="card-header bg-gray-custom text-dark"> <h2 class="requests-title mb-0">Today's Visits</h2>
-                            </div>
-                            <div class="card-body" id="today-visits-container">
-                                
-                            </div>
-                        </div>
-                        
-                        <div class="upcoming-visits card shadow-sm mb-4"> <div class="card-header bg-gray-custom text-dark"> <h2 class="requests-title mb-0">Upcoming Visits</h2>
-                            </div>
-                            <div class="card-body" id="upcoming-visits-container">
-                                
-                            </div>
-                        </div>
-
-                         <div class="card shadow-sm mb-4">
-                            <div class="card-header bg-gray-custom text-dark">
-                                <h2 class="requests-title mb-0">Your Visit History</h2>
-                            </div>
-                            <div class="card-body" id="host-visit-history-container">
-                            </div>
-                        </div>
-
                     </div>
                 </div>
             </main>
@@ -136,27 +146,27 @@ export default async function loadHostView() {
 
 async function loadHostDashboardData(name) {
   try {
-    const pendingContainer = document.getElementById(
-      "pending-requests-container"
-    );
-
     const response = await VisitorService.fetchVisitsByHost(name);
     const allHostVisits = response.visits || [];
 
+    // Filter and count different types of visits
     const pendingRequests = allHostVisits.filter(
       (visit) => visit.status === "Pending"
     );
-
-    renderPendingRequestsSection(pendingRequests, name, loadHostDashboardData);
+    document.getElementById("pending-badge-count").textContent =
+      pendingRequests.length;
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-
     const todaysVisits = allHostVisits.filter((visit) => {
       const visitDate = new Date(visit.visitDate);
-      return visitDate.toDateString() === today.toDateString();
+      return (
+        visitDate.toDateString() === today.toDateString() &&
+        (visit.status === "Approved" || visit.status === "Checked-In")
+      );
     });
-    renderTodaysVisitsSection(todaysVisits, name, loadHostDashboardData);
+    document.getElementById("today-badge-count").textContent =
+      todaysVisits.length;
 
     const upcomingVisits = allHostVisits.filter((visit) => {
       const visitDate = new Date(visit.visitDate);
@@ -167,8 +177,8 @@ async function loadHostDashboardData(name) {
         visit.status !== "Declined"
       );
     });
-
-    renderUpcomingVisitsSection(upcomingVisits, name, loadHostDashboardData);
+    document.getElementById("upcoming-badge-count").textContent =
+      upcomingVisits.length;
 
     const hostVisitHistory = allHostVisits.filter((visit) => {
       const visitDate = new Date(visit.visitDate);
@@ -185,6 +195,11 @@ async function loadHostDashboardData(name) {
           visit.status !== "Checked-In")
       );
     });
+
+    // Render all sections
+    renderPendingRequestsSection(pendingRequests, name, loadHostDashboardData);
+    renderTodaysVisitsSection(todaysVisits, name, loadHostDashboardData);
+    renderUpcomingVisitsSection(upcomingVisits, name, loadHostDashboardData);
     renderHostVisitHistorySection(hostVisitHistory, name);
   } catch (error) {
     console.error("Error loading host dashboard data:", error);
@@ -198,10 +213,10 @@ async function loadHostDashboardData(name) {
     );
     if (pendingContainer) {
       pendingContainer.innerHTML = `
-                <div class="text-center text-danger p-4">
-                    <p>Error loading requests. Please try again.</p>
-                </div>
-            `;
+        <div class="text-center text-danger p-4">
+          <p>Error loading requests. Please try again.</p>
+        </div>
+      `;
     }
   }
 }

@@ -13,48 +13,66 @@ export default async function initBlacklistManagement() {
     const visitors = await VisitorService.fetchVisitorsIfNotBlacklisted();
 
     content.innerHTML = `
-      <h4 class="mb-4">Blacklist Management</h4>
-      <button class="btn btn-sm btn-outline-primary-custom mb-3" id="addBlacklistEntryBtn">Add to Blacklist</button>
-      <div class="table-responsive">
-        <table class="table table-hover">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Phone</th>
-              <th>Reason</th>
-              <th>Added On</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${
-              blacklist.length > 0
-                ? blacklist
-                    .map(
-                      (entry) => `
+      <div class="blacklist-management-container">
+        <h4 class="mb-4 fw-semibold">
+          <i class="fa-solid fa-ban me-2 text-dark"></i> Blacklist Management
+        </h4>
+        <button class="btn btn-outline-danger d-flex align-items-center mb-3" id="addBlacklistEntryBtn">
+          <i class="fa-solid fa-user-lock me-2"></i> Add to Blacklist
+        </button>
+        <div class="table-responsive rounded shadow-sm">
+          <table class="table table-hover table-striped align-middle mb-0">
+            <thead class="table-light sticky-top">
               <tr>
-                <td>${entry.name || "N/A"}</td>
-                <td>${entry.mobile || "N/A"}</td>
-                <td>${entry.reason || "-"}</td>
-                <td>${
-                  entry.addedOn
-                    ? new Date(entry.addedOn).toLocaleDateString()
-                    : "N/A"
-                }</td>
-                <td>
-                  <button class="btn btn-sm btn-outline-danger remove-blacklist-btn" data-id="${
-                    entry.id
-                  }">Remove</button>
-                </td>
-              </tr>`
-                    )
-                    .join("")
-                : `<tr><td colspan="6" class="text-center">No blacklisted entries found.</td></tr>`
-            }
-          </tbody>
-        </table>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Reason</th>
+                <th>Added On</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${
+                blacklist.length > 0
+                  ? blacklist
+                      .map(
+                        (entry) => `
+                <tr>
+                  <td class="fw-medium">${entry.name || "N/A"}</td>
+                  <td>${entry.mobile || "N/A"}</td>
+                  <td>${entry.reason || "-"}</td>
+                  <td>
+                    ${
+                      entry.addedOn
+                        ? `<span class="badge bg-light text-secondary">${new Date(
+                            entry.addedOn
+                          ).toLocaleDateString()}</span>`
+                        : "N/A"
+                    }
+                  </td>
+                  <td>
+                    <button class="btn btn-sm btn-outline-danger d-flex align-items-center remove-blacklist-btn" data-id="${
+                      entry.id
+                    }" aria-label="Remove from Blacklist" title="Remove">
+                      <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                  </td>
+                </tr>`
+                      )
+                      .join("")
+                  : ""
+              }
+            </tbody>
+          </table>
+          <div id="emptyState" class="text-center py-5${
+            blacklist.length > 0 ? " d-none" : ""
+          }">
+            <i class="fa-solid fa-user-lock fa-2x text-muted mb-2"></i>
+            <div class="text-muted">No blacklisted entries found.</div>
+          </div>
+        </div>
+        <div id="modals-container"></div>
       </div>
-      <div id="modals-container"></div>
     `;
 
     // Add Blacklist Entry Button Click Handler
@@ -62,13 +80,12 @@ export default async function initBlacklistManagement() {
       .getElementById("addBlacklistEntryBtn")
       .addEventListener("click", () => {
         const modalsContainer = document.getElementById("modals-container");
-        modalsContainer.innerHTML = createBlacklistModal(); // Create and append the modal HTML
+        modalsContainer.innerHTML = createBlacklistModal();
 
         const blacklistModalElement = document.getElementById("blacklistModal");
         const blacklistModal = new bootstrap.Modal(blacklistModalElement);
         blacklistModal.show();
 
-        // Populate visitor select and set up auto-fill
         populateVisitorSelect(visitors);
 
         const blacklistForm = document.getElementById("blacklistForm");
@@ -81,7 +98,7 @@ export default async function initBlacklistManagement() {
             const name = document
               .getElementById("blacklistVisitorName")
               .value.trim();
-            const mobile = document
+            const phone = document
               .getElementById("blacklistMobileNumber")
               .value.trim();
             const reason = document
@@ -90,8 +107,8 @@ export default async function initBlacklistManagement() {
 
             if (!name || !phone) {
               showAlert(
-                modalBody, // Show alert inside the modal body
-                "Please fill in all required fields (Name, phone).",
+                modalBody,
+                "Please fill in all required fields (Name, Phone).",
                 "warning"
               );
               return;
@@ -101,7 +118,7 @@ export default async function initBlacklistManagement() {
             try {
               await VisitorService.addToBlacklist({
                 name,
-                mobile: phone, // Mobile is now optional
+                mobile: phone,
                 reason: reason,
                 addedOn: new Date().toISOString(),
                 id: `BL-${Date.now()}-${Math.random()
@@ -124,7 +141,7 @@ export default async function initBlacklistManagement() {
                     "hidden.bs.modal",
                     handler
                   );
-                  initBlacklistManagement(); // Re-render the blacklist table
+                  initBlacklistManagement();
                 }
               );
             } catch (error) {
@@ -141,12 +158,13 @@ export default async function initBlacklistManagement() {
         }
       });
 
-    // Event Listener for removing from Blacklist
+    // Remove Blacklist Entry Handler
     document
       .querySelector("table tbody")
       .addEventListener("click", async (event) => {
-        if (event.target.classList.contains("remove-blacklist-btn")) {
-          const entryId = event.target.dataset.id;
+        if (event.target.closest(".remove-blacklist-btn")) {
+          const btn = event.target.closest(".remove-blacklist-btn");
+          const entryId = btn.dataset.id;
 
           if (
             confirm(

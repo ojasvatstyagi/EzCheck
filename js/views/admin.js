@@ -28,72 +28,84 @@ async function initDashboard() {
     ).length;
 
     content.innerHTML = `
-      <div class="card shadow-sm mb-4">
-        <div class="card-body d-flex flex-row justify-content-between">
-          <div class="d-flex flex-column">
-            <h4 class="mb-0-custom">Admin Dashboard</h4>
-            <p class="text-muted mb-0">Manage visitors, blacklist, users, and generate reports</p>
-          </div>
-          <div class="col-md-4 text-md-end">
-            <button id="addVisitorBtn" class="btn btn-light rounded-pill px-4">
-              <i class="fas fa-plus me-2"></i>Add New Visit
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div class="card shadow rounded-4 p-4 mb-4 d-flex flex-row justify-content-between">
-        <div class="col-md-8">
-          <h2 class="mb-3"><i class="fas fa-file-alt me-2"></i>Reporting</h2>
-          <p class="mb-0 text-muted">Click the button above to export visitor data.</p>
-        </div>
-        <div class="col-md-4 text-md-end">
-          <button class="btn btn-light rounded-pill px-4" id="exportHostReportBtn">
+      <div class="card shadow rounded-4 p-0 mb-4">
+        <div class="card-header d-flex align-items-center rounded-top-4"
+            style="background: linear-gradient(90deg, #ffc300 0%, #ff9100 100%);">
+          <i class="fas fa-cogs fa-2x me-3 text-white"></i>
+          <h4 class="mb-0 fw-bold flex-grow-1 text-white">Admin Dashboard</h4>
+          <button id="addVisitorBtn" class="btn btn-light rounded-pill px-4 py-2 shadow-sm ms-2">
+            <i class="fas fa-plus me-2"></i>Add New Visit
+          </button>
+          <button id="exportHostReportBtn" class="btn btn-light rounded-pill px-4 py-2 shadow-sm ms-2">
             <i class="fas fa-download me-2"></i>Export Report
           </button>
         </div>
+        <div class="card-body">
+          <p class="text-muted mb-2">
+            Manage visitors, blacklist, users, and generate comprehensive reports with ease. Streamline your admin tasks and keep track of all essential activities from one place.
+          </p>
+        </div>
       </div>
 
-      <div class="row">
-        <div class="col-md-6 mb-4">
+      <div class="row g-4">
+        <!-- Visitor's Stats Card -->
+        <div class="col-md-6">
           <div class="card shadow-sm h-100">
-            <div class="card-header bg-gray-custom text-dark-custom">
-              <h5 class="mb-0-custom">Visitor's Stats</h5>
+            <div class="card-header bg-light d-flex align-items-center py-2">
+              <i class="fa-solid fa-chart-bar me-2 text-dark"></i>
+              <h5 class="mb-0 fw-semibold">Visitor's Stats</h5>
             </div>
             <div class="card-body">
               <div class="row text-center">
-                <div class="col-4">
-                  <h3 class="text-primary-custom" id="totalVisitors">${visitors.length}</h3>
-                  <small class="text-dark-custom">Total Visitors</small>
+                <div class="col-4 border-end">
+                  <div class="mb-2">
+                    <span class="badge bg-primary bg-opacity-10 p-3 rounded-circle">
+                      <i class="fa-solid fa-users text-primary"></i>
+                    </span>
+                  </div>
+                  <h3 class="text-primary mb-0" id="totalVisitors">${visitors.length}</h3>
+                  <small class="text-muted">Total Visitors</small>
+                </div>
+                <div class="col-4 border-end">
+                  <div class="mb-2">
+                    <span class="badge bg-success bg-opacity-10 p-3 rounded-circle">
+                      <i class="fa-solid fa-door-open text-success"></i>
+                    </span>
+                  </div>
+                  <h3 class="text-success mb-0" id="currentVisitors">${currentVisitorsCount}</h3>
+                  <small class="text-muted">Currently Inside</small>
                 </div>
                 <div class="col-4">
-                  <h3 class="text-success" id="currentVisitors">${currentVisitorsCount}</h3>
-                  <small class="text-dark-custom">Currently Inside</small>
-                </div>
-                <div class="col-4">
-                  <h3 class="text-danger" id="blacklisted">${blacklist.length}</h3>
-                  <small class="text-dark-custom">Blacklisted</small>
+                  <div class="mb-2">
+                    <span class="badge bg-danger bg-opacity-10 p-3 rounded-circle">
+                      <i class="fa-solid fa-user-slash text-danger"></i>
+                    </span>
+                  </div>
+                  <h3 class="text-danger mb-0" id="blacklisted">${blacklist.length}</h3>
+                  <small class="text-muted">Blacklisted</small>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <div class="col-md-6 mb-4">
+        <!-- Quick Actions Card -->
+        <div class="col-md-6">
           <div class="card shadow-sm h-100">
-            <div class="card-header bg-gray-custom text-dark">
-              <h5 class="mb-0-custom">Quick Actions</h5>
+            <div class="card-header bg-light d-flex align-items-center py-2">
+              <i class="fa-solid fa-bolt me-2 text-dark"></i>
+              <h5 class="mb-0 fw-semibold">Quick Actions</h5>
             </div>
             <div class="card-body">
-              <div class="d-grid gap-2">
-                <button class="btn btn-outline-primary-custom" id="viewAllVisitorsBtn">
-                  <i class="fas fa-users me-2"></i> View All Visitors
+              <div class="d-grid gap-3">
+                <button class="btn btn-outline-primary d-flex align-items-center justify-content-center" id="viewAllVisitorsBtn">
+                  <i class="fa-solid fa-users me-2"></i> View All Visitors
                 </button>
-                <button class="btn btn-outline-info" id="manageUsersBtn">
-                  <i class="fas fa-user-cog me-2"></i> Manage Users
+                <button class="btn btn-outline-info d-flex align-items-center justify-content-center" id="manageUsersBtn">
+                  <i class="fa-solid fa-user-gear me-2"></i> Manage Users
                 </button>
-                <button class="btn btn-outline-danger" id="blacklistEntryBtn">
-                  <i class="fas fa-ban me-2"></i>Blacklist Entry
+                <button class="btn btn-outline-danger d-flex align-items-center justify-content-center" id="blacklistEntryBtn">
+                  <i class="fa-solid fa-circle-xmark me-2"></i> Blacklist Entry
                 </button>
               </div>
             </div>

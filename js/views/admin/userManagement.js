@@ -1,7 +1,12 @@
 // js/views/admin/userManagement.js
 
 import UserService from "../../../api/userService.js";
-import { showAlert, showLoading, hideLoading } from "../../utils/helpers.js";
+import {
+  showAlert,
+  showLoading,
+  hideLoading,
+  getRoleBadge,
+} from "../../utils/helpers.js";
 
 function createUserModal(user = {}) {
   const isEdit = !!user.id;
@@ -11,13 +16,15 @@ function createUserModal(user = {}) {
   return `
     <div class="modal fade" id="userModal" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
       <div class="modal-dialog">
-        <div class="modal-content">
+        <div class="modal-content rounded-3 shadow">
           <div class="modal-header bg-dark text-white">
-            <h5 class="modal-title" id="userModalLabel">${modalTitle}</h5>
+            <h5 class="modal-title d-flex align-items-center" id="userModalLabel">
+              <i class="fa-solid fa-user me-2"></i> ${modalTitle}
+            </h5>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <form id="userForm">
+            <form id="userForm" autocomplete="off">
               <input type="hidden" id="userId" value="${user.id || ""}">
               <div class="mb-3">
                 <label for="userName" class="form-label">Name</label>
@@ -32,18 +39,20 @@ function createUserModal(user = {}) {
                 }" required>
               </div>
               <div class="mb-3">
-                <label for="userPassword" class="form-label">${
-                  isEdit
-                    ? "New Password (leave blank to keep current)"
-                    : "Password"
-                }</label>
+                <label for="userPassword" class="form-label">
+                  ${
+                    isEdit
+                      ? "New Password <small class='text-muted'>(leave blank to keep current)</small>"
+                      : "Password"
+                  }
+                </label>
                 <input type="password" class="form-control" id="userPassword" ${
                   isEdit ? "" : "required"
                 }>
               </div>
               <div class="mb-3">
                 <label for="userRole" class="form-label">Role</label>
-                <select class="form-control" id="userRole" required>
+                <select class="form-select" id="userRole" required>
                   <option value="admin" ${
                     user.role === "admin" ? "selected" : ""
                   }>Admin</option>
@@ -57,9 +66,13 @@ function createUserModal(user = {}) {
               </div>
             </form>
           </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-            <button type="submit" form="userForm" class="btn btn-outline-primary-custom">${submitButtonText}</button>
+          <div class="modal-footer bg-light">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+              <i class="fa-solid fa-xmark me-1"></i> Cancel
+            </button>
+            <button type="submit" form="userForm" class="btn btn-outline-primary-custom">
+              <i class="fa-solid fa-save me-1"></i> ${submitButtonText}
+            </button>
           </div>
         </div>
       </div>
@@ -75,45 +88,61 @@ export default async function initUserManagement() {
     const users = await UserService.fetchUsers();
 
     content.innerHTML = `
-      <h4 class="mb-4">User Management</h4>
-      <button class="btn btn-sm btn-outline-primary-custom mb-3" id="addUserBtn">Add New User</button>
-      <div class="table-responsive">
-        <table class="table table-hover">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Phone</th>
-              <th>Role</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${
-              users.length > 0
-                ? users
-                    .map(
-                      (user) => `
+      <div class="user-management-container">
+        <h4 class="mb-4 fw-semibold">
+          <i class="fa-solid fa-users-gear me-2 text-dark"></i> User Management
+        </h4>
+        <button class="btn btn-outline-primary d-flex align-items-center mb-3" id="addUserBtn">
+          <i class="fa-solid fa-user-plus me-2"></i> Add New User
+        </button>
+        <div class="table-responsive rounded shadow-sm">
+          <table class="table table-hover table-striped align-middle mb-0" id="userTable">
+            <thead class="table-light sticky-top">
               <tr>
-                <td>${user.name || "N/A"}</td>
-                <td>${user.phone || "N/A"}</td>
-                <td>${user.role || "N/A"}</td>
-                <td>
-                  <button class="btn btn-sm btn-outline-info edit-user-btn" data-id="${
-                    user.id
-                  }">Edit</button>
-                  <button class="btn btn-sm btn-outline-danger delete-user-btn" data-id="${
-                    user.id
-                  }">Delete</button>
-                </td>
-              </tr>`
-                    )
-                    .join("")
-                : `<tr><td colspan="4" class="text-center">No users found.</td></tr>`
-            }
-          </tbody>
-        </table>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Role</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${
+                users.length > 0
+                  ? users
+                      .map(
+                        (user) => `
+                <tr>
+                  <td class="fw-medium">${user.name || "N/A"}</td>
+                  <td>${user.phone || "N/A"}</td>
+                  <td>${getRoleBadge(user.role || "N/A")}</td>
+                  <td>
+                    <button class="btn btn-sm btn-outline-info me-1 edit-user-btn" data-id="${
+                      user.id
+                    }" aria-label="Edit" title="Edit">
+                      <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger delete-user-btn" data-id="${
+                      user.id
+                    }" aria-label="Delete" title="Delete">
+                      <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                  </td>
+                </tr>`
+                      )
+                      .join("")
+                  : ""
+              }
+            </tbody>
+          </table>
+          <div id="emptyState" class="text-center py-5${
+            users.length > 0 ? " d-none" : ""
+          }">
+            <i class="fa-solid fa-user-slash fa-2x text-muted mb-2"></i>
+            <div class="text-muted">No users found.</div>
+          </div>
+        </div>
+        <div id="user-modals-container"></div>
       </div>
-      <div id="user-modals-container"></div>
     `;
 
     // Add User Button Click Handler
@@ -139,7 +168,7 @@ export default async function initUserManagement() {
         if (!name || !phone || !password) {
           showAlert(
             modalBody,
-            "Please fill in all required fields (Name, phone, Password).",
+            "Please fill in all required fields (Name, Phone, Password).",
             "warning"
           );
           return;
@@ -155,7 +184,7 @@ export default async function initUserManagement() {
             function handler() {
               modalsContainer.innerHTML = "";
               userModalElement.removeEventListener("hidden.bs.modal", handler);
-              initUserManagement(); // Re-render table
+              initUserManagement();
             }
           );
         } catch (error) {
@@ -171,14 +200,14 @@ export default async function initUserManagement() {
       });
     });
 
-    // Event Listeners for Edit and Delete (delegated)
+    // Edit/Delete User Event Delegation
     document
-      .querySelector("table tbody")
+      .querySelector("#userTable tbody")
       .addEventListener("click", async (event) => {
-        const userId = event.target.dataset.id;
+        const userId = event.target.closest("button")?.dataset.id;
 
         // Edit User
-        if (event.target.classList.contains("edit-user-btn")) {
+        if (event.target.closest(".edit-user-btn")) {
           const userToEdit = users.find((u) => u.id === userId);
           if (!userToEdit) {
             showAlert(content, "User not found for editing.", "danger");
@@ -226,7 +255,6 @@ export default async function initUserManagement() {
               role: updatedRole,
             };
             if (updatedPassword) {
-              // Only send password if it's not empty
               updates.password = updatedPassword;
             }
 
@@ -243,7 +271,7 @@ export default async function initUserManagement() {
                     "hidden.bs.modal",
                     handler
                   );
-                  initUserManagement(); // Re-render table
+                  initUserManagement();
                 }
               );
             } catch (error) {
@@ -260,7 +288,7 @@ export default async function initUserManagement() {
         }
 
         // Delete User
-        if (event.target.classList.contains("delete-user-btn")) {
+        if (event.target.closest(".delete-user-btn")) {
           if (
             confirm(
               "Are you sure you want to delete this user? This action cannot be undone."
@@ -270,7 +298,7 @@ export default async function initUserManagement() {
             try {
               await UserService.deleteUser(userId);
               showAlert(content, "User deleted successfully!", "success");
-              initUserManagement(); // Re-render table
+              initUserManagement();
             } catch (error) {
               console.error("Error deleting user:", error);
               showAlert(

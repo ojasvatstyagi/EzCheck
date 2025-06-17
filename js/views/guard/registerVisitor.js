@@ -96,8 +96,31 @@ export async function setupRegisterVisitorModal(
                 </select>
               </div>
               <div class="mb-3">
-                <label for="visitDateInput" class="form-label">Scheduled Date/Time</label>
-                <input type="datetime-local" class="form-control" id="visitDateInput" name="visitDate" required>
+                <label for="visitDateInput" class="form-label">Visit Date</label>
+                <input type="date" class="form-control" id="visitDateInput" name="visitDate" required min="${
+                  new Date().toISOString().split("T")[0]
+                }">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Visit Duration</label>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="visitDuration" id="morningVisit" value="morning" checked>
+                  <label class="form-check-label" for="morningVisit">
+                    Morning (9 AM - 2 PM)
+                  </label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="visitDuration" id="afternoonVisit" value="afternoon">
+                  <label class="form-check-label" for="afternoonVisit">
+                    Afternoon (2 PM - 6 PM)
+                  </label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="visitDuration" id="fullDayVisit" value="fullday">
+                  <label class="form-check-label" for="fullDayVisit">
+                    Full Day (9 AM - 6 PM)
+                  </label>
+                </div>
               </div>
               <div class="mb-3">
                 <label for="notesInput" class="form-label">Additional Notes</label>
@@ -153,13 +176,38 @@ export async function setupRegisterVisitorModal(
     // Get selected host ID from the dropdown
     const selectedHostId = hostInput.value;
     const selectedHost = hosts.find((h) => h.id === selectedHostId);
-    const hostName = selectedHost ? selectedHost.name : ""; // Fallback for safety
+    const hostName = selectedHost ? selectedHost.name : "";
+
+    // Calculate time slots based on duration
+    const visitDate = new Date(visitDateInput.value);
+    const duration = document.querySelector(
+      'input[name="visitDuration"]:checked'
+    ).value;
+
+    let startTime, endTime;
+    switch (duration) {
+      case "morning":
+        startTime = new Date(visitDate.setHours(9, 0, 0, 0));
+        endTime = new Date(visitDate.setHours(14, 0, 0, 0));
+        break;
+      case "afternoon":
+        startTime = new Date(visitDate.setHours(14, 0, 0, 0));
+        endTime = new Date(visitDate.setHours(18, 0, 0, 0));
+        break;
+      case "fullday":
+        startTime = new Date(visitDate.setHours(9, 0, 0, 0));
+        endTime = new Date(visitDate.setHours(18, 0, 0, 0));
+        break;
+    }
 
     const visitData = {
       purpose: document.getElementById("purposeInput").value.trim(),
       host: hostName,
       hostId: selectedHostId,
-      visitDate: document.getElementById("visitDateInput").value,
+      visitDate: visitDate.toISOString(),
+      startTime: startTime.toISOString(),
+      endTime: endTime.toISOString(),
+      duration: duration,
       notes: document.getElementById("notesInput").value.trim(),
     };
 
@@ -197,7 +245,7 @@ export async function setupRegisterVisitorModal(
       const visitRequestResult = await VisitorService.requestVisit(
         visitorId,
         registrationResult.visitor.name || visitorData.name,
-        visitData, // Pass the updated visitData with hostId
+        visitData,
         isWalkIn
       );
 

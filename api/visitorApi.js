@@ -158,60 +158,56 @@ class VisitorService {
    * @param {Object} visitorData - The visitor's data.
    * @returns {Promise<Object>} A promise that resolves with the registration result.
    */
-  async registerVisitor(visitorData) {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const phoneToCompare = visitorData.phone?.trim();
+  async requestVisit(visitorId, visitorName, visitData, isWalkIn = false) {
+    return new Promise(async (resolve) => {
+      setTimeout(async () => {
+        const visitor = this.mockVisitors.find((v) => v.id === visitorId);
 
-        let existingVisitor = this.mockVisitors.find(
-          (v) => v.phone && phoneToCompare && v.phone === phoneToCompare
-        );
-
-        if (existingVisitor) {
-          console.log(
-            `Mock: Existing visitor found with phone, ID: ${existingVisitor.id}`
-          );
-          // Update existing visitor's information with any new data provided
-          Object.assign(existingVisitor, {
-            name: visitorData.name || existingVisitor.name,
-            phone: visitorData.phone || existingVisitor.phone,
-            company: visitorData.company || existingVisitor.company,
-            // idName and idProof are updated via uploadIdProof, not registerVisitor
-            photo: visitorData.photo || existingVisitor.photo,
-          });
-          this._saveAllMockData();
-          resolve({
-            success: true,
-            message: "Visitor already registered. Info updated.",
-            visitorId: existingVisitor.id,
-            visitor: existingVisitor,
-          });
-        } else {
-          const newVisitorId = generateUniqueId("VISITOR");
-          const newVisitor = {
-            id: newVisitorId,
-            name: visitorData.name || "Unknown Visitor",
-            phone: visitorData.phone || null,
-            company: visitorData.company || null,
-            idName: visitorData.idName || null, // Only store the type here if provided during initial registration
-            idProof: visitorData.idProof || null, // Only store the proof here if provided during initial registration
-            isVIP: visitorData.isVIP ?? false,
-            isBlocked: visitorData.isBlocked ?? false,
-            registrationDate: new Date().toISOString(),
-          };
-
-          this.mockVisitors.push(newVisitor);
-          this._saveAllMockData();
-          console.log(
-            `Mock: New visitor profile registered, ID: ${newVisitor.id}`
-          );
-          resolve({
-            success: true,
-            message: "Visitor registered successfully.",
-            visitorId: newVisitor.id,
-            visitor: newVisitor,
-          });
+        if (!visitor) {
+          resolve({ success: false, message: "Visitor not found." });
+          return;
         }
+
+        const blacklist = await this.fetchBlacklist();
+        if (await this.isVisitorOnBlacklist(visitor, blacklist)) {
+          resolve({
+            success: false,
+            message: `Visitor ${visitor.name} is blacklisted. Cannot request visit.`,
+          });
+          return;
+        }
+
+        const newVisit = {
+          id: generateUniqueId("VISIT"),
+          visitorId: visitorId,
+          visitorName: visitorName,
+          purpose: visitData.purpose,
+          host: visitData.host,
+          hostId: visitData.hostId,
+          visitDate: visitData.visitDate,
+          startTime: visitData.startTime,
+          endTime: visitData.endTime,
+          duration: visitData.duration,
+          notes: visitData.notes,
+          status: isWalkIn ? "Checked-In" : "Pending",
+          requestDate: new Date().toISOString(),
+          checkInTime: isWalkIn ? new Date().toISOString() : null,
+          checkOutTime: null,
+          isWalkIn: isWalkIn,
+        };
+
+        this.mockVisits.push(newVisit);
+        this._saveAllMockData();
+
+        console.log(
+          `Mock: Visit requested for ${visitorName}. Status: ${newVisit.status}`
+        );
+        resolve({
+          success: true,
+          message: `Visit requested successfully. Status: ${newVisit.status}`,
+          visitId: newVisit.id,
+          visit: newVisit,
+        });
       }, 500);
     });
   }

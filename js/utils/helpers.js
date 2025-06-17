@@ -65,13 +65,37 @@ export function getStatusColor(status) {
       return "bg-warning ";
     case "Declined":
       return "bg-danger";
+    case "Checked-Out":
+      return "bg-success";
     default:
       return "bg-light";
   }
 }
+export function getRoleBadge(role) {
+  const map = {
+    admin: "primary",
+    guard: "warning",
+    host: "info",
+  };
+  return `<span class="badge bg-${
+    map[role] || "secondary"
+  } text-capitalize">${role}</span>`;
+}
 
 // ==================== DATE/TIME HELPERS ====================
 // js/utils/helpers.js
+export function getDurationLabel(duration) {
+  switch (duration) {
+    case "morning":
+      return "9 AM - 1 PM";
+    case "afternoon":
+      return "2 PM - 6 PM";
+    case "fullday":
+      return "9 AM - 6 PM";
+    default:
+      return duration;
+  }
+}
 
 export function formatDateTime(isoString, options = {}) {
   if (!isoString) {

@@ -47,8 +47,8 @@ export function renderRegisterForm() {
   return `
     <div class="text-center mb-4">
       <img src="${registerLogo}" alt="VMS Logo" class="auth-logo">
-      <h2 class="mb-3">Create Account</h2>
-      <p class="text-muted">Register as a new user</p>
+      <h2 class="mb-3">Create Visitor Account</h2>
+      <p class="text-muted">Register as a new visitor</p>
     </div>
     <form id="registerForm">
       <div class="form-floating mb-3">
@@ -69,14 +69,8 @@ export function renderRegisterForm() {
         <label for="registerRePassword">Reconfirm Password</label>
         ${getPasswordToggleIcon("registerRePassword")}
       </div>
-      <div class="form-floating mb-3">
-        <select class="form-select" id="registerRole" required aria-label="Select Role">
-          <option value="">Select Role</option>
-          <option value="visitor">Visitor</option>
-          <option value="host">Host</option>
-        </select>
-        <label for="registerRole">Role</label>
-      </div>
+      <!-- Hidden input to set role as visitor -->
+      <input type="hidden" id="registerRole" name="role" value="visitor">
       <button type="submit" class="btn btn-custom w-100 py-2 mb-3">
         <i class="fas fa-user-plus me-2"></i> Register
       </button>
@@ -89,9 +83,6 @@ export function renderRegisterForm() {
 }
 
 export function renderOTPForm(phoneNumber) {
-  // Simple masking for phone number: show last 4 digits
-  // We'll pass the *full* phone number (+91...) to this function
-  // so we can mask it correctly.
   const maskedPhone =
     phoneNumber.length > 4
       ? "*".repeat(phoneNumber.length - 4) + phoneNumber.slice(-4)
