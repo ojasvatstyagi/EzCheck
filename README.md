@@ -21,7 +21,7 @@ This system offers a robust set of features categorized by their primary functio
 - **Visitor Check-in:** An efficient process for recording visitor arrival times and initial entry details.
 - **Visitor Check-out:** Records visitor departure times, automatically marking the completion of a visit.
 - **QR Code Generation:** Generates unique, scannable QR codes for approved visits, facilitating quick and touchless check-in/out.
-- **Email Notifications:** Sends automated email alerts for visit requests, approvals, check-ins, and other important events to relevant parties.
+- **phone Notifications:** Sends automated phone alerts for visit requests, approvals, check-ins, and other important events to relevant parties.
 
 ### Data Management & Insights
 
@@ -81,7 +81,7 @@ As this is a pre-version 1 release, there are many exciting possibilities for fu
 - Advanced reporting and analytics dashboards for administrators.
 - Pre-registration and invitation features for hosts to manage upcoming visitors.
 - Integration with external systems (e.g., Slack for notifications, calendar integration).
-- Advanced security features like email verifiacation
+- Advanced security features like phone verifiacation
 - Dedicated mobile applications for guards and hosts.
 - Customizable branding and themes.
 

@@ -137,7 +137,6 @@ export default {
         name: visitor.name,
         company: visitor.company,
         photo: visitor.photo || null,
-        email: visitor.email,
         phone: visitor.phone,
         idNumber: visitor.idNumber,
         isBlocked: isBlocked, // <-- ADDED THIS IMPORTANT FLAG

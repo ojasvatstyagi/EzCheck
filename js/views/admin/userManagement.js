@@ -26,9 +26,9 @@ function createUserModal(user = {}) {
                 }" required>
               </div>
               <div class="mb-3">
-                <label for="userEmail" class="form-label">Email</label>
-                <input type="email" class="form-control" id="userEmail" value="${
-                  user.email || ""
+                <label for="userPhone" class="form-label">Phone</label>
+                <input type="tel" class="form-control" id="userPhone" value="${
+                  user.phone || ""
                 }" required>
               </div>
               <div class="mb-3">
@@ -82,7 +82,7 @@ export default async function initUserManagement() {
           <thead>
             <tr>
               <th>Name</th>
-              <th>Email</th>
+              <th>Phone</th>
               <th>Role</th>
               <th>Actions</th>
             </tr>
@@ -95,7 +95,7 @@ export default async function initUserManagement() {
                       (user) => `
               <tr>
                 <td>${user.name || "N/A"}</td>
-                <td>${user.email || "N/A"}</td>
+                <td>${user.phone || "N/A"}</td>
                 <td>${user.role || "N/A"}</td>
                 <td>
                   <button class="btn btn-sm btn-outline-info edit-user-btn" data-id="${
@@ -132,14 +132,14 @@ export default async function initUserManagement() {
         event.preventDefault();
 
         const name = document.getElementById("userName").value.trim();
-        const email = document.getElementById("userEmail").value.trim();
+        const phone = document.getElementById("userPhone").value.trim();
         const password = document.getElementById("userPassword").value.trim();
         const role = document.getElementById("userRole").value;
 
-        if (!name || !email || !password) {
+        if (!name || !phone || !password) {
           showAlert(
             modalBody,
-            "Please fill in all required fields (Name, Email, Password).",
+            "Please fill in all required fields (Name, phone, Password).",
             "warning"
           );
           return;
@@ -147,7 +147,7 @@ export default async function initUserManagement() {
 
         showLoading(content);
         try {
-          await UserService.createUser({ name, email, password, role });
+          await UserService.createUser({ name, phone, password, role });
           showAlert(content, "User added successfully!", "success");
           userModal.hide();
           userModalElement.addEventListener(
@@ -203,18 +203,18 @@ export default async function initUserManagement() {
             const updatedName = document
               .getElementById("userName")
               .value.trim();
-            const updatedEmail = document
-              .getElementById("userEmail")
+            const updatedPhone = document
+              .getElementById("userPhone")
               .value.trim();
             const updatedPassword = document
               .getElementById("userPassword")
               .value.trim();
             const updatedRole = document.getElementById("userRole").value;
 
-            if (!updatedName || !updatedEmail) {
+            if (!updatedName || !updatedPhone) {
               showAlert(
                 modalBody,
-                "Please fill in all required fields (Name, Email).",
+                "Please fill in all required fields (Name, Phone).",
                 "warning"
               );
               return;
@@ -222,7 +222,7 @@ export default async function initUserManagement() {
 
             const updates = {
               name: updatedName,
-              email: updatedEmail,
+              phone: updatedPhone,
               role: updatedRole,
             };
             if (updatedPassword) {

@@ -20,17 +20,14 @@ export function showVisitorDetailModal(visitorDetails, containerElement) {
                         <h6>Visitor Information:</h6>
                         <p><strong>ID:</strong> ${visitorDetails.id}</p>
                         <p><strong>Name:</strong> ${visitorDetails.name}</p>
-                        <p><strong>Email:</strong> ${
-                          visitorDetails.email || "N/A"
-                        }</p>
                         <p><strong>Phone:</strong> ${
                           visitorDetails.phone || "N/A"
                         }</p>
                         <p><strong>Company:</strong> ${
                           visitorDetails.company || "N/A"
                         }</p>
-                        <p><strong>ID Number:</strong> ${
-                          visitorDetails.idNumber || "N/A"
+                        <p><strong>ID Name:</strong> ${
+                          visitorDetails.idName || "N/A"
                         }</p>
                         <p><strong>Blacklisted:</strong> ${
                           visitorDetails.isBlocked

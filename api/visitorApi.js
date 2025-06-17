@@ -6,6 +6,7 @@ function generateUniqueId(prefix) {
 
 class VisitorService {
   constructor() {
+    // Initialize mock data from localStorage or default values
     this.mockVisitors =
       JSON.parse(localStorage.getItem("mock_visitors")) ||
       this._getDefaultVisitors();
@@ -21,202 +22,17 @@ class VisitorService {
     this._saveAllMockData();
   }
 
+  // --- Private Helper Methods ---
   _getDefaultVisitors() {
-    // return [
-    //   {
-    //     id: "VISITOR-1749411258700-uh7a6z6yl",
-    //     name: "John Doe",
-    //     email: "john@example.com",
-    //     company: "ABC Corp",
-    //     phone: "123-456-7890",
-    //     idNumber: "DL12345",
-    //     photo: null,
-    //     isVIP: false,
-    //     registrationDate: "2025-06-01T10:00:00Z",
-    //   },
-    //   {
-    //     id: "VISITOR-123",
-    //     name: "Alice Wonderland",
-    //     email: "alice@example.com",
-    //     company: "Wonderland Inc",
-    //     phone: "987-654-3210",
-    //     idNumber: "PS54321",
-    //     photo: null,
-    //     isVIP: true,
-    //     registrationDate: "2025-05-20T11:00:00Z",
-    //   },
-    //   {
-    //     id: "VISITOR-003",
-    //     name: "Bob Johnson",
-    //     email: "bob@example.com",
-    //     company: "BuildIt",
-    //     phone: "555-123-4567",
-    //     idNumber: "DRV9876",
-    //     photo: null,
-    //     isVIP: false,
-    //     registrationDate: "2025-06-05T09:00:00Z",
-    //   },
-    // ];
     return [];
   }
-
   _getDefaultVisits() {
-    // return [
-    //   {
-    //     id: "VISIT-mock1",
-    //     visitorId: "VISITOR-003",
-    //     purpose: "Meeting",
-    //     host: "Jane Doe",
-    //     visitDate: "2025-06-09T10:00:00.000Z",
-    //     notes: "Discussion on project Alpha",
-    //     status: "Checked-In",
-    //     requestDate: "2025-06-08T03:30:00.000Z",
-    //     checkInTime: "2025-06-08T18:40:58.965Z",
-    //     checkOutTime: null,
-    //   },
-    //   {
-    //     id: "VISIT-mock2",
-    //     visitorId: "VISITOR-1749411258700-uh7a6z6yl",
-    //     purpose: "Interview",
-    //     host: "host1",
-    //     visitDate: "2025-06-07T14:30:00.000Z",
-    //     notes: "Follow-up interview",
-    //     status: "Completed",
-    //     requestDate: "2025-06-06T04:30:00.000Z",
-    //     checkInTime: "2025-06-07T08:55:00.000Z",
-    //     checkOutTime: "2025-06-07T10:00:00.000Z",
-    //   },
-    //   {
-    //     id: "VISIT-1749403210010-3gloeqc9z",
-    //     visitorId: "VISITOR-1749411258700-uh7a6z6yl",
-    //     purpose: "Delivery",
-    //     host: "Rampal",
-    //     notes: "test ",
-    //     status: "Completed",
-    //     requestDate: "2025-06-08T17:20:10.010Z",
-    //     visitDate: "2025-06-08T17:20:00.000Z",
-    //     checkInTime: "2025-06-08T17:30:00.635Z",
-    //     checkOutTime: "2025-06-08T17:30:35.056Z",
-    //   },
-    //   {
-    //     id: "VISIT-1749405116110-jafkqa7gj",
-    //     visitorId: "VISITOR-1749411258700-uh7a6z6yl",
-    //     purpose: "Interview",
-    //     host: "host1",
-    //     visitDate: "2025-06-08T23:21:00.000Z",
-    //     notes: "test adding visitor from guard",
-    //     status: "Declined",
-    //     requestDate: "2025-06-08T17:51:56.110Z",
-    //     checkInTime: "2025-06-08T23:25:00.000Z",
-    //     checkOutTime: "2025-06-11T05:51:44.955Z",
-    //   },
-    //   {
-    //     id: "VISIT-1749405874353-puqsizrie",
-    //     visitorId: "VISITOR-1749411258700-uh7a6z6yl",
-    //     purpose: "Delivery",
-    //     host: "Mukesh",
-    //     visitDate: "2025-06-08T23:34:00.000Z",
-    //     notes: "test",
-    //     status: "Completed",
-    //     requestDate: "2025-06-08T18:04:34.353Z",
-    //     checkInTime: "2025-06-08T18:04:34.353Z",
-    //     checkOutTime: "2025-06-08T18:05:34.255Z",
-    //   },
-    //   {
-    //     id: "VISIT-1749407879678-w01iqjg13",
-    //     visitorId: "VISITOR-1749411258700-uh7a6z6yl",
-    //     visitorName: "test guard user",
-    //     purpose: "Delivery",
-    //     host: "host1",
-    //     visitDate: "2025-06-09T00:05:00.000Z",
-    //     notes: "testing",
-    //     status: "Pending",
-    //     requestDate: "2025-06-11T18:37:59.678Z",
-    //     checkInTime: "2025-06-09T00:10:00.000Z",
-    //     checkOutTime: null,
-    //     isWalkIn: true,
-    //   },
-    //   {
-    //     id: "VISIT-today-host1-1",
-    //     visitorId: "VISITOR-123",
-    //     visitorName: "Alice Wonderland",
-    //     purpose: "Consultation",
-    //     host: "host1",
-    //     visitDate: "2025-06-11T11:00:00.000Z",
-    //     notes: "Discuss Q3 projections",
-    //     status: "Approved",
-    //     requestDate: "2025-06-10T09:00:00.000Z",
-    //     checkInTime: "2025-06-11T11:05:00.000Z",
-    //     checkOutTime: null,
-    //   },
-    //   {
-    //     id: "VISIT-today-jane-1",
-    //     visitorId: "VISITOR-003",
-    //     visitorName: "Bob Johnson",
-    //     purpose: "Maintenance",
-    //     host: "Jane Doe",
-    //     visitDate: "2025-06-11T14:30:00.000Z",
-    //     notes: "Fixing AC unit",
-    //     status: "Checked-In",
-    //     requestDate: "2025-06-11T08:00:00.000Z",
-    //     checkInTime: "2025-06-11T09:00:00.000Z",
-    //     checkOutTime: null,
-    //   },
-    //   {
-    //     id: "VISIT-today-mukesh-1",
-    //     visitorId: "VISITOR-1749411258700-uh7a6z6yl",
-    //     visitorName: "John Doe",
-    //     purpose: "Performance Review",
-    //     host: "Mukesh",
-    //     visitDate: "2025-06-11T16:00:00.000Z",
-    //     notes: "Annual review",
-    //     status: "Approved",
-    //     requestDate: "2025-06-10T10:00:00.000Z",
-    //     checkInTime: "2025-06-11T16:05:00.000Z",
-    //     checkOutTime: "2025-06-11T17:00:00.000Z",
-    //   },
-    //   {
-    //     id: "VISIT-1749619810756-7o6pkz6u0",
-    //     visitorId: "VISITOR-003",
-    //     visitorName: "Ojas",
-    //     purpose: "Meeting",
-    //     host: "Host1",
-    //     visitDate: "2025-06-11T10:59:00.000Z",
-    //     notes: "testing host visit add",
-    //     status: "Approved",
-    //     requestDate: "2025-06-11T05:30:10.756Z",
-    //     checkInTime: "2025-06-11T11:00:00.000Z",
-    //     checkOutTime: null,
-    //     isWalkIn: false,
-    //   },
-    // ];
     return [];
   }
-
   _getDefaultBlacklist() {
-    // return [
-    //   {
-    //     id: "BL-12345",
-    //     name: "Bad Visitor One",
-    //     idNumber: "ID001",
-    //     mobile: "1112223333",
-    //     reason: "Unauthorized access attempt",
-    //     addedOn: "2025-01-15T09:00:00.000Z",
-    //   },
-    //   {
-    //     id: "BL-67890",
-    //     name: "Troublemaker Two",
-    //     idNumber: "ID002",
-    //     mobile: "4445556666",
-    //     reason: "Disruptive behavior",
-    //     addedOn: "2025-03-01T15:00:00.000Z",
-    //   },
-    // ];
     return [];
   }
-
   _getDefaultUsers() {
-    // return [{"email":"admin@example.com","id":"USR-1718561464136-ADMINXYZ","name":"Admin User","password":"AdminSecurePassword123","role":"admin","verified":true},{"email":"guard@example.com","id":"USR-1718561465227-GUARDABC","name":"Guard Duty","password":"GuardStrongPassword123","role":"guard","verified":true},{"id":"1750096978403","name":"Rohit Kumar","email":"rohit_kumar@gmail.com","password":"Rohit@123","role":"visitor","verified":true,"visitorId":"VISITOR-1750096978915-4bmpqfwau"},{"id":"1750097062681","name":"Ojas Tyagi","email":"ojas_tyagi@gmail.com","password":"Ojas@123","role":"host","verified":true}];
     return [];
   }
   _saveAllMockData() {
@@ -226,7 +42,12 @@ class VisitorService {
     localStorage.setItem("vms_users", JSON.stringify(this.vmsUsers));
   }
 
-  // fetches the list of all registered visitors.
+  // --- Visitor Management ---
+
+  /**
+   * Fetches the list of all registered visitors.
+   * @returns {Promise<Array<Object>>} A promise that resolves with the list of visitors.
+   */
   async fetchVisitors() {
     return new Promise((resolve) => {
       setTimeout(() => {
@@ -235,6 +56,10 @@ class VisitorService {
     });
   }
 
+  /**
+   * Fetches the list of visitors who are not blacklisted.
+   * @returns {Promise<Array<Object>>} A promise that resolves with the filtered list of visitors.
+   */
   async fetchVisitorsIfNotBlacklisted() {
     return new Promise((resolve) => {
       setTimeout(() => {
@@ -246,208 +71,11 @@ class VisitorService {
     });
   }
 
-  // fetches the list of all visit records.
-  async fetchAllVisits() {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(this.mockVisits);
-      }, 500);
-    });
-  }
-
-  // fetches the list of all blacklisted visitors.
-  async fetchBlacklist() {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(this.mockBlacklist);
-      }, 500);
-    });
-  }
-
-  async fetchHosts() {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const hosts = this.vmsUsers
-          .filter((user) => user.role === "host")
-          .map((hostUser) => ({
-            id: hostUser.id,
-            name: hostUser.name,
-            email: hostUser.email,
-          }));
-        console.log("Fetched hosts:", hosts);
-        resolve(JSON.parse(JSON.stringify(hosts)));
-      }, 200); // Simulate network delay
-    });
-  }
-
-  // Adds a visitor entry to the blacklist.
-  async addToBlacklist(entry) {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        // Check if already in blacklist (by email or phone)
-        const exists = this.mockBlacklist.some(
-          (b) => b.email === entry.email || b.mobile === entry.mobile
-        );
-        if (exists) {
-          return reject(
-            new Error("Visitor with this email or phone already in blacklist.")
-          );
-        }
-
-        // Mark visitor as blocked
-        const visitor = this.mockVisitors.find((v) => v.email === entry.email);
-        if (visitor) {
-          console.log("Visitor found:", visitor);
-          visitor.isBlocked = true;
-        }
-
-        // Add to blacklist
-        const newEntry = {
-          id: generateUniqueId("BL"),
-          addedOn: new Date().toISOString(),
-          ...entry,
-        };
-
-        this.mockBlacklist.push(newEntry);
-        this._saveAllMockData();
-        resolve({
-          success: true,
-          message: "Added to blacklist",
-          entry: newEntry,
-        });
-      }, 300);
-    });
-  }
-
-  // Allow host to cancel an approved visit within a time buffer
-  async cancelApprovedVisitByHost(visitId, requestingHostName) {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const visitIndex = this.mockVisits.findIndex((v) => v.id === visitId);
-
-        if (visitIndex === -1) {
-          return resolve({ success: false, message: "Visit not found." });
-        }
-
-        const visit = this.mockVisits[visitIndex];
-
-        // 1. Authorization Check
-        if (visit.host !== requestingHostName) {
-          return resolve({
-            success: false,
-            message: "You are not authorized to cancel this visit.",
-          });
-        }
-
-        // 2. Status Check
-        if (visit.status !== "Approved") {
-          return resolve({
-            success: false,
-            message: `Visit status is '${visit.status}'. Only 'Approved' visits can be cancelled by the host.`,
-          });
-        }
-
-        // 3. Time Check: Only allow cancellation before the day of the visit
-        const visitDate = new Date(visit.visitDate);
-        visitDate.setHours(0, 0, 0, 0);
-        const currentDate = new Date();
-        currentDate.setHours(0, 0, 0, 0);
-
-        // Allow cancellation only if visitDate is after currentDate (future visit)
-        if (visitDate > currentDate) {
-          // Proceed with cancellation
-          visit.status = "Cancelled";
-          visit.checkOutTime = new Date().toISOString(); // Record cancellation time as checkout
-          this._saveAllMockData();
-
-          console.log(
-            `Mock: Visit ${visitId} cancelled by host ${requestingHostName}.`
-          );
-          return resolve({
-            success: true,
-            message: "Visit cancelled successfully.",
-          });
-        } else {
-          // Do not allow cancellation if visit is today or in the past
-          const message =
-            visitDate.getTime() === currentDate.getTime()
-              ? "Cancellation not allowed on the day of the visit."
-              : "Cancellation not allowed for past or same-day visits.";
-          return resolve({
-            success: false,
-            message,
-          });
-        }
-      }, 500); // Simulate network delay
-    });
-  }
-
-  // Removes a visitor entry from the blacklist.
-  async removeFromBlacklist(id) {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        // Find the blacklist entry to be removed
-        const entryToRemove = this.mockBlacklist.find(
-          (entry) => entry.id === id
-        );
-        if (!entryToRemove) {
-          return reject(new Error("Blacklist entry not found."));
-        }
-
-        // Mark visitor as unblocked
-        const visitor = this.mockVisitors.find(
-          (v) =>
-            v.email === entryToRemove.email || v.phone === entryToRemove.mobile
-        );
-        if (visitor) {
-          visitor.isBlocked = false;
-        }
-
-        // Remove from blacklist
-        this.mockBlacklist = this.mockBlacklist.filter(
-          (entry) => entry.id !== id
-        );
-        this._saveAllMockData();
-        resolve({ success: true, message: "Removed from blacklist" });
-      }, 300);
-    });
-  }
-
-  // Exports all visits for a specific host as a JSON file.
-  async exportHostVisitsToJson(hostName) {
-    try {
-      const response = await this.fetchVisitsByHost(hostName);
-      const hostVisits = response.visits || [];
-
-      const jsonString = JSON.stringify(hostVisits, null, 2); // 2 spaces for indentation
-
-      const blob = new Blob([jsonString], { type: "application/json" });
-
-      const url = URL.createObjectURL(blob);
-
-      const a = document.createElement("a");
-      a.href = url;
-
-      const date = new Date().toISOString().slice(0, 10); // e.g., "2025-06-11"
-      a.download = `visits_report_${hostName}_${date}.json`;
-
-      document.body.appendChild(a);
-
-      a.click();
-
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-
-      return { success: true, message: "Report exported successfully." };
-    } catch (error) {
-      console.error("Error exporting report:", error);
-      throw new Error(
-        `Failed to export report: ${error.message || "Unknown error"}`
-      );
-    }
-  }
-
-  // Fetches visitor data by ID.
+  /**
+   * Fetches visitor data by ID.
+   * @param {string} visitorId - The ID of the visitor.
+   * @returns {Promise<Object>} A promise that resolves with the visitor's data.
+   */
   async fetchVisitorData(visitorId) {
     return new Promise(async (resolve, reject) => {
       setTimeout(async () => {
@@ -484,7 +112,7 @@ class VisitorService {
         const visitHistory = this.mockVisits
           .filter((v) => v.visitorId === visitorId)
           .map((visit) => ({
-            date: visit.visitDate, // This corresponds to the "Date (Scheduled)" column
+            date: visit.visitDate,
             purpose: visit.purpose,
             host: visit.host || "N/A",
             entryTime: visit.checkInTime || "",
@@ -504,9 +132,9 @@ class VisitorService {
           name: visitor.name,
           company: visitor.company,
           photo: visitor.photo || null,
-          email: visitor.email,
           phone: visitor.phone,
-          idNumber: visitor.idNumber,
+          idName: visitor.idName || null, // Ensure idName is pulled
+          idProof: visitor.idProof || null, // Ensure idProof is pulled
           isBlocked: isBlocked,
           currentVisit: currentVisit
             ? {
@@ -525,35 +153,31 @@ class VisitorService {
     });
   }
 
-  // Registers a new visitor
+  /**
+   * Registers a new visitor or updates an existing one based on phone number.
+   * @param {Object} visitorData - The visitor's data.
+   * @returns {Promise<Object>} A promise that resolves with the registration result.
+   */
   async registerVisitor(visitorData) {
     return new Promise((resolve) => {
       setTimeout(() => {
-        const emailToCompare = visitorData.email?.toLowerCase().trim();
         const phoneToCompare = visitorData.phone?.trim();
 
         let existingVisitor = this.mockVisitors.find(
-          (v) =>
-            (v.email &&
-              emailToCompare &&
-              v.email.toLowerCase() === emailToCompare) ||
-            (v.phone && phoneToCompare && v.phone === phoneToCompare)
+          (v) => v.phone && phoneToCompare && v.phone === phoneToCompare
         );
 
         if (existingVisitor) {
           console.log(
-            `Mock: Existing visitor found with email/phone, ID: ${existingVisitor.id}`
+            `Mock: Existing visitor found with phone, ID: ${existingVisitor.id}`
           );
           // Update existing visitor's information with any new data provided
           Object.assign(existingVisitor, {
             name: visitorData.name || existingVisitor.name,
-            email: visitorData.email || existingVisitor.email,
             phone: visitorData.phone || existingVisitor.phone,
             company: visitorData.company || existingVisitor.company,
-            idNumber: visitorData.idNumber || existingVisitor.idNumber,
+            // idName and idProof are updated via uploadIdProof, not registerVisitor
             photo: visitorData.photo || existingVisitor.photo,
-            idProof: visitorData.idProof || existingVisitor.idProof,
-            // isBlocked and registrationDate should ideally not be updated via this path
           });
           this._saveAllMockData();
           resolve({
@@ -567,12 +191,10 @@ class VisitorService {
           const newVisitor = {
             id: newVisitorId,
             name: visitorData.name || "Unknown Visitor",
-            email: visitorData.email || null,
             phone: visitorData.phone || null,
             company: visitorData.company || null,
-            idNumber: visitorData.idNumber || null,
-            photo: visitorData.photo || null,
-            idProof: visitorData.idProof || null,
+            idName: visitorData.idName || null, // Only store the type here if provided during initial registration
+            idProof: visitorData.idProof || null, // Only store the proof here if provided during initial registration
             isVIP: visitorData.isVIP ?? false,
             isBlocked: visitorData.isBlocked ?? false,
             registrationDate: new Date().toISOString(),
@@ -594,7 +216,157 @@ class VisitorService {
     });
   }
 
-  // Requests a visit
+  /**
+   * Updates a visitor's profile.
+   * @param {string} visitorId - The ID of the visitor to update.
+   * @param {Object} updatedData - The fields to update.
+   * @returns {Promise<Object>} A promise that resolves with the update result.
+   */
+  async updateProfile(visitorId, updatedData) {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const visitorIndex = this.mockVisitors.findIndex(
+          (v) => v.id === visitorId
+        );
+        const userIndex = this.vmsUsers.findIndex(
+          (u) => u.visitorId === visitorId
+        ); // Assuming vmsUsers might also hold visitor data if they're also users
+
+        if (visitorIndex === -1) {
+          resolve({
+            success: false,
+            message: "Visitor not found for update.",
+          });
+          return;
+        }
+
+        this.mockVisitors[visitorIndex] = {
+          ...this.mockVisitors[visitorIndex],
+          ...updatedData,
+        };
+
+        if (userIndex !== -1) {
+          this.vmsUsers[userIndex] = {
+            ...this.vmsUsers[userIndex],
+            ...updatedData,
+          };
+        }
+
+        this._saveAllMockData();
+        resolve({
+          success: true,
+          message: "Profile updated successfully (mock).",
+        });
+      }, 700);
+    });
+  }
+
+  /**
+   * Uploads an ID proof for a visitor.
+   * @param {string} visitorId - The ID of the visitor.
+   * @param {string} idType - The type of ID (e.g., "Aadhar Card").
+   * @param {string} idFileBase64 - The Base64 string of the ID file.
+   * @param {string} mimeType - The MIME type of the uploaded file.
+   * @returns {Promise<Object>} A promise that resolves with the upload result.
+   */
+  async uploadIdProof(visitorId, idType, idFileBase64, mimeType) {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const visitorIndex = this.mockVisitors.findIndex(
+          (v) => v.id === visitorId
+        );
+
+        if (visitorIndex === -1) {
+          resolve({ success: false, message: "Visitor not found." });
+          return;
+        }
+
+        const visitor = this.mockVisitors[visitorIndex];
+
+        visitor.idName = idType; // Storing the type (e.g., "Aadhar Card")
+        visitor.idProof = {
+          // Storing the document data
+          data: idFileBase64,
+          mimeType: mimeType,
+          uploadDate: new Date().toISOString(),
+        };
+
+        this._saveAllMockData();
+
+        console.log(
+          `Mock: ID proof uploaded for visitor ${visitorId}. Type: ${idType}`
+        );
+        resolve({
+          success: true,
+          message: "ID proof uploaded successfully (mock).",
+        });
+      }, 1000);
+    });
+  }
+
+  /**
+   * Uploads a photo for a visitor.
+   * @param {string} visitorId - The ID of the visitor.
+   * @param {FormData} formData - FormData containing the 'photo' file.
+   * @returns {Promise<Object>} A promise that resolves with the upload result.
+   */
+  async uploadPhoto(visitorId, formData) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        const visitorIndex = this.mockVisitors.findIndex(
+          (v) => v.id === visitorId
+        );
+
+        if (visitorIndex === -1) {
+          return resolve({ success: false, message: "Visitor not found." });
+        }
+
+        const file = formData.get("photo");
+        if (!file) {
+          return resolve({
+            success: false,
+            message: "No photo file provided.",
+          });
+        }
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const base64Photo = event.target.result;
+
+          this.mockVisitors[visitorIndex].photo = base64Photo;
+          this._saveAllMockData();
+
+          console.log(
+            `Mock: Photo uploaded and updated for visitor ${visitorId}.`
+          );
+          resolve({
+            success: true,
+            message: "Photo uploaded successfully (mock).",
+            newPhotoUrl: base64Photo,
+          });
+        };
+        reader.onerror = (error) => {
+          console.error("FileReader error:", error);
+          reject({
+            success: false,
+            message: "Error reading photo file for mock upload.",
+          });
+        };
+        reader.readAsDataURL(file);
+      }, 1000);
+    });
+  }
+
+  // --- Visit Management ---
+
+  /**
+   * Requests a new visit for a visitor.
+   * @param {string} visitorId - The ID of the visitor.
+   * @param {string} visitorName - The name of the visitor.
+   * @param {Object} visitData - Details of the visit (purpose, host, visitDate, notes).
+   * @param {boolean} isWalkIn - True if it's a walk-in visit, false otherwise.
+   * @returns {Promise<Object>} A promise that resolves with the visit request result.
+   */
   async requestVisit(visitorId, visitorName, visitData, isWalkIn = false) {
     return new Promise(async (resolve) => {
       setTimeout(async () => {
@@ -645,243 +417,22 @@ class VisitorService {
     });
   }
 
-  // Checks if a visitor is on the blacklist
-  async isVisitorOnBlacklist(visitor, blacklist) {
-    if (!visitor || !blacklist || blacklist.length === 0) {
-      return false;
-    }
-    return blacklist.some((blockedEntry) => {
-      const visitorEmail = visitor.email?.toLowerCase().trim();
-      const visitorIdNumber = visitor.idNumber?.toLowerCase().trim();
-      const visitorMobile = visitor.phone?.replace(/\D/g, ""); // Use visitor.phone for consistency
-
-      const blockedEmail = blockedEntry.email?.toLowerCase().trim();
-      const blockedIdNumber = blockedEntry.idNumber?.toLowerCase().trim();
-      const blockedMobile = blockedEntry.mobile?.replace(/\D/g, "");
-
-      return (
-        (visitorEmail && blockedEmail && visitorEmail === blockedEmail) ||
-        (visitorIdNumber &&
-          blockedIdNumber &&
-          visitorIdNumber === blockedIdNumber) ||
-        (visitorMobile && blockedMobile && visitorMobile === blockedMobile)
-      );
-    });
-  }
-
-  // Uploads an ID proof
-  async uploadIdProof(visitorId, idType, idNumber, idFileBase64, mimeType) {
+  /**
+   * Fetches the list of all visit records.
+   * @returns {Promise<Array<Object>>} A promise that resolves with the list of visit records.
+   */
+  async fetchAllVisits() {
     return new Promise((resolve) => {
       setTimeout(() => {
-        const visitorIndex = this.mockVisitors.findIndex(
-          (v) => v.id === visitorId
-        );
-
-        if (visitorIndex === -1) {
-          resolve({ success: false, message: "Visitor not found." });
-          return;
-        }
-
-        const visitor = this.mockVisitors[visitorIndex];
-
-        visitor.idProof = {
-          type: idType,
-          number: idNumber,
-          data: idFileBase64,
-          mimeType: mimeType,
-          uploadDate: new Date().toISOString(),
-        };
-        visitor.idNumber = idNumber;
-
-        this._saveAllMockData();
-
-        console.log(
-          `Mock: ID proof uploaded for visitor ${visitorId}. Type: ${idType}, Number: ${idNumber}`
-        );
-        resolve({
-          success: true,
-          message: "ID proof uploaded successfully (mock).",
-        });
-      }, 1000);
-    });
-  }
-
-  // Updates a visitor's profile
-  async updateProfile(visitorId, updatedData) {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        // Find index in mockVisitors
-        const visitorIndex = this.mockVisitors.findIndex(
-          (v) => v.id === visitorId
-        );
-        const userIndex = this.vmsUsers.findIndex(
-          (u) => u.visitorId === visitorId
-        );
-
-        if (visitorIndex === -1) {
-          resolve({
-            success: false,
-            message: "Visitor not found for update.",
-          });
-          return;
-        }
-
-        this.mockVisitors[visitorIndex] = {
-          ...this.mockVisitors[visitorIndex],
-          ...updatedData,
-        };
-
-        if (userIndex !== -1) {
-          this.vmsUsers[userIndex] = {
-            ...this.vmsUsers[userIndex],
-            ...updatedData,
-          };
-        }
-
-        this._saveAllMockData();
-        resolve({
-          success: true,
-          message: "Profile updated successfully (mock).",
-        });
-      }, 700);
-    });
-  }
-
-  // Cancels a visit
-  async cancelVisit(visitId) {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const visitIndex = this.mockVisits.findIndex((v) => v.id === visitId);
-        if (visitIndex !== -1) {
-          this.mockVisits[visitIndex].status = "Cancelled";
-          if (!this.mockVisits[visitIndex].checkOutTime) {
-            this.mockVisits[visitIndex].checkOutTime = new Date().toISOString();
-          }
-          this._saveAllMockData();
-          resolve({ success: true, message: `Visit ${visitId} cancelled.` });
-        } else {
-          resolve({ success: false, message: `Visit ${visitId} not found.` });
-        }
-      }, 700);
-    });
-  }
-
-  // Uploads a photo
-  async uploadPhoto(visitorId, formData) {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        const visitorIndex = this.mockVisitors.findIndex(
-          (v) => v.id === visitorId
-        );
-
-        if (visitorIndex === -1) {
-          return resolve({ success: false, message: "Visitor not found." });
-        }
-
-        const file = formData.get("photo");
-        if (!file) {
-          return resolve({
-            success: false,
-            message: "No photo file provided.",
-          });
-        }
-
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          const base64Photo = event.target.result;
-
-          this.mockVisitors[visitorIndex].photo = base64Photo;
-          this._saveAllMockData();
-
-          console.log(
-            `Mock: Photo uploaded and updated for visitor ${visitorId}.`
-          );
-          resolve({
-            success: true,
-            message: "Photo uploaded successfully (mock).",
-            newPhotoUrl: base64Photo,
-          });
-        };
-        reader.onerror = (error) => {
-          console.error("FileReader error:", error);
-          reject({
-            success: false,
-            message: "Error reading photo file for mock upload.",
-          });
-        };
-        reader.readAsDataURL(file);
-      }, 1000);
-    });
-  }
-
-  // Checks-in or checks-out a visit
-  async checkInOutVisit(visitId) {
-    return new Promise(async (resolve, reject) => {
-      setTimeout(async () => {
-        const visitIndex = this.mockVisits.findIndex((v) => v.id === visitId);
-
-        if (visitIndex === -1) {
-          return reject(new Error("Visit ID not found. Please verify."));
-        }
-
-        const visit = this.mockVisits[visitIndex];
-        const visitor = this.mockVisitors.find((v) => v.id === visit.visitorId);
-
-        if (!visitor) {
-          return reject(new Error("Associated visitor not found."));
-        }
-
-        //Blacklist Check
-        const blacklist = await this.fetchBlacklist();
-        if (await this.isVisitorOnBlacklist(visitor, blacklist)) {
-          return reject(
-            new Error(`Visitor ${visitor.name} is blacklisted. Access denied.`)
-          );
-        }
-
-        let message = "";
-        let newStatus = "";
-
-        // Check-in logic
-        if (!visit.checkInTime) {
-          visit.checkInTime = new Date().toISOString();
-          visit.status = "Checked-In";
-          message = `Visitor ${visitor.name} checked in successfully.`;
-          newStatus = "Checked-In";
-        }
-        // Check-out logic
-        else if (visit.checkInTime && !visit.checkOutTime) {
-          visit.checkOutTime = new Date().toISOString();
-          visit.status = "Completed";
-          message = `Visitor ${visitor.name} checked out successfully.`;
-          newStatus = "Completed";
-        }
-        // Already checked out
-        else if (visit.checkOutTime) {
-          message = `Visit for ${visitor.name} already completed.`;
-          newStatus = "Completed";
-        } else {
-          message = "Visit status is unclear. No action taken.";
-          newStatus = visit.status;
-        }
-
-        this._saveAllMockData();
-
-        console.log(
-          `Mock: Check-in/out for Visit ID ${visitId}. Status: ${newStatus}`
-        );
-        resolve({
-          success: true,
-          message: message,
-          visitorName: visitor.name,
-          visitStatus: newStatus,
-          updatedVisit: visit,
-        });
+        resolve(this.mockVisits);
       }, 500);
     });
   }
 
-  // Fetches today's visits
+  /**
+   * Fetches today's visits.
+   * @returns {Promise<Array<Object>>} A promise that resolves with the list of today's visits.
+   */
   async fetchTodayVisits() {
     return new Promise((resolve) => {
       setTimeout(() => {
@@ -914,9 +465,9 @@ class VisitorService {
                 ? {
                     name: visitor.name,
                     company: visitor.company,
-                    email: visitor.email,
                     phone: visitor.phone,
-                    idNumber: visitor.idNumber,
+                    // idNumber is removed
+                    idName: visitor.idName, // Include idName if needed
                   }
                 : null,
             };
@@ -938,7 +489,11 @@ class VisitorService {
     });
   }
 
-  // Fetches all visits for a specific host
+  /**
+   * Fetches all visits for a specific host.
+   * @param {string} hostName - The name of the host.
+   * @returns {Promise<Object>} A promise that resolves with the host's visits.
+   */
   async fetchVisitsByHost(hostName) {
     return new Promise((resolve) => {
       setTimeout(() => {
@@ -956,7 +511,180 @@ class VisitorService {
     });
   }
 
-  // Updates the status of a visit
+  /**
+   * Checks-in or checks-out a visit.
+   * @param {string} visitId - The ID of the visit.
+   * @returns {Promise<Object>} A promise that resolves with the check-in/out result.
+   */
+  async checkInOutVisit(visitId) {
+    return new Promise(async (resolve) => {
+      setTimeout(async () => {
+        const visitIndex = this.mockVisits.findIndex((v) => v.id === visitId);
+
+        if (visitIndex === -1) {
+          return resolve({
+            success: false,
+            message: "Visit ID not found. Please verify.",
+          });
+        }
+
+        const visit = this.mockVisits[visitIndex];
+        const visitor = this.mockVisitors.find((v) => v.id === visit.visitorId);
+
+        if (!visitor) {
+          return resolve({
+            success: false,
+            message: "Associated visitor not found for this visit.",
+          });
+        }
+
+        // Blacklist Check
+        const blacklist = await this.fetchBlacklist();
+        if (await this.isVisitorOnBlacklist(visitor, blacklist)) {
+          return resolve({
+            success: false,
+            message: `Visitor ${visitor.name} is blacklisted. Access denied.`,
+          });
+        }
+
+        let message = "";
+        let newStatus = "";
+        let success = false;
+
+        if (!visit.checkInTime) {
+          visit.checkInTime = new Date().toISOString();
+          visit.status = "Checked-In";
+          message = `Visitor ${visitor.name} checked in successfully.`;
+          newStatus = "Checked-In";
+          success = true;
+        } else if (visit.checkInTime && !visit.checkOutTime) {
+          visit.checkOutTime = new Date().toISOString();
+          visit.status = "Completed";
+          message = `Visitor ${visitor.name} checked out successfully.`;
+          newStatus = "Completed";
+          success = true;
+        } else if (visit.checkOutTime) {
+          message = `Visit for ${visitor.name} already completed.`;
+          newStatus = "Completed";
+          success = false;
+        } else {
+          message = "Visit status is unclear. No action taken.";
+          newStatus = visit.status;
+          success = false;
+        }
+
+        if (success) {
+          this._saveAllMockData();
+        }
+
+        console.log(
+          `Mock: Check-in/out for Visit ID ${visitId}. Status: ${newStatus}`
+        );
+        resolve({
+          success: success,
+          message: message,
+          visitorName: visitor.name,
+          visitStatus: newStatus,
+          updatedVisit: visit,
+        });
+      }, 500);
+    });
+  }
+
+  /**
+   * Cancels a visit.
+   * @param {string} visitId - The ID of the visit to cancel.
+   * @returns {Promise<Object>} A promise that resolves with the cancellation result.
+   */
+  async cancelVisit(visitId) {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const visitIndex = this.mockVisits.findIndex((v) => v.id === visitId);
+        if (visitIndex !== -1) {
+          this.mockVisits[visitIndex].status = "Cancelled";
+          if (!this.mockVisits[visitIndex].checkOutTime) {
+            this.mockVisits[visitIndex].checkOutTime = new Date().toISOString();
+          }
+          this._saveAllMockData();
+          resolve({ success: true, message: `Visit ${visitId} cancelled.` });
+        } else {
+          resolve({ success: false, message: `Visit ${visitId} not found.` });
+        }
+      }, 700);
+    });
+  }
+
+  /**
+   * Allow host to cancel an approved visit within a time buffer.
+   * @param {string} visitId - The ID of the visit.
+   * @param {string} requestingHostName - The name of the host requesting cancellation.
+   * @returns {Promise<Object>} A promise that resolves with the cancellation result.
+   */
+  async cancelApprovedVisitByHost(visitId, requestingHostName) {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const visitIndex = this.mockVisits.findIndex((v) => v.id === visitId);
+
+        if (visitIndex === -1) {
+          return resolve({ success: false, message: "Visit not found." });
+        }
+
+        const visit = this.mockVisits[visitIndex];
+
+        // 1. Authorization Check
+        if (visit.host !== requestingHostName) {
+          return resolve({
+            success: false,
+            message: "You are not authorized to cancel this visit.",
+          });
+        }
+
+        // 2. Status Check
+        if (visit.status !== "Approved") {
+          return resolve({
+            success: false,
+            message: `Visit status is '${visit.status}'. Only 'Approved' visits can be cancelled by the host.`,
+          });
+        }
+
+        // 3. Time Check: Only allow cancellation before the day of the visit
+        const visitDate = new Date(visit.visitDate);
+        visitDate.setHours(0, 0, 0, 0);
+        const currentDate = new Date();
+        currentDate.setHours(0, 0, 0, 0);
+
+        if (visitDate > currentDate) {
+          visit.status = "Cancelled";
+          visit.checkOutTime = new Date().toISOString();
+          this._saveAllMockData();
+
+          console.log(
+            `Mock: Visit ${visitId} cancelled by host ${requestingHostName}.`
+          );
+          return resolve({
+            success: true,
+            message: "Visit cancelled successfully.",
+          });
+        } else {
+          const message =
+            visitDate.getTime() === currentDate.getTime()
+              ? "Cancellation not allowed on the day of the visit."
+              : "Cancellation not allowed for past or same-day visits.";
+          return resolve({
+            success: false,
+            message,
+          });
+        }
+      }, 500);
+    });
+  }
+
+  /**
+   * Updates the status of a visit.
+   * @param {string} visitId - The ID of the visit.
+   * @param {string} newStatus - The new status to set.
+   * @returns {Promise<Object>} A promise that resolves with the update result.
+   */
   async updateVisitStatus(visitId, newStatus) {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
@@ -988,7 +716,174 @@ class VisitorService {
     });
   }
 
-  // Exports admin data to a JSON file
+  // --- Blacklist Management ---
+
+  /**
+   * Fetches the list of all blacklisted visitors.
+   * @returns {Promise<Array<Object>>} A promise that resolves with the list of blacklisted visitors.
+   */
+  async fetchBlacklist() {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(this.mockBlacklist);
+      }, 500);
+    });
+  }
+
+  /**
+   * Adds a visitor entry to the blacklist.
+   * @param {Object} entry - The entry to add to the blacklist (should contain phone).
+   * @returns {Promise<Object>} A promise that resolves with the blacklist addition result.
+   */
+  async addToBlacklist(entry) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        // Check if already in blacklist by phone
+        const exists = this.mockBlacklist.some(
+          (b) => b.mobile === entry.mobile // Assuming 'mobile' on blacklist entry is the phone number
+        );
+        if (exists) {
+          return reject(
+            new Error("Visitor with this phone number already in blacklist.")
+          );
+        }
+
+        // Mark visitor as blocked
+        const visitor = this.mockVisitors.find((v) => v.phone === entry.mobile);
+        if (visitor) {
+          console.log("Visitor found:", visitor);
+          visitor.isBlocked = true;
+        }
+
+        // Add to blacklist
+        const newEntry = {
+          id: generateUniqueId("BL"),
+          addedOn: new Date().toISOString(),
+          ...entry, // Ensure 'mobile' is passed here
+        };
+
+        this.mockBlacklist.push(newEntry);
+        this._saveAllMockData();
+        resolve({
+          success: true,
+          message: "Added to blacklist",
+          entry: newEntry,
+        });
+      }, 300);
+    });
+  }
+
+  /**
+   * Removes a visitor entry from the blacklist.
+   * @param {string} id - The ID of the blacklist entry to remove.
+   * @returns {Promise<Object>} A promise that resolves with the blacklist removal result.
+   */
+  async removeFromBlacklist(id) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        const entryToRemove = this.mockBlacklist.find(
+          (entry) => entry.id === id
+        );
+        if (!entryToRemove) {
+          return reject(new Error("Blacklist entry not found."));
+        }
+
+        // Mark visitor as unblocked
+        const visitor = this.mockVisitors.find(
+          (v) => v.phone === entryToRemove.mobile
+        );
+        if (visitor) {
+          visitor.isBlocked = false;
+        }
+
+        this.mockBlacklist = this.mockBlacklist.filter(
+          (entry) => entry.id !== id
+        );
+        this._saveAllMockData();
+        resolve({ success: true, message: "Removed from blacklist" });
+      }, 300);
+    });
+  }
+
+  /**
+   * Checks if a visitor is on the blacklist based on phone number.
+   * @param {Object} visitor - The visitor object.
+   * @param {Array<Object>} blacklist - The current blacklist array.
+   * @returns {Promise<boolean>} A promise that resolves to true if the visitor is blacklisted, false otherwise.
+   */
+  async isVisitorOnBlacklist(visitor, blacklist) {
+    if (!visitor || !blacklist || blacklist.length === 0) {
+      return false;
+    }
+    return blacklist.some((blockedEntry) => {
+      const visitorPhone = visitor.phone?.replace(/\D/g, ""); // Clean visitor phone
+      const blockedMobile = blockedEntry.mobile?.replace(/\D/g, ""); // Clean blocked mobile
+
+      return visitorPhone && blockedMobile && visitorPhone === blockedMobile;
+    });
+  }
+
+  // --- User/Host Management & Reporting ---
+
+  /**
+   * Fetches the list of hosts (users with role 'host').
+   * @returns {Promise<Array<Object>>} A promise that resolves with the list of hosts.
+   */
+  async fetchHosts() {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const hosts = this.vmsUsers
+          .filter((user) => user.role === "host")
+          .map((hostUser) => ({
+            id: hostUser.id,
+            name: hostUser.name,
+            phone: hostUser.phone,
+          }));
+        console.log("Fetched hosts:", hosts);
+        resolve(JSON.parse(JSON.stringify(hosts)));
+      }, 200);
+    });
+  }
+
+  /**
+   * Exports all visits for a specific host as a JSON file.
+   * @param {string} hostName - The name of the host.
+   * @returns {Promise<Object>} A promise that resolves with the export result.
+   */
+  async exportHostVisitsToJson(hostName) {
+    try {
+      const response = await this.fetchVisitsByHost(hostName);
+      const hostVisits = response.visits || [];
+
+      const jsonString = JSON.stringify(hostVisits, null, 2);
+
+      const blob = new Blob([jsonString], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+
+      const date = new Date().toISOString().slice(0, 10);
+      a.download = `visits_report_${hostName}_${date}.json`;
+
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      return { success: true, message: "Report exported successfully." };
+    } catch (error) {
+      console.error("Error exporting report:", error);
+      throw new Error(
+        `Failed to export report: ${error.message || "Unknown error"}`
+      );
+    }
+  }
+
+  /**
+   * Exports all admin data (visitors, visits, blacklist) to a JSON file.
+   * @returns {Promise<void>} A promise that resolves when the export is complete.
+   */
   async exportAdminDataToJson() {
     try {
       const [visitors, visits, blacklist] = await Promise.all([
@@ -1025,5 +920,4 @@ class VisitorService {
   }
 }
 
-// Export a single instance of the VisitorService
 export default new VisitorService();

@@ -31,33 +31,21 @@ export function initProfileView(visitorData, isEditing = false) {
           <form id="profileEditForm">
             <div class="mb-3 text-start">
               <label for="profileName" class="form-label">Name</label>
-              <input type="text" class="form-control" id="profileName" value="${
+              <input type="text" class="form-control" id="profileName" name="name" value="${
                 visitorData.name || ""
-              }" required>
-            </div>
-            <div class="mb-3 text-start">
-              <label for="profileEmail" class="form-label">Email</label>
-              <input type="email" class="form-control" id="profileEmail" value="${
-                visitorData.email || ""
               }" required>
             </div>
             <div class="mb-3 text-start">
               <label for="profilePhone" class="form-label">Phone</label>
               <input type="tel" pattern="[0-9]{10}"
-    title="Please enter a 10-digit phone number" class="form-control" id="profilePhone" value="${
+    title="Please enter a 10-digit phone number" class="form-control" id="profilePhone" name="phone" value="${
       visitorData.phone || ""
     }" required>
             </div>
             <div class="mb-3 text-start">
               <label for="profileCompany" class="form-label">Company</label>
-              <input type="text" class="form-control" id="profileCompany" value="${
+              <input type="text" class="form-control" id="profileCompany" name="company" value="${
                 visitorData.company || ""
-              }">
-            </div>
-            <div class="mb-3 text-start">
-              <label for="profileIdNumber" class="form-label">ID Number</label>
-              <input type="text" class="form-control" id="profileIdNumber" value="${
-                visitorData.idNumber || ""
               }">
             </div>
             <div class="d-grid gap-2 mt-4">
@@ -73,6 +61,7 @@ export function initProfileView(visitorData, isEditing = false) {
       </div>
     `;
   } else {
+    // Read-only view
     return `
       <div class="card shadow-sm h-100">
         <div class="card-header bg-light text-dark">
@@ -92,21 +81,21 @@ export function initProfileView(visitorData, isEditing = false) {
           }</p>
 
           <ul class="list-group list-group-flush text-start mb-3">
-            <li class="list-group-item"><i class="fas fa-envelope me-2 text-dark"></i> ${
-              visitorData.email || "Not provided"
-            }</li>
             <li class="list-group-item"><i class="fas fa-phone me-2 text-dark"></i> ${
               visitorData.phone || "Not provided"
             }</li>
-            <li class="list-group-item"><i class="fas fa-id-card me-2 text-dark"></i> ${
-              visitorData.idNumber || "Not provided"
-            }</li>
+            <li class="list-group-item">
+                <i class="fas fa-id-card me-2 text-dark"></i>
+                ${visitorData.idName ? `${visitorData.idName}: ` : ""}
+                ${
+                  visitorData.idProof
+                    ? ' <span class="badge bg-success">Document Uploaded</span>'
+                    : ' <span class="badge bg-danger">Document Not Uploaded</span>'
+                }
+            </li>
           </ul>
 
           <div class="d-grid gap-2 mt-3">
-            <button class="btn btn-outline-primary-custom" id="uploadPhotoBtn">
-              <i class="fas fa-camera me-2"></i> Update Photo
-            </button>
             <button class="btn btn-outline-secondary" id="uploadIdBtn">
               <i class="fas fa-id-card me-2"></i> Upload ID Proof
             </button>

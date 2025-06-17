@@ -1,17 +1,84 @@
 // js/views/guard/todayReport.js
+
 import {
   showLoading,
   hideLoading,
   showAlert,
   formatDateTime,
+  getStatusColor,
 } from "../../utils/helpers.js";
 import VisitorService from "../../../api/visitorApi.js";
 
-import { getStatusColor } from "../../utils/helpers.js";
+async function handleCheckInOutAction(
+  visitId,
+  action, // 'checkIn' or 'checkOut'
+  statusElementId,
+  fetchAndRenderVisitsCallback // Callback to refresh the entire list after action
+) {
+  const statusElement = document.getElementById(statusElementId);
+  if (!statusElement) return;
 
-function renderVisitRow(visit) {
+  showLoading(statusElement);
+  statusElement.innerHTML = ""; // Clear previous status
+
+  try {
+    const response = await VisitorService.checkInOutVisit(visitId);
+
+    if (response.success) {
+      showAlert(statusElement, response.message, "success");
+      if (response.visitorName && response.visitStatus) {
+        statusElement.innerHTML += `<p class="mt-2"><strong>${response.visitorName}</strong>: Visit is now <strong>${response.visitStatus}</strong>.</p>`;
+      }
+      // Re-fetch and render all visits to update the lists
+      await fetchAndRenderVisitsCallback();
+    } else {
+      showAlert(
+        statusElement,
+        response.message || `Failed to ${action} visit.`,
+        "danger"
+      );
+    }
+  } catch (error) {
+    console.error(`Error during ${action} for visit ID ${visitId}:`, error);
+    showAlert(
+      statusElement,
+      `An error occurred during ${action}: ` + error.message,
+      "danger"
+    );
+  } finally {
+    hideLoading();
+    setTimeout(() => {
+      statusElement.innerHTML = "";
+    }, 5000);
+  }
+}
+
+// Renders a single row in the visits table
+function renderVisitRow(visit, fetchAndRenderVisitsCallback) {
   const visitorName = visit.visitor?.name || "N/A";
   const visitorCompany = visit.visitor?.company || "N/A";
+
+  let actionButton = "";
+  let statusDisplay = `<span class="badge ${getStatusColor(visit.status)}">${
+    visit.status
+  }</span>`;
+
+  // Determine which button to show based on status
+  if (visit.status === "Pending" || visit.status === "Approved") {
+    actionButton = `
+      <button class="btn btn-sm btn-success check-in-btn" data-visit-id="${visit.id}" data-action="checkIn">
+        <i class="fas fa-sign-in-alt me-1"></i> Check-In
+      </button>
+    `;
+  } else if (visit.status === "Checked-In") {
+    actionButton = `
+      <button class="btn btn-sm btn-warning check-out-btn" data-visit-id="${visit.id}" data-action="checkOut">
+        <i class="fas fa-sign-out-alt me-1"></i> Check-Out
+      </button>
+    `;
+  } else if (visit.status === "Completed" || visit.status === "Cancelled") {
+    actionButton = `<span class="text-muted fst-italic">N/A</span>`; // No action needed
+  }
 
   return `
     <tr>
@@ -21,15 +88,15 @@ function renderVisitRow(visit) {
       <td>${visit.host}</td>
       <td>${formatDateTime(visit.checkInTime)}</td>
       <td>${formatDateTime(visit.checkOutTime)}</td>
-      <td><span class="badge ${getStatusColor(visit.status)}">${
-    visit.status
-  }</span></td>
+      <td>${statusDisplay}</td>
       <td>${visit.id}</td>
+      <td>${actionButton}</td>
     </tr>
   `;
 }
 
-function renderVisitsList(visits, containerId) {
+// Renders the full list of visits into the specified container
+function renderVisitsList(visits, containerId, fetchAndRenderVisitsCallback) {
   const container = document.getElementById(containerId);
   if (!container) return;
 
@@ -61,19 +128,26 @@ function renderVisitsList(visits, containerId) {
             <th>Check-out Time</th>
             <th>Status</th>
             <th>Visit ID</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
-          ${visits.map(renderVisitRow).join("")}
+          ${visits
+            .map((visit) => renderVisitRow(visit, fetchAndRenderVisitsCallback))
+            .join("")}
         </tbody>
       </table>
     </div>
   `;
 }
 
+// Main function to initialize and manage the Today's Visit Report view
 export default async function initTodayVisitReport(onReturnCallback) {
-  const content = document.getElementById("guard-dynamic-content");
-  if (!content) return;
+  const content = document.getElementById("guard-dynamic-content"); // This is the dynamic area in guard.js
+  if (!content) {
+    console.error("Guard dynamic content area not found.");
+    return;
+  }
 
   content.innerHTML = `
     <div class="card shadow-sm rounded-4 mb-4">
@@ -88,6 +162,7 @@ export default async function initTodayVisitReport(onReturnCallback) {
           <input type="text" class="form-control" placeholder="Search visitors by name, ID, or company..." id="visitor-search">
           <button class="btn btn-outline-secondary" type="button" id="clearSearchBtn">Clear</button>
         </div>
+        <div id="check-in-out-status-message" class="mb-3"></div>
         <div class="nav nav-tabs" id="visits-tab" role="tablist">
           <button class="nav-link active text-primary-custom" id="expected-tab" data-bs-toggle="tab" data-bs-target="#tab-expected" type="button" role="tab" aria-controls="tab-expected" aria-selected="true">Expected</button>
           <button class="nav-link text-primary-custom" id="checked-in-tab" data-bs-toggle="tab" data-bs-target="#tab-checked-in" type="button" role="tab" aria-controls="tab-checked-in" aria-selected="false">Checked In</button>
@@ -104,12 +179,13 @@ export default async function initTodayVisitReport(onReturnCallback) {
             <div id="completed-visits-list"></div>
           </div>
         </div>
-        <button id="backToDashboardBtn" class="btn btn-outline-secondary mt-4"><i class="fas fa-arrow-left me-2"></i> Back to Dashboard</button>
       </div>
     </div>
   `;
 
   let allTodayVisits = [];
+  const checkInOutStatusMessageAreaId = "check-in-out-status-message";
+
   async function fetchAndRenderVisits() {
     showLoading(content);
     try {
@@ -122,12 +198,22 @@ export default async function initTodayVisitReport(onReturnCallback) {
         (visit) => visit.status === "Checked-In"
       );
       const completed = allTodayVisits.filter(
-        (visit) => visit.status === "Completed"
+        (visit) => visit.status === "Completed" || visit.status === "Cancelled"
       );
 
-      renderVisitsList(expected, "expected-visits-list");
-      renderVisitsList(checkedIn, "checked-in-visits-list");
-      renderVisitsList(completed, "completed-visits-list");
+      renderVisitsList(expected, "expected-visits-list", fetchAndRenderVisits);
+      renderVisitsList(
+        checkedIn,
+        "checked-in-visits-list",
+        fetchAndRenderVisits
+      );
+      renderVisitsList(
+        completed,
+        "completed-visits-list",
+        fetchAndRenderVisits
+      );
+
+      setupVisitActionListeners(fetchAndRenderVisits);
     } catch (error) {
       console.error("Error fetching today's visits:", error);
       showAlert(content, "Failed to load today's visitor schedule.", "danger");
@@ -141,22 +227,13 @@ export default async function initTodayVisitReport(onReturnCallback) {
 
   fetchAndRenderVisits();
 
-  // Event Listeners
   document
     .getElementById("refreshReportBtn")
     ?.addEventListener("click", fetchAndRenderVisits);
-  document
-    .getElementById("backToDashboardBtn")
-    ?.addEventListener("click", () => {
-      if (onReturnCallback) {
-        onReturnCallback();
-      }
-    });
 
   const visitorSearchInput = document.getElementById("visitor-search");
   const clearSearchBtn = document.getElementById("clearSearchBtn");
 
-  // Search functionality
   visitorSearchInput?.addEventListener("input", (e) => {
     const searchTerm = e.target.value.toLowerCase();
     const filteredVisits = allTodayVisits.filter(
@@ -166,18 +243,24 @@ export default async function initTodayVisitReport(onReturnCallback) {
         visit.id?.toLowerCase().includes(searchTerm)
     );
 
-    // Re-render filtered lists based on their original status
     renderVisitsList(
-      filteredVisits.filter((v) => v.status === "Pending"),
-      "expected-visits-list"
+      filteredVisits.filter(
+        (v) => v.status === "Pending" || v.status === "Approved"
+      ),
+      "expected-visits-list",
+      fetchAndRenderVisits
     );
     renderVisitsList(
       filteredVisits.filter((v) => v.status === "Checked-In"),
-      "checked-in-visits-list"
+      "checked-in-visits-list",
+      fetchAndRenderVisits
     );
     renderVisitsList(
-      filteredVisits.filter((v) => v.status === "Completed"),
-      "completed-visits-list"
+      filteredVisits.filter(
+        (v) => v.status === "Completed" || v.status === "Cancelled"
+      ),
+      "completed-visits-list",
+      fetchAndRenderVisits
     );
   });
 
@@ -185,4 +268,31 @@ export default async function initTodayVisitReport(onReturnCallback) {
     visitorSearchInput.value = "";
     fetchAndRenderVisits();
   });
+
+  function setupVisitActionListeners(fetchAndRenderVisitsCallback) {
+    const visitsTabContent = document.getElementById("visits-tabContent");
+    if (!visitsTabContent) return;
+
+    visitsTabContent.addEventListener("click", async (e) => {
+      const target = e.target;
+      const isCheckInBtn = target.classList.contains("check-in-btn");
+      const isCheckOutBtn = target.classList.contains("check-out-btn");
+
+      if (isCheckInBtn || isCheckOutBtn) {
+        const visitId = target.dataset.visitId;
+        const action = target.dataset.action;
+
+        if (visitId && action) {
+          await handleCheckInOutAction(
+            visitId,
+            action,
+            checkInOutStatusMessageAreaId,
+            fetchAndRenderVisitsCallback
+          );
+        }
+      }
+    });
+  }
+
+  return fetchAndRenderVisits;
 }

@@ -20,7 +20,6 @@ export default async function initBlacklistManagement() {
           <thead>
             <tr>
               <th>Name</th>
-              <th>Email</th>
               <th>Phone</th>
               <th>Reason</th>
               <th>Added On</th>
@@ -35,7 +34,6 @@ export default async function initBlacklistManagement() {
                       (entry) => `
               <tr>
                 <td>${entry.name || "N/A"}</td>
-                <td>${entry.email || "N/A"}</td>
                 <td>${entry.mobile || "N/A"}</td>
                 <td>${entry.reason || "-"}</td>
                 <td>${
@@ -83,9 +81,6 @@ export default async function initBlacklistManagement() {
             const name = document
               .getElementById("blacklistVisitorName")
               .value.trim();
-            const email = document
-              .getElementById("blacklistEmail")
-              .value.trim();
             const mobile = document
               .getElementById("blacklistMobileNumber")
               .value.trim();
@@ -93,10 +88,10 @@ export default async function initBlacklistManagement() {
               .getElementById("blacklistReason")
               .value.trim();
 
-            if (!name || !email) {
+            if (!name || !phone) {
               showAlert(
                 modalBody, // Show alert inside the modal body
-                "Please fill in all required fields (Name, Email).",
+                "Please fill in all required fields (Name, phone).",
                 "warning"
               );
               return;
@@ -106,9 +101,8 @@ export default async function initBlacklistManagement() {
             try {
               await VisitorService.addToBlacklist({
                 name,
-                email,
-                mobile: mobile || null, // Mobile is now optional
-                reason: reason || null,
+                mobile: phone, // Mobile is now optional
+                reason: reason,
                 addedOn: new Date().toISOString(),
                 id: `BL-${Date.now()}-${Math.random()
                   .toString(36)

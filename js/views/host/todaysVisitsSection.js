@@ -40,6 +40,7 @@ export function renderTodaysVisitsSection(
       relevantVisits.forEach((visit) => {
         const nowTime = new Date().getTime();
         const pastBufferLimit = nowTime - cancellationBufferDays * msInDay;
+        const visitDateTime = new Date(visit.visitDate).getTime();
         // Determine if a cancel button should be shown
         const canCancel =
           visit.status === "Approved" &&

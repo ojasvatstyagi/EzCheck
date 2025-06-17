@@ -1,4 +1,5 @@
 // js/views/visitor/updateProfile.js
+
 import { showAlert, showLoading, hideLoading } from "../../utils/helpers.js";
 import VisitorService from "../../../api/visitorApi.js";
 
@@ -10,6 +11,7 @@ export function setupProfileUpdateListener(visitorId, refreshCallback) {
       refreshCallback(true);
     }
   });
+
   profileSection.addEventListener("submit", async (e) => {
     if (e.target.id === "profileEditForm") {
       e.preventDefault();
@@ -17,11 +19,10 @@ export function setupProfileUpdateListener(visitorId, refreshCallback) {
       const form = e.target;
       const updatedData = {
         name: form.elements.profileName.value,
-        email: form.elements.profileEmail.value,
         phone: form.elements.profilePhone.value,
         company: form.elements.profileCompany.value,
-        idNumber: form.elements.profileIdNumber.value,
       };
+
       const filteredData = Object.fromEntries(
         Object.entries(updatedData).filter(
           ([key, value]) => value.trim() !== ""
@@ -29,7 +30,7 @@ export function setupProfileUpdateListener(visitorId, refreshCallback) {
       );
 
       try {
-        showLoading();
+        showLoading(document.body);
         const response = await VisitorService.updateProfile(
           visitorId,
           filteredData

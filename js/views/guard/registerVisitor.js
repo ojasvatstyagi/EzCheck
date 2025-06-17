@@ -71,10 +71,6 @@ export async function setupRegisterVisitorModal(
               </div>
               <div class="row">
                 <div class="col-md-6 mb-3">
-                  <label for="visitorEmailInput" class="form-label">Email Address</label>
-                  <input type="email" class="form-control" id="visitorEmailInput" name="email">
-                </div>
-                <div class="col-md-6 mb-3">
                   <label for="visitorCompanyInput" class="form-label">Company (Optional)</label>
                   <input type="text" class="form-control" id="visitorCompanyInput" name="company">
                 </div>
@@ -138,13 +134,7 @@ export async function setupRegisterVisitorModal(
   }
 
   if (visitDateInput) {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = (now.getMonth() + 1).toString().padStart(2, "0");
-    const day = now.getDate().toString().padStart(2, "0");
-    const hours = now.getHours().toString().padStart(2, "0");
-    const minutes = now.getMinutes().toString().padStart(2, "0");
-    visitDateInput.value = `${year}-${month}-${day}T${hours}:${minutes}`;
+    visitDateInput.value = "";
   }
 
   const modal = new bootstrap.Modal(modalElement);
@@ -157,7 +147,6 @@ export async function setupRegisterVisitorModal(
     const visitorData = {
       name: document.getElementById("visitorNameInput").value.trim(),
       phone: document.getElementById("visitorPhoneInput").value.trim(),
-      email: document.getElementById("visitorEmailInput").value.trim(),
       company: document.getElementById("visitorCompanyInput").value.trim(),
     };
 

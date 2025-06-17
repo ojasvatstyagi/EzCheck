@@ -1,11 +1,12 @@
 // js/views/visitor/idUpload.js
+
 import VisitorService from "../../../api/visitorApi.js";
 import { showAlert, showLoading, hideLoading } from "../../utils/helpers.js";
 
 export function showIdUploadModal(visitorId, onSuccess) {
   const modals = document.getElementById("modals-container");
   modals.innerHTML = `
-    <div class="modal fade" id="idUploadModal" tabindex="-1" aria-labelledby="idUploadModalLabel" aria-hidden="true">
+    <div class="modal fade" id="idUploadModal" tabindex="-1" aria-labelledby="idUploadModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header bg-dark text-white">
@@ -18,19 +19,18 @@ export function showIdUploadModal(visitorId, onSuccess) {
                 <label for="idTypeSelect" class="form-label">ID Type</label>
                 <select id="idTypeSelect" name="idType" class="form-select" required>
                   <option value="">Select ID type</option>
-                  <option value="Driver License">Driver's License</option>
+                  <option value="Aadhar Card">Aadhar Card</option>
+                  <option value="PAN Card">PAN Card</option>
                   <option value="Passport">Passport</option>
+                  <option value="Driver License">Driver's License</option>
                   <option value="National ID">National ID</option>
                   <option value="Company ID">Company ID</option>
                 </select>
               </div>
               <div class="mb-3">
-                <label for="idNumberInput" class="form-label">ID Number</label>
-                <input type="text" id="idNumberInput" name="idNumber" class="form-control" required>
-              </div>
-              <div class="mb-3">
-                <label for="idFileInput" class="form-label">Upload File</label>
-                <input type="file" id="idFileInput" name="idFile" class="form-control" accept="image/*,.pdf,.doc,.docx" required>
+                <label for="idFileInput" class="form-label">Upload File (Image or PDF)</label>
+                <input type="file" id="idFileInput" name="idFile" class="form-control" accept="image/*,.pdf" required>
+                <small class="form-text text-muted">Max file size 5MB. Accepted formats: JPG, PNG, PDF.</small>
               </div>
             </form>
           </div>
@@ -43,12 +43,10 @@ export function showIdUploadModal(visitorId, onSuccess) {
     </div>
   `;
 
-  // Initialize and show the Bootstrap modal
   const modalElement = document.getElementById("idUploadModal");
   const modal = new bootstrap.Modal(modalElement);
   modal.show();
 
-  // Add event listener to move focus and clear modal on close
   modalElement.addEventListener(
     "hidden.bs.modal",
     () => {
@@ -64,15 +62,35 @@ export function showIdUploadModal(visitorId, onSuccess) {
       e.preventDefault();
       const formElements = e.target.elements;
 
-      const idType = formElements.idType.value;
-      const idNumber = formElements.idNumber.value.trim();
-      const idFile = formElements.idFile.files[0];
+      const idType = formElements.idType.value; // This is idName
+      // REMOVED: const idNumber = formElements.idNumber.value.trim();
+      const idFile = formElements.idFile.files[0]; // This is idProof (file)
 
       if (!idFile) {
         showAlert(
-          document.body,
+          modalElement,
           "Please select an ID file to upload.",
           "warning"
+        );
+        return;
+      }
+
+      const MAX_FILE_SIZE_MB = 5;
+      const acceptedTypes = ["image/jpeg", "image/png", "application/pdf"];
+
+      if (idFile.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
+        showAlert(
+          modalElement,
+          `File size exceeds ${MAX_FILE_SIZE_MB}MB limit.`,
+          "danger"
+        );
+        return;
+      }
+      if (!acceptedTypes.includes(idFile.type)) {
+        showAlert(
+          modalElement,
+          `Unsupported file type. Please upload JPG, PNG, or PDF.`,
+          "danger"
         );
         return;
       }
@@ -85,14 +103,12 @@ export function showIdUploadModal(visitorId, onSuccess) {
 
         await new Promise((resolve, reject) => {
           reader.onload = async () => {
-            const idFileBase64 = reader.result;
+            const idFileBase64 = reader.result; // This will be stored as idProof
 
             const result = await VisitorService.uploadIdProof(
               visitorId,
-              idType,
-              idNumber,
-              idFileBase64,
-              idFile.type
+              idType, // Maps to visitorData.idName
+              idFileBase64 // Maps to visitorData.idProof
             );
 
             if (result.success) {
@@ -103,21 +119,21 @@ export function showIdUploadModal(visitorId, onSuccess) {
               }
               resolve();
             } else {
-              showAlert(document.body, result.message, "danger");
+              showAlert(modalElement, result.message, "danger");
               reject(new Error(result.message));
             }
           };
 
           reader.onerror = (error) => {
             console.error("FileReader error:", error);
-            showAlert(document.body, "Failed to read ID file.", "danger");
+            showAlert(modalElement, "Failed to read ID file.", "danger");
             reject(new Error("Failed to read ID file."));
           };
         });
       } catch (error) {
         console.error("Error during ID upload:", error);
         showAlert(
-          document.body,
+          modalElement,
           "Failed to upload ID: " + error.message,
           "danger"
         );

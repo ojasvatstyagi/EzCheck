@@ -42,17 +42,17 @@ class UserService {
           allUsers.some(
             (u) =>
               (u.role === "admin" || u.role === "guard" || u.role === "host") &&
-              u.email === userData.email
+              u.phone === userData.phone
           )
         ) {
-          reject(new Error("User with this email already exists."));
+          reject(new Error("User with this phone already exists."));
           return;
         }
 
         const newUser = {
           id: UserService.#generateUserId(),
           name: userData.name,
-          email: userData.email,
+          phone: userData.phone,
           password: userData.password,
           role: userData.role,
           verified: true,
@@ -77,19 +77,19 @@ class UserService {
           return;
         }
 
-        if (updates.email && updates.email !== allUsers[index].email) {
+        if (updates.phone && updates.phone !== allUsers[index].phone) {
           if (
             allUsers.some(
               (u) =>
                 (u.role === "admin" ||
                   u.role === "guard" ||
                   u.role === "host") &&
-                u.email === updates.email &&
+                u.phone === updates.phone &&
                 u.id !== userId
             )
           ) {
             reject(
-              new Error("Another system user with this email already exists.")
+              new Error("Another system user with this phone already exists.")
             );
             return;
           }

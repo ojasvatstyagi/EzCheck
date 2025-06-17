@@ -3,12 +3,11 @@ export function populateVisitorSelect(visitors) {
   const select = document.getElementById("blacklistVisitorSelect");
   if (!select) return;
 
-  select.innerHTML =
-    '<option value="">-- Select an existing visitor --</option>';
+  select.innerHTML = '<option value="">-- Existing visitors are --</option>';
   visitors.forEach((visitor) => {
     const option = document.createElement("option");
     option.value = visitor.id;
-    option.textContent = `${visitor.name} (${visitor.email || "No email"})`;
+    option.textContent = `${visitor.name} (${visitor.phone || "No phone"})`;
     select.appendChild(option);
   });
 
@@ -16,7 +15,6 @@ export function populateVisitorSelect(visitors) {
   select.addEventListener("change", function () {
     const visitorId = this.value;
     const nameInput = document.getElementById("blacklistVisitorName");
-    const emailInput = document.getElementById("blacklistEmail");
     const mobileInput = document.getElementById("blacklistMobileNumber");
     const reasonInput = document.getElementById("blacklistReason");
 
@@ -25,12 +23,10 @@ export function populateVisitorSelect(visitors) {
       const visitor = visitors.find((v) => v.id === visitorId);
       if (visitor) {
         nameInput.value = visitor.name || "";
-        emailInput.value = visitor.email || "";
         mobileInput.value = visitor.phone || "";
       }
     } else {
       nameInput.value = "";
-      emailInput.value = "";
       mobileInput.value = "";
       reasonInput.value = "";
     }
@@ -49,7 +45,7 @@ export function createBlacklistModal() {
           <div class="modal-body">
             <form id="blacklistForm">
               <div class="mb-3">
-                <label for="blacklistVisitorSelect" class="form-label">Select Existing Visitor (Optional)</label>
+                <label for="blacklistVisitorSelect" class="form-label">Select a Visitor</label>
                 <select class="form-control" id="blacklistVisitorSelect" name="visitorId">
                   </select>
               </div>
@@ -58,13 +54,9 @@ export function createBlacklistModal() {
                 <input type="text" class="form-control" id="blacklistVisitorName" name="name" required>
               </div>
               <div class="mb-3">
-                <label for="blacklistEmail" class="form-label">Email</label>
-                <input type="email" class="form-control" id="blacklistEmail" name="email" required>
-              </div>
-              <div class="mb-3">
-                <label for="blacklistMobileNumber" class="form-control-label">Phone Number (Optional)</label>
+                <label for="blacklistMobileNumber" class="form-control-label">Phone Number</label>
                 <input type="tel" class="form-control" id="blacklistMobileNumber" name="mobile" pattern="[0-9]{10}"
-                  title="Please enter a 10-digit phone number or leave blank">
+                  title="Please enter a 10-digit phone number or leave blank" required>
               </div>
               <div class="mb-3">
                 <label for="blacklistReason" class="form-label">Reason</label>

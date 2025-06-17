@@ -4,16 +4,12 @@
 
 // api/authApi.js
 
-// api/authApi.js
-
 import VisitorService from "./visitorApi.js";
 import { storeUserSession, clearUserSession } from "../js/utils/helpers.js";
 
 export default {
   async login(phone, password) {
-    // Parameter is 'phone'
     const users = JSON.parse(localStorage.getItem("vms_users") || "[]");
-    // Find user by their 'phone' field
     const user = users.find(
       (u) => u.phone === phone && u.password === password
     );
@@ -32,7 +28,7 @@ export default {
       id: user.id,
       role: user.role,
       name: user.name,
-      phone: user.phone, // Store the phone number consistently
+      phone: user.phone,
       visitorId: user.visitorId || null,
     });
 
@@ -42,17 +38,15 @@ export default {
         token: "mock-jwt-token",
         role: user.role,
         name: user.name,
-        phone: user.phone, // Return the phone number
+        phone: user.phone,
         visitorId: user.visitorId || null,
       },
     };
   },
 
   async register(name, phone, password, role) {
-    // Parameter is 'phone'
     const users = JSON.parse(localStorage.getItem("vms_users") || "[]");
 
-    // Check for uniqueness based on the 'phone' number
     if (users.some((u) => u.phone === phone)) {
       return { success: false, message: "Phone number already registered" };
     }
@@ -65,14 +59,12 @@ export default {
     if (role === "visitor") {
       try {
         newUser.phone = phone;
-        newUser.email = null; // Set email to null for new visitor registrations in vms_users
 
         const initialVisitorProfile = {
           name: name,
-          email: null, // Set email to null for new visitor profiles
-          phone: phone, // Ensuring phone property is set
+          phone: phone,
           company: null,
-          idNumber: null,
+          idName: null, // Correctly updated from idNumber to idName
           idProof: null,
           photo: null,
           isBlocked: false,
@@ -84,7 +76,7 @@ export default {
         );
 
         if (visitorRegisterResult.success) {
-          visitorProfileId = visitorRegisterResult.visitorId;
+          visitorProfileId = visitorRegisterResult.visitor.id; // Corrected to .visitor.id if that's the structure
           newUser.visitorId = visitorProfileId;
         } else {
           return {
@@ -99,29 +91,23 @@ export default {
         };
       }
     } else {
-      // For admin/guard/host roles
-      newUser.phone = phone; // Store the phone number
-      delete newUser.email; // Explicitly remove the email field if it was added by default
-      // Or ensure it's not added in the first place based on earlier logic
+      newUser.phone = phone;
     }
 
     users.push(newUser);
     localStorage.setItem("vms_users", JSON.stringify(users));
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    sessionStorage.setItem(`otp_${phone}`, otp); // Use 'phone' for OTP storage key
+    sessionStorage.setItem(`otp_${phone}`, otp);
     console.log("Mock OTP for development:", otp);
     return { success: true, message: "OTP sent to phone number" };
   },
 
   async verifyOTP(phone, otp) {
-    // Parameter is 'phone'
-    const storedOTP = sessionStorage.getItem(`otp_${phone}`); // Use 'phone' for OTP storage key
+    const storedOTP = sessionStorage.getItem(`otp_${phone}`);
     if (storedOTP === otp) {
       const users = JSON.parse(localStorage.getItem("vms_users"));
-      const userIndex = users.findIndex(
-        (u) => u.phone === phone // Find user by 'phone'
-      );
+      const userIndex = users.findIndex((u) => u.phone === phone);
       if (userIndex !== -1) {
         users[userIndex].verified = true;
         localStorage.setItem("vms_users", JSON.stringify(users));
@@ -136,15 +122,13 @@ export default {
   },
 
   async resendOTP(phone) {
-    // Parameter is 'phone'
     const users = JSON.parse(localStorage.getItem("vms_users") || "[]");
     if (!users.some((u) => u.phone === phone)) {
-      // Check if the phone number is registered
       return { success: false, message: "Phone number not registered." };
     }
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    sessionStorage.setItem(`otp_${phone}`, otp); // Use 'phone' for OTP storage key
+    sessionStorage.setItem(`otp_${phone}`, otp);
     console.log("New mock OTP for development:", otp);
     return { success: true, message: "New OTP sent" };
   },

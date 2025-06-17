@@ -71,8 +71,18 @@ export function getStatusColor(status) {
 }
 
 // ==================== DATE/TIME HELPERS ====================
+// js/utils/helpers.js
+
 export function formatDateTime(isoString, options = {}) {
+  if (!isoString) {
+    return "Not Checked In/Out";
+  }
   const date = new Date(isoString);
+
+  if (isNaN(date.getTime())) {
+    return "Invalid Date";
+  }
+
   const defaultOptions = {
     year: "numeric",
     month: "short",
@@ -86,10 +96,6 @@ export function formatDateTime(isoString, options = {}) {
 }
 
 // ==================== VALIDATION HELPERS ====================
-export function validateEmail(email) {
-  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return re.test(email);
-}
 
 export function validatePhoneNumberInput(phoneNumber) {
   const phoneRegex = /^[0-9]{10}$/;
@@ -166,7 +172,7 @@ export function storeUserSession(user) {
     JSON.stringify({
       name: user.name,
       role: user.role,
-      email: user.email,
+      phone: user.phone,
       id: user.id,
       visitorId: user.visitorId,
     })

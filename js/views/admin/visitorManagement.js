@@ -28,7 +28,6 @@ function renderVisitorTable(visitorsToDisplay) {
               return `
                 <tr>
                     <td>${v.name}</td>
-                    <td>${v.email || "-"}</td>
                     <td>${v.phone || "-"}</td>
                     <td>${entryTime}</td>
                     <td>${exitTime}</td>
@@ -79,13 +78,12 @@ export default async function initVisitorManagement() {
 
     content.innerHTML = `
       <h4 class="mb-4">Visitor Management</h4>
-      <input type="text" id="searchVisitor" placeholder="Search by Name, Email, or Phone..." class="form-control mb-3">
+      <input type="text" id="searchVisitor" placeholder="Search by Name, or Phone..." class="form-control mb-3">
       <div class="table-responsive">
           <table class="table table-hover" id="visitorTable">
               <thead>
                   <tr>
                       <th>Name</th>
-                      <th>Email</th>
                       <th>Phone</th>
                       <th>Last Entry</th>
                       <th>Latest Exit/Status</th>
@@ -107,14 +105,12 @@ export default async function initVisitorManagement() {
         const searchTerm = event.target.value.toLowerCase().trim();
         const filteredVisitors = allVisitorsData.filter((visitor) => {
           const matchesName = visitor.name.toLowerCase().includes(searchTerm);
-          const matchesEmail =
-            visitor.email && visitor.email.toLowerCase().includes(searchTerm);
           const matchesPhone =
             visitor.phone && visitor.phone.toLowerCase().includes(searchTerm);
           const matchesId =
             visitor.idNumber &&
             visitor.idNumber.toLowerCase().includes(searchTerm);
-          return matchesName || matchesEmail || matchesPhone || matchesId;
+          return matchesName || matchesPhone || matchesId;
         });
         renderVisitorTable(filteredVisitors);
       });
