@@ -73,12 +73,12 @@ export function renderVisitHistory(visitorData) {
                     <td class="text-nowrap">${
                       visit.entryTime && visit.entryTime !== ""
                         ? formatDateTime(visit.entryTime, true)
-                        : "N/A"
+                        : "Not Checked-In"
                     }</td>
                     <td class="text-nowrap">${
                       visit.exitTime && visit.exitTime !== ""
                         ? formatDateTime(visit.exitTime, true)
-                        : "N/A"
+                        : "Not Checked-Out"
                     }</td>
                     <td>
                       <span class="badge ${getStatusColor(visit.status)}">

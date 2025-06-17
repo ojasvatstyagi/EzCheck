@@ -6,19 +6,20 @@ import {
 } from "../views/authView.js";
 import AuthService from "../../api/authApi.js";
 import {
-  validateEmail,
   validatePassword,
   validateName,
   validateOTP,
+  validatePhoneNumberInput, // New validation function
 } from "../utils/helpers.js";
 
 const OTP_LENGTH = 6;
+const DEFAULT_COUNTRY_CODE = "+91"; // Define the default country code
 
 const authContainer = document.getElementById("authContainer");
 const initialAlertTimeout = 3000;
 
 let currentView = "login";
-let currentEmail = "";
+let currentPhone = ""; // This will now hold the *full* phone number (e.g., +919876543210)
 let currentRole = "";
 
 function showAlert(message, type) {
@@ -62,7 +63,7 @@ function renderView() {
       setupRegisterListeners();
       break;
     case "otp":
-      authContainer.innerHTML = renderOTPForm(currentEmail);
+      authContainer.innerHTML = renderOTPForm(currentPhone); // Pass currentPhone (which is full number)
       setupOTPListeners();
       break;
     default:
@@ -85,25 +86,21 @@ function setupLoginListeners() {
 
   loginForm.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const email = document.getElementById("loginEmail").value;
+    const phoneNumberInput = document.getElementById("loginPhone").value.trim(); // User's 10-digit input
     const password = document.getElementById("loginPassword").value;
 
-    if (!validateEmail(email)) {
-      showAlert("Please enter a valid email address.", "danger");
+    if (!validatePhoneNumberInput(phoneNumberInput)) {
+      // Validate 10-digit input
+      showAlert("Please enter a valid 10-digit phone number.", "danger");
       return;
     }
-    // if (!validatePassword(password)) {
-    //   showAlert(
-    //     "Password must be at least 6 characters, include 1 uppercase letter and 1 digit.",
-    //     "danger"
-    //   );
-    //   return;
-    // }
+
+    const fullPhoneNumber = DEFAULT_COUNTRY_CODE + phoneNumberInput; // Prepend country code
 
     setButtonLoading(loginButton, true, "Logging in...", originalLoginBtnText);
 
     try {
-      const response = await AuthService.login(email, password);
+      const response = await AuthService.login(fullPhoneNumber, password); // Pass full phone number
       if (response.success) {
         window.location.href = "dashboard.html";
       } else {
@@ -139,8 +136,10 @@ function setupRegisterListeners() {
 
   registerForm.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const name = document.getElementById("registerName").value;
-    const email = document.getElementById("registerEmail").value;
+    const name = document.getElementById("registerName").value.trim();
+    const phoneNumberInput = document
+      .getElementById("registerPhone")
+      .value.trim(); // User's 10-digit input
     const password = document.getElementById("registerPassword").value;
     const rePassword = document.getElementById("registerRePassword").value;
     const role = document.getElementById("registerRole").value;
@@ -149,8 +148,9 @@ function setupRegisterListeners() {
       showAlert("Please enter a valid name (at least 2 characters).", "danger");
       return;
     }
-    if (!validateEmail(email)) {
-      showAlert("Please enter a valid email address.", "danger");
+    if (!validatePhoneNumberInput(phoneNumberInput)) {
+      // Validate 10-digit input
+      showAlert("Please enter a valid 10-digit phone number.", "danger");
       return;
     }
     if (!validatePassword(password)) {
@@ -169,6 +169,8 @@ function setupRegisterListeners() {
       return;
     }
 
+    const fullPhoneNumber = DEFAULT_COUNTRY_CODE + phoneNumberInput; // Prepend country code
+
     setButtonLoading(
       registerButton,
       true,
@@ -177,18 +179,24 @@ function setupRegisterListeners() {
     );
 
     try {
-      const response = await AuthService.register(name, email, password, role);
+      // Pass full phone number
+      const response = await AuthService.register(
+        name,
+        fullPhoneNumber,
+        password,
+        role
+      );
       if (response.success) {
-        currentEmail = email; // Store email for OTP verification
-        currentRole = role; // Store role if needed for subsequent steps
+        currentPhone = fullPhoneNumber; // Store full phone number for OTP verification
+        currentRole = role;
         showAlert(
-          "Registration successful! Please verify your email with the OTP.",
+          "Registration successful! Please verify your phone number with the OTP.",
           "success"
         );
         setTimeout(() => {
           currentView = "otp";
           renderView();
-        }, 1500); // Give user time to read success message before changing view
+        }, 1500);
       } else {
         showAlert(
           response.message || "Registration failed. Please try again.",
@@ -276,7 +284,7 @@ function setupOTPListeners() {
     resendOtpBtn.textContent = "Sending...";
 
     try {
-      const response = await AuthService.resendOTP(currentEmail);
+      const response = await AuthService.resendOTP(currentPhone); // Use currentPhone (full number)
       if (response.success) {
         showAlert("New OTP sent successfully!", "success");
         otpInputs.forEach((input) => (input.value = ""));
@@ -310,13 +318,13 @@ function setupOTPListeners() {
     setButtonLoading(verifyButton, true, "Verifying...", originalVerifyBtnText);
 
     try {
-      const response = await AuthService.verifyOTP(currentEmail, otp);
+      const response = await AuthService.verifyOTP(currentPhone, otp); // Use currentPhone (full number)
       if (response.success) {
         showAlert(
-          "Email verified successfully! You can now log in.",
+          "Phone number verified successfully! You can now log in.",
           "success"
         );
-        currentEmail = "";
+        currentPhone = "";
         currentRole = "";
         otpError = false;
         setTimeout(() => {

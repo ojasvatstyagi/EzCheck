@@ -4,27 +4,36 @@
 
 // api/authApi.js
 
+// api/authApi.js
+
 import VisitorService from "./visitorApi.js";
 import { storeUserSession, clearUserSession } from "../js/utils/helpers.js";
 
 export default {
-  async login(email, password) {
+  async login(phone, password) {
+    // Parameter is 'phone'
     const users = JSON.parse(localStorage.getItem("vms_users") || "[]");
+    // Find user by their 'phone' field
     const user = users.find(
-      (u) => u.email === email && u.password === password
+      (u) => u.phone === phone && u.password === password
     );
 
-    if (!user) return { success: false, message: "Invalid credentials" };
+    if (!user)
+      return { success: false, message: "Invalid phone number or password" };
     if (!user.verified)
-      return { success: false, message: "Please verify your email first" };
+      return {
+        success: false,
+        message: "Please verify your phone number first",
+      };
 
     sessionStorage.setItem("token", "mock-jwt-token");
     sessionStorage.setItem("role", user.role);
     storeUserSession({
-      id: user.id, // This is the user's login account ID
+      id: user.id,
       role: user.role,
       name: user.name,
-      visitorId: user.visitorId || null, // Use the correct visitorId from the vms_users entry
+      phone: user.phone, // Store the phone number consistently
+      visitorId: user.visitorId || null,
     });
 
     return {
@@ -33,35 +42,41 @@ export default {
         token: "mock-jwt-token",
         role: user.role,
         name: user.name,
-        visitorId: user.visitorId || null, // Also fix this in the return data
+        phone: user.phone, // Return the phone number
+        visitorId: user.visitorId || null,
       },
     };
   },
 
-  async register(name, email, password, role) {
+  async register(name, phone, password, role) {
+    // Parameter is 'phone'
     const users = JSON.parse(localStorage.getItem("vms_users") || "[]");
 
-    if (users.some((u) => u.email === email)) {
-      return { success: false, message: "Email already registered" };
+    // Check for uniqueness based on the 'phone' number
+    if (users.some((u) => u.phone === phone)) {
+      return { success: false, message: "Phone number already registered" };
     }
 
     const id = Date.now().toString();
-    const newUser = { id, name, email, password, role, verified: false };
+    const newUser = { id, name, password, role, verified: false };
 
-    let visitorProfileId = null; // Variable to store the ID from mock_visitors
+    let visitorProfileId = null;
+
     if (role === "visitor") {
       try {
-        // Prepare initial visitor profile data
+        newUser.phone = phone;
+        newUser.email = null; // Set email to null for new visitor registrations in vms_users
+
         const initialVisitorProfile = {
           name: name,
-          email: email,
-          // Other fields are initially null/empty; they can be filled later by the user
-          phone: null,
+          email: null, // Set email to null for new visitor profiles
+          phone: phone, // Ensuring phone property is set
           company: null,
           idNumber: null,
           idProof: null,
           photo: null,
-          isBlocked: false, // Default status for new profiles
+          isBlocked: false,
+          isVIP: false,
           registrationDate: new Date().toISOString(),
         };
         const visitorRegisterResult = await VisitorService.registerVisitor(
@@ -70,64 +85,67 @@ export default {
 
         if (visitorRegisterResult.success) {
           visitorProfileId = visitorRegisterResult.visitorId;
-          console.log(
-            `Auth: Visitor profile created/found for ${name} with ID: ${visitorProfileId}`
-          );
-          // Link the user account to the visitor profile by storing visitorProfileId in vms_users
           newUser.visitorId = visitorProfileId;
         } else {
-          console.error(
-            `Auth: Failed to create visitor profile for ${name}: ${visitorRegisterResult.message}`
-          );
           return {
             success: false,
             message: `Failed to register visitor profile: ${visitorRegisterResult.message}`,
           };
         }
       } catch (error) {
-        console.error("Auth: Error during visitor profile creation:", error);
         return {
           success: false,
           message: `An error occurred during visitor profile setup: ${error.message}`,
         };
       }
+    } else {
+      // For admin/guard/host roles
+      newUser.phone = phone; // Store the phone number
+      delete newUser.email; // Explicitly remove the email field if it was added by default
+      // Or ensure it's not added in the first place based on earlier logic
     }
 
     users.push(newUser);
     localStorage.setItem("vms_users", JSON.stringify(users));
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    sessionStorage.setItem(`otp_${email}`, otp);
+    sessionStorage.setItem(`otp_${phone}`, otp); // Use 'phone' for OTP storage key
     console.log("Mock OTP for development:", otp);
-    return { success: true, message: "OTP sent to email" };
+    return { success: true, message: "OTP sent to phone number" };
   },
 
-  async verifyOTP(email, otp) {
-    const storedOTP = sessionStorage.getItem(`otp_${email}`);
+  async verifyOTP(phone, otp) {
+    // Parameter is 'phone'
+    const storedOTP = sessionStorage.getItem(`otp_${phone}`); // Use 'phone' for OTP storage key
     if (storedOTP === otp) {
       const users = JSON.parse(localStorage.getItem("vms_users"));
-      const userIndex = users.findIndex((u) => u.email === email);
+      const userIndex = users.findIndex(
+        (u) => u.phone === phone // Find user by 'phone'
+      );
       if (userIndex !== -1) {
         users[userIndex].verified = true;
         localStorage.setItem("vms_users", JSON.stringify(users));
-        // Clear the OTP from session storage after successful verification
-        sessionStorage.removeItem(`otp_${email}`);
-        return { success: true, message: "Email verified successfully!" };
+        sessionStorage.removeItem(`otp_${phone}`);
+        return {
+          success: true,
+          message: "Phone number verified successfully!",
+        };
       }
     }
     return { success: false, message: "Invalid OTP" };
   },
 
-  async resendOTP(email) {
-    // Optionally, check if the user exists before sending OTP
+  async resendOTP(phone) {
+    // Parameter is 'phone'
     const users = JSON.parse(localStorage.getItem("vms_users") || "[]");
-    if (!users.some((u) => u.email === email)) {
-      return { success: false, message: "Email not registered." };
+    if (!users.some((u) => u.phone === phone)) {
+      // Check if the phone number is registered
+      return { success: false, message: "Phone number not registered." };
     }
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    sessionStorage.setItem(`otp_${email}`, otp);
-    console.log("New mock OTP for development:", otp); // Display new OTP in console for testing
+    sessionStorage.setItem(`otp_${phone}`, otp); // Use 'phone' for OTP storage key
+    console.log("New mock OTP for development:", otp);
     return { success: true, message: "New OTP sent" };
   },
 

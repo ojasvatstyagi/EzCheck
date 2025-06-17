@@ -91,9 +91,9 @@ export function validateEmail(email) {
   return re.test(email);
 }
 
-export function validatePhone(phone) {
-  const re = /^(?:\+91|0)?[6-9]\d{9}$/; // Allows +91 or 0 as prefix, and 10 digits starting with 6-9
-  return re.test(phone);
+export function validatePhoneNumberInput(phoneNumber) {
+  const phoneRegex = /^[0-9]{10}$/;
+  return phoneRegex.test(phoneNumber);
 }
 
 export function validatePassword(password) {
